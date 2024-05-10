@@ -2,6 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, SafeAreaView } from 'react-native';
 import LogInHeader from './components/logInHeader';
 import Login from './components/logInInputs';
+import Guest from './components/loginGuest';
 
 
 export default function App() {
@@ -9,6 +10,7 @@ export default function App() {
     <SafeAreaView style={styles.container}>
       <LogInHeader />
       <Login />
+      <Guest />
       <StatusBar style="auto" />
     </SafeAreaView>
   );
