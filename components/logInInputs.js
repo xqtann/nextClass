@@ -57,11 +57,10 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     input: {
-        height: 10,
+        height: 20,
         width: 200,
         marginBottom: 15,
         paddingHorizontal: 8,
-        paddingVertical: 6,
         borderBottomWidth: 1,
         borderBottomColor: '#ddd',
         backgroundColor: '#fff', // Optional, for better visibility on some screens
