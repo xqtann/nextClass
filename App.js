@@ -1,24 +1,19 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, SafeAreaView } from 'react-native';
-import LogInHeader from './components/logInHeader';
-import Login from './components/logInInputs';
-import Guest from './components/loginGuest';
+import { NavigationContainer } from '@react-navigation/native';
+import 'react-native-reanimated';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import Login from "./screens/login";
+import Register from "./screens/register";
 
+const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
-    <SafeAreaView style={styles.container}>
-      <LogInHeader />
-      <Login />
-      <Guest />
-      <StatusBar style="auto" />
-    </SafeAreaView>
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen name="Login" component={Login} />
+        <Stack.Screen name="Register" component={Register} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    alignItems: "center",
-    paddingTop: 70,
-  },
-});
