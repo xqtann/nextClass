@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
 
 
-export default function Login() {
+export default function LogInInputs(props) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
@@ -37,7 +37,7 @@ export default function Login() {
                 setPassword('');
                 setUsername('');
             }}>
-                <Text style={styles.buttonText}>Log In</Text>
+                <Text style={styles.buttonText}>{props.funct}</Text>
             </TouchableOpacity>
 
         </View>
@@ -46,10 +46,9 @@ export default function Login() {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
         justifyContent: 'center',
         padding: 20,
-        marginTop: 50
+        marginTop: 50,
     },
     label: {
         marginBottom: 5,

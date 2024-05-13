@@ -1,13 +1,13 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, SafeAreaView, Button } from 'react-native';
+import LogInInputs from '../components/logInInputs';
 
 
 
-export default function Register({ navigation }) {
+export default function Register() {
   return (
     <SafeAreaView style={styles.container}>
-      <Text>Register Page</Text>
-      <Button title='back' onPress={() => navigation.navigate("Login")} />
+      <LogInInputs funct="Register" />
       <StatusBar style="auto" />
     </SafeAreaView>
   );
@@ -15,6 +15,7 @@ export default function Register({ navigation }) {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     alignItems: "center",
     paddingTop: 70,
   },
