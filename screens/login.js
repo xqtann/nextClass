@@ -1,9 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, SafeAreaView, Button, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView, Button, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import LogInHeader from '../components/logInHeader';
 import LoginInputs from '../components/logInInputs';
-import Guest from '../components/loginGuest';
-
 
 export default function Login({ navigation }) {
   return (
@@ -11,8 +9,12 @@ export default function Login({ navigation }) {
     <SafeAreaView style={styles.container}>
         <LogInHeader />
         <LoginInputs funct="Login" />
-        <Guest />
-        <Button title='register' onPress={() => navigation.push("Register")} />
+        <View>
+            <TouchableOpacity onPress={() => navigation.navigate("Home", { userId: 1})}> 
+                <Text style={styles.guest}> Log in as Guest </Text>
+            </TouchableOpacity>
+        </View>
+        <Button style={styles.button} title='Register An Account' onPress={() => navigation.push("Register")} />
         <StatusBar style="auto" />
     </SafeAreaView>
     </TouchableWithoutFeedback>
@@ -25,4 +27,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingTop: 70,
   },
+  guest: {
+    textDecorationLine: 'underline',
+    marginTop: 50,
+}
 });
