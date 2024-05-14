@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Keyboard } from 'react-native';
 import { ThemedButton } from 'react-native-really-awesome-button';
 import TextInput from "react-native-text-input-interactive";
 
@@ -37,6 +37,7 @@ export default function LogInInputs(props) {
             <ThemedButton name="rick" type='primary' style={styles.button} onPress={() => {
                 setPassword('');
                 setUsername('');
+                Keyboard.dismiss();
             }}>
                 {props.funct}
             </ThemedButton>
