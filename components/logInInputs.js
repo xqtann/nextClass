@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
-
+import { StyleSheet, View } from 'react-native';
+import { ThemedButton } from 'react-native-really-awesome-button';
+import TextInput from "react-native-text-input-interactive";
 
 export default function LogInInputs(props) {
     const [username, setUsername] = useState('');
@@ -33,13 +34,12 @@ export default function LogInInputs(props) {
                 value={password}            // Add value prop to bind state
             />
 
-            <TouchableOpacity style={styles.button} onPress={() => {
+            <ThemedButton name="rick" type='primary' style={styles.button} onPress={() => {
                 setPassword('');
                 setUsername('');
             }}>
-                <Text style={styles.buttonText}>{props.funct}</Text>
-            </TouchableOpacity>
-
+                {props.funct}
+            </ThemedButton>
         </View>
     );
 }
@@ -49,29 +49,15 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         padding: 20,
         marginTop: 50,
-    },
-    label: {
-        marginBottom: 5,
-        fontSize: 16,
-        fontWeight: 'bold',
+        alignItems: "center"
     },
     input: {
-        height: 20,
-        width: 200,
-        marginBottom: 15,
-        paddingHorizontal: 8,
-        borderBottomWidth: 1,
-        borderBottomColor: '#ddd',
-        backgroundColor: '#fff', // Optional, for better visibility on some screens
+        marginTop: 10,
     },
     button: {
-        backgroundColor: '#0066cc',
-        paddingVertical: 10, // Adjusted for better spacing vertically
-        paddingHorizontal: 20, // Added for better spacing horizontally
+        marginTop: 20,
         alignItems: 'center',
         justifyContent: 'center', // Ensure text is centered vertically
-        borderRadius: 5,
-        height: 35, // Ensure there's enough height for the text and padding
     },
     buttonText: {
         color: '#ffffff', // Changed for better visibility
