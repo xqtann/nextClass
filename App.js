@@ -8,6 +8,9 @@ import Home from "./screens/home";
 import Tab2 from "./screens/tab2";
 import { Feather } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useEffect, useState } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { FIREBASE_AUTH } from "./FirebaseConfig";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -15,13 +18,21 @@ const Tab = createBottomTabNavigator();
 function Profile() {
   return (
     <Tab.Navigator>
-      <Tab.Screen name="Home" component={Home} initialParams={{ userId: 1 }} options={{ tabBarIcon: () => <Feather name="home" size={24} />}} />
+      <Tab.Screen name="Home" component={Home} options={{ tabBarIcon: () => <Feather name="home" size={24} />}} />
       <Tab.Screen name="Tab2" component={Tab2} options={{ tabBarIcon: () => <MaterialCommunityIcons name="new-box" size={24} />}} />
     </Tab.Navigator>
   );
 }
 
 export default function App() {
+  const [user, setUser] = useState(null);
+  
+  useEffect(() => {
+    onAuthStateChanged(FIREBASE_AUTH, (user) => {
+      setUser(user);
+    });
+  })
+
   return (
     <NavigationContainer>
       <Stack.Navigator>
