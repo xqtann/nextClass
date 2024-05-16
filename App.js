@@ -7,7 +7,8 @@ import Register from "./screens/register";
 import Home from "./screens/home";
 import Tab2 from "./screens/tab2";
 import { Feather } from "@expo/vector-icons";
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import Timetable from "./screens/timetable";
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { FIREBASE_AUTH } from "./FirebaseConfig";
@@ -19,7 +20,8 @@ function Profile() {
   return (
     <Tab.Navigator>
       <Tab.Screen name="Home" component={Home} options={{ tabBarIcon: () => <Feather name="home" size={24} />}} />
-      <Tab.Screen name="Tab2" component={Tab2} options={{ tabBarIcon: () => <MaterialCommunityIcons name="new-box" size={24} />}} />
+      <Tab.Screen name="Timetable" component={Timetable} options={{ tabBarIcon: () => <MaterialCommunityIcons name="timetable" size={24} />}} />
+      <Tab.Screen name="Account" component={Tab2} options={{ tabBarIcon: () => <MaterialCommunityIcons name="account" size={24} />}} />
     </Tab.Navigator>
   );
 }
