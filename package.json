@@ -18,8 +18,10 @@
     "@react-navigation/native-stack": "^6.9.26",
     "@supabase/supabase-js": "^2.43.1",
     "expo": "~51.0.2",
+    "expo-blur": "~13.0.2",
     "expo-status-bar": "~1.12.1",
     "firebase": "^10.12.0",
+    "formik": "^2.4.6",
     "react": "18.2.0",
     "react-native": "0.74.1",
     "react-native-androw": "^0.0.34",
@@ -40,6 +42,7 @@
     "typescript": "~5.3.3",
     "react-native-maps": "1.14.0",
     "expo-location": "~17.0.1"
+    "yup": "^1.4.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

@@ -7,30 +7,12 @@ import { AppOfTheDayCard } from 'react-native-apple-card-views';
 
 export default function Home({ navigation }) {
     const [user, setUser] = useState(null);
-    const apiUrl = `https://api.nusmods.com/v2`;
-    const acadYear = '2022-2023';
-    const moduleCode = 'BT2102';
     
   useEffect(() => {
     onAuthStateChanged(FIREBASE_AUTH, (user) => {
       setUser(user);
     });
   })
-
-  const getData = () => {
-    fetch(`${apiUrl}/${acadYear}/modules/${moduleCode}.json`)
-        .then(res => {
-            console.log('success');
-            return res.json();
-        })
-        .then(result => {
-            // Logging the full result in a formatted manner
-            console.log('Fetched data:', JSON.stringify(result, null, 2));
-        })
-        .catch(error => {
-            console.error('Error fetching data:', error);
-        });
-};
 
     return (
       <View style={styles.container}>
