@@ -3,109 +3,13 @@ import { SafeAreaView, StyleSheet, View, Alert, Dimensions, ImageBackground, Tex
 import TimeTableView, { genTimeBlock } from 'react-native-timetable';
 import { BlurView } from 'expo-blur';
 import { ThemedButton } from "react-native-really-awesome-button";
-import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { setAnalyticsCollectionEnabled } from 'firebase/analytics';
 
-/*
-if BT2102=LAB:03 split = and :
-code = BT2102
-lesson type if 'TUT' then Tutorial 
-class number 03
-find from module info
-*/
-
 let actual_data = [];
 
-const temp_data = [
-    {
-      title: "Math",
-      startTime: genTimeBlock("MON", 9),
-      endTime: genTimeBlock("MON", 10, 50),
-      location: "Classroom 403",
-      extra_descriptions: ["Kim", "Lee"],
-    },
-    {
-      title: "Math",
-      startTime: genTimeBlock("WED", 9),
-      endTime: genTimeBlock("WED", 10, 50),
-      location: "Classroom 403",
-      extra_descriptions: ["Kim", "Lee"],
-    },
-    {
-      title: "Physics",
-      startTime: genTimeBlock("MON", 11),
-      endTime: genTimeBlock("MON", 11, 50),
-      location: "Lab 404",
-      extra_descriptions: ["Einstein"],
-    },
-    {
-      title: "Physics",
-      startTime: genTimeBlock("WED", 11),
-      endTime: genTimeBlock("WED", 11, 50),
-      location: "Lab 404",
-      extra_descriptions: ["Einstein"],
-    },
-    {
-      title: "Mandarin",
-      startTime: genTimeBlock("TUE", 9),
-      endTime: genTimeBlock("TUE", 10, 50),
-      location: "Language Center",
-      extra_descriptions: ["Chen"],
-    },
-    {
-      title: "Japanese",
-      startTime: genTimeBlock("FRI", 9),
-      endTime: genTimeBlock("FRI", 10, 50),
-      location: "Language Center",
-      extra_descriptions: ["Nakamura"],
-    },
-    {
-      title: "Club Activity",
-      startTime: genTimeBlock("THU", 9),
-      endTime: genTimeBlock("THU", 10, 50),
-      location: "Activity Center",
-    },
-    {
-      title: "CS1010",
-      startTime: genTimeBlock("FRI", 13, 30),
-      endTime: genTimeBlock("FRI", 14, 50),
-      location: "Activity Center",
-    },
-    {
-        title: "BT2102",
-        startTime: genTimeBlock("MON", 16, 30),
-        endTime: genTimeBlock("MON", 18, 30),
-        location: "Activity Center",
-      },
-    {
-        title: "HSI1000",
-        startTime: genTimeBlock("TUE", 15, 30),
-        endTime: genTimeBlock("TUE", 17, 50),
-        location: "Activity Center",
-    },
-    {
-        title: "Club Activity",
-        startTime: genTimeBlock("WED", 13, 30),
-        endTime: genTimeBlock("WED", 16),
-        location: "Activity Center",
-      },
-      {
-        title: "GEX1000",
-        startTime: genTimeBlock("MON", 12, 30),
-        endTime: genTimeBlock("MON", 14, 50),
-        location: "Activity Center",
-      },
-      {
-        title: "CS2040",
-        startTime: genTimeBlock("THU", 15),
-        endTime: genTimeBlock("THU", 18),
-        location: "Activity Center",
-      },
-];
-
 const apiUrl = `https://api.nusmods.com/v2`;
-const acadYear = '2022-2023';
+const acadYear = '2023-2024';
 
 const validationSchema = Yup.object().shape({
     timetableUrl: Yup.string()
@@ -114,9 +18,6 @@ const validationSchema = Yup.object().shape({
         'Invalid link, try again'
       )
 });
-
-const timeTableLink = 'https://nusmods.com/timetable/sem-2/share?BT2102=LAB:03,LEC:1&CS2030=LAB:14G,REC:07,LEC:1&GEX1015=TUT:W6,LEC:1&HSI1000=WS:F6,LEC:1&IS1128=LEC:1&IS2218=LEC:1&MA1521=LEC:1,TUT:15'
-const timeTableLink2 = 'https://nusmods.com/timetable/sem-1/share?BT1101=LAB:09A,TUT:04,LEC:1&CS1010A=REC:01,TUT:07A,LEC:1&IS1108=LEC:1,TUT:07&IS2101=SEC:G03&MA1522=TUT:3,LEC:2'
 
 export default function Timetable() {
     const [formUrl, setForm] = useState('');
@@ -144,8 +45,6 @@ export default function Timetable() {
             });
     };
     
-    //["BT2102=LAB:03,LEC:1", "CS2030=LAB:14G,REC:07,LEC:1", "GEX1015=TUT:W6,LEC:1", "HSI1000=WS:F6,LEC:1", "IS1128=LEC:1", "IS2218=LEC:1", "MA1521=LEC:1,TUT:15"]
-
     const urlParser = async (url) => {
         url = url.slice(34);
         sem = url[0];
@@ -157,6 +56,9 @@ export default function Timetable() {
             classDetails = module[1].split(',');
             try {
                 const classData = await getData(moduleCode, sem);
+
+                moduleCode == 'HSI1000' ? console.log(classData) : null;
+
                 for (let j = 0; j < classDetails.length; j++) {
                     classLst = classDetails[j].split(':');
                     classType = classLst[0];
@@ -165,8 +67,12 @@ export default function Timetable() {
                         classType = 'Laboratory';
                     } else if (classType == 'LEC') {
                         classType = 'Lecture';                
-                    } else {
+                    } else if (classType == 'TUT') {
                         classType = 'Tutorial';
+                    } else if (classType == 'REC') {
+                        classType = 'Recitation';
+                    } else if (classType == 'WS') {
+                        classType = 'Workshop';
                     }
 
                     classTiming = classData.find(x => x.lessonType == classType && x.classNo == classNum);
@@ -184,26 +90,38 @@ export default function Timetable() {
                     } else if (classDay == 'Friday') {
                         classDay = 'FRI';
                     } 
-
+                    
                     classStart = classTiming['startTime'];
                     classStartHour = classStart[0] == '0' ? classStart.slice(1,2) : classStart.slice(0,2);
                     classStartMin = classStart[2] == '0' ? classStart.slice(3) : classStart.slice(2);
+
                     classEnd = classTiming['endTime'];
                     classEndHour = classEnd[0] == '0' ? classEnd.slice(1,2) : classEnd.slice(0,2);
                     classEndMin = classEnd[2] == '0' ? classEnd.slice(3) : classEnd.slice(2);
+
                     classVenue = classTiming['venue'];
-                    console.log('tes')
-                
+
+                    classWeeks = classTiming['weeks'];
+
+                    if (classWeeks.length > 6) {
+                        classWeeks = 'Weeks: ' + classWeeks[0] + '-' + classWeeks[classWeeks.length - 1];
+                    } else {
+                        finalString = 'Weeks: \n';
+                        for (let k = 0; k < classWeeks.length; k++) {
+                            finalString += classWeeks[k] + ' ';
+                        }
+                        classWeeks = finalString;
+                    }
 
                     actual_data.push({
                         title: moduleCode, 
                         startTime: genTimeBlock(classDay, classStartHour, classStartMin),
                         endTime: genTimeBlock(classDay, classEndHour, classEndMin), 
                         location: classVenue, 
-                        extra_descriptions: [classType, classNum], 
+                        extra_descriptions: [classType, '['+classNum+']', classWeeks], 
                     })
-
                 }
+
             } catch (error) {
                 console.error(`Error fetching data for module ${moduleCode}:`, error);
             }
@@ -277,7 +195,7 @@ export default function Timetable() {
 
 const styles = StyleSheet.create({
   headerStyle: {
-    backgroundColor: '#81E1B8'
+    backgroundColor: '#FFB052'
   },
   container: {
     flex: 1,
