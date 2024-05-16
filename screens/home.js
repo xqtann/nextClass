@@ -17,7 +17,6 @@ export default function Home({ navigation }) {
     return (
       <View style={styles.container}>
         <Text style={styles.heading}> Welcome back, {user ? user.email : "Guest"}! </Text>
-        <Button title='fetch api' onPress={ getData } />
         <View>
           <AppOfTheDayCard
           style={styles.card}
