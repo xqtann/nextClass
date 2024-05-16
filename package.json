@@ -16,8 +16,10 @@
     "@react-navigation/native-stack": "^6.9.26",
     "@supabase/supabase-js": "^2.43.1",
     "expo": "~51.0.2",
+    "expo-blur": "~13.0.2",
     "expo-status-bar": "~1.12.1",
     "firebase": "^10.12.0",
+    "formik": "^2.4.6",
     "react": "18.2.0",
     "react-native": "0.74.1",
     "react-native-elements": "^3.4.3",
@@ -28,7 +30,8 @@
     "react-native-text-input-interactive": "^0.1.5",
     "react-native-timetable": "^1.0.6",
     "react-native-url-polyfill": "^2.0.0",
-    "react-native-vector-icons": "^10.1.0"
+    "react-native-vector-icons": "^10.1.0",
+    "yup": "^1.4.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
