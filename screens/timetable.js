@@ -173,15 +173,15 @@ export default function Timetable() {
 
                     classDay = classTiming['day'];
 
-                    if (classDay = 'Monday') {
+                    if (classDay == 'Monday') {
                         classDay = 'MON';
-                    } else if (classDay = 'Tuesday') {
+                    } else if (classDay == 'Tuesday') {
                         classDay = 'TUE';
-                    } else if (classDay = 'Wednesday') {
+                    } else if (classDay == 'Wednesday') {
                         classDay = 'WED';
-                    } else if (classDay = 'Thursday') {
+                    } else if (classDay == 'Thursday') {
                         classDay = 'THU';
-                    } else if (classDay = 'Friday') {
+                    } else if (classDay == 'Friday') {
                         classDay = 'FRI';
                     } 
 

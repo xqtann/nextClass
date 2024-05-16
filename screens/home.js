@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { StatusBar } from "expo-status-bar";
 import { Text, View, StyleSheet, Button } from 'react-native';
 import { ThemedButton } from 'react-native-really-awesome-button';
 import { FIREBASE_AUTH } from '../FirebaseConfig';
@@ -16,6 +17,7 @@ export default function Home({ navigation }) {
 
     return (
       <View style={styles.container}>
+        <StatusBar style="auto" />
         <Text style={styles.heading}> Welcome back, {user ? user.email : "Guest"}! </Text>
         <View>
           <AppOfTheDayCard
