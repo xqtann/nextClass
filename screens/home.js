@@ -3,6 +3,7 @@ import { Text, View, StyleSheet, Button } from 'react-native';
 import { ThemedButton } from 'react-native-really-awesome-button';
 import { FIREBASE_AUTH } from '../FirebaseConfig';
 import { onAuthStateChanged } from "firebase/auth";
+import { AppOfTheDayCard } from 'react-native-apple-card-views';
 
 export default function Home({ navigation }) {
     const [user, setUser] = useState(null);
@@ -33,10 +34,19 @@ export default function Home({ navigation }) {
 
     return (
       <View style={styles.container}>
-        <Text style={styles.text}> HomePage for {user ? user.email : "Guest"} </Text>
+        <Text style={styles.heading}> Welcome back, {user ? user.email : "Guest"}! </Text>
         <Button title='fetch api' onPress={ getData } />
-        {!user ? <ThemedButton name="rick" type="primary" style={styles.button} onPress={() => navigation.navigate("Login")}>Login</ThemedButton> : ""}
-        {user ? <ThemedButton name="rick" type="primary" style={styles.button} onPress={() => FIREBASE_AUTH.signOut()}>LogOut</ThemedButton> : ""}
+        <View>
+          <AppOfTheDayCard
+          style={styles.card}
+          largeTitle={"CS2030S"}
+          title={"2.00PM - 4.00PM"}
+          subtitle={"COM1-01-02"}
+          buttonText={"GO"}
+          backgroundSource={require("../assets/nextclass_logo.png")}
+          onPress={() => {}}
+        />
+        </View>
       </View>
     )
 }
@@ -44,7 +54,11 @@ export default function Home({ navigation }) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        margin: 20,
+        margin: 10,
+    },
+    heading: {
+      fontSize: 30,
+        textAlign: "left"
     },
     text: {
         fontSize: 20,
@@ -53,5 +67,9 @@ const styles = StyleSheet.create({
     button: {
         margin: 10,
         alignSelf: "center"
+    },
+    card: {
+      borderRadius:25,
+      height: 140,
     }
 })

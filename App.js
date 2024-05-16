@@ -5,10 +5,11 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Login from "./screens/login";
 import Register from "./screens/register";
 import Home from "./screens/home";
-import Tab2 from "./screens/tab2";
+import Map from "./screens/map";
+import Account from "./screens/account";
+import Timetable from "./screens/timetable";
 import { Feather } from "@expo/vector-icons";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import Timetable from "./screens/timetable";
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { FIREBASE_AUTH } from "./FirebaseConfig";
@@ -18,10 +19,22 @@ const Tab = createBottomTabNavigator();
 
 function Profile() {
   return (
-    <Tab.Navigator>
-      <Tab.Screen name="Home" component={Home} options={{ tabBarIcon: () => <Feather name="home" size={24} />}} />
-      <Tab.Screen name="Timetable" component={Timetable} options={{ tabBarIcon: () => <MaterialCommunityIcons name="timetable" size={24} />}} />
-      <Tab.Screen name="Account" component={Tab2} options={{ tabBarIcon: () => <MaterialCommunityIcons name="account" size={24} />}} />
+    <Tab.Navigator 
+    screenOptions={({ route }) => ({
+      tabBarActiveTintColor: 'tomato',
+      tabBarInactiveTintColor: 'gray',
+      tabBarStyle: {
+        paddingTop: 7,
+        borderTopLeftRadius: 25,
+        borderTopRightRadius: 25,
+        borderLeftWidth: 0.2,
+        borderRightWidth: 0.2,
+      }
+      })}>
+      <Tab.Screen name="Home" component={Home} options={{ tabBarIcon: ({color}) => <Feather name="home" size={24} color={color} />}} />
+      <Tab.Screen name="Timetable" component={Timetable} options={{ tabBarIcon: ({color}) => <MaterialCommunityIcons name="timetable" size={24} color={color} />}} />
+      <Tab.Screen name="Map" component={Map} options={{ tabBarIcon: ({color}) => <MaterialCommunityIcons name="map-marker" size={24} color={color} />}} />
+      <Tab.Screen name="Account" component={Account} options={{ tabBarIcon: ({color}) => <MaterialCommunityIcons name="account" size={24} color={color} />}} />
     </Tab.Navigator>
   );
 }
