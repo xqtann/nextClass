@@ -19,7 +19,7 @@ const validationSchema = Yup.object().shape({
       )
 });
 
-export default function Timetable() {
+export default function Timetable({navigation}) {
     const [formUrl, setForm] = useState('');
     const [error, setError] = useState('');
     const [imported, setImported] = useState(false);

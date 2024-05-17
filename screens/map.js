@@ -29,12 +29,15 @@ export default function Map({ navigation }) {
 
     return (
       <View style={styles.container}>
-        <Text style={styles.text}> {text} </Text>
         <MapView 
           provider={MapView.PROVIDER_GOOGLE}
           style={styles.map}
+          minZoomLevel={15}
+          userLocationUpdateInterval={10000}
           initialRegion={location}
           showsUserLocation={true}
+          showsBuildings={true}
+          loadingEnabled={true}
           showsMyLocationButton={true}
           followsUserLocation={true}
           showsCompass={true}
