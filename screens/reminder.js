@@ -12,6 +12,7 @@ export default function Reminder({ navigation, route }) {
         <Button onPress={() => {navigation.navigate("NewReminder")}} title="Add" />
       ),
     });
+    
     return (
       <View style={styles.container}>
         <StatusBar style="auto" />

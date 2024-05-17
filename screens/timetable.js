@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import { SafeAreaView, StyleSheet, View, Alert, Dimensions, ImageBackground, TextInput, Text, Button } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { SafeAreaView, StyleSheet, View, Alert, Dimensions, ImageBackground, TextInput, Text, Button, TouchableOpacity } from 'react-native';
 import TimeTableView, { genTimeBlock } from 'react-native-timetable';
 import { BlurView } from 'expo-blur';
 import { ThemedButton } from "react-native-really-awesome-button";
 import * as Yup from 'yup';
 import { setAnalyticsCollectionEnabled } from 'firebase/analytics';
+import { Menu, MenuOptions, MenuOption, MenuTrigger, MenuProvider } from 'react-native-popup-menu';
 
 let actual_data = [];
 
@@ -19,10 +20,29 @@ const validationSchema = Yup.object().shape({
       )
 });
 
+const optionHandler = () => {
+
+}
+
 export default function Timetable({navigation}) {
     const [formUrl, setForm] = useState('');
     const [error, setError] = useState('');
     const [imported, setImported] = useState(false);
+
+    useEffect(() => {
+      if (imported) {
+        navigation.setOptions({
+          headerLeft: () => (
+            <TouchableOpacity 
+              onPress={optionHandler} 
+              style={styles.button}
+            >
+              <Text style={styles.buttonText}>Options</Text>
+            </TouchableOpacity>
+          ),
+        });
+      }
+    }, [imported]);
 
     const numOfDays = 5;
     const pivotDate = genTimeBlock('mon');
@@ -73,6 +93,8 @@ export default function Timetable({navigation}) {
                         classType = 'Recitation';
                     } else if (classType == 'WS') {
                         classType = 'Workshop';
+                    } else if (classType == 'SEC') {
+                        classType = 'Sectional Teaching';
                     }
 
                     classTiming = classData.find(x => x.lessonType == classType && x.classNo == classNum);
@@ -182,7 +204,7 @@ export default function Timetable({navigation}) {
               value={formUrl}
             />
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
-            <View style={styles.button}>
+            <View style={styles.importButton}>
             <ThemedButton
                 name="rick"
                 type="secondary"
@@ -233,7 +255,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: '40%',
   },
-  button: {
+  importButton: {
     top: '50%',
     position: 'absolute'
   },
@@ -242,5 +264,9 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     position: 'absolute',
     top: '47%',
+  },
+  buttonText: {
+    color: '#fff', // Customize the text color
+    fontSize: 16,
   },
 });
