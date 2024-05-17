@@ -20,14 +20,15 @@ const validationSchema = Yup.object().shape({
       )
 });
 
-const optionHandler = () => {
-
-}
-
 export default function Timetable({navigation}) {
     const [formUrl, setForm] = useState('');
     const [error, setError] = useState('');
     const [imported, setImported] = useState(false);
+
+    const optionHandler = () => {
+      setImported(false);
+      actual_data = [];
+    }
 
     useEffect(() => {
       if (imported) {
@@ -37,9 +38,13 @@ export default function Timetable({navigation}) {
               onPress={optionHandler} 
               style={styles.button}
             >
-              <Text style={styles.buttonText}>Options</Text>
+              <Text style={styles.buttonText}>Import New</Text>
             </TouchableOpacity>
           ),
+        });
+      } else {
+        navigation.setOptions({
+          headerLeft: null, 
         });
       }
     }, [imported]);
@@ -166,8 +171,19 @@ export default function Timetable({navigation}) {
     }
 
   const onEventPress = (evt) => {
-    Alert.alert("Event Pressed", JSON.stringify(evt));
-  };
+      start = new Date(evt.startTime);
+      startHour = start.getHours();
+      startMin = start.getMinutes() == 0 ? '00' : start.getMinutes();
+      end = new Date(evt.endTime);
+      endHour = end.getHours();
+      endMin = (end.getMinutes() == 0) ? '00' : end.getMinutes();
+
+      Alert.alert(
+        "Event Details",
+        `Title: ${evt.title} \n ${evt.extra_descriptions.join(" ")} \n${startHour}:${startMin} - ${endHour}:${endMin} \nLocation: ${evt.location}\n`
+      );
+    };
+
 
   return imported ? (
     <SafeAreaView style={{flex: 1}}>
@@ -269,4 +285,7 @@ const styles = StyleSheet.create({
     color: '#fff', // Customize the text color
     fontSize: 16,
   },
+  button: {
+    fontSize: 10,
+  }
 });
