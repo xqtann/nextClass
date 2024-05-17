@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StatusBar } from "expo-status-bar";
 import { Text, View, StyleSheet, Button, ScrollView } from 'react-native';
-import { ThemedButton } from 'react-native-really-awesome-button';
 import { FIREBASE_AUTH } from '../FirebaseConfig';
 import { onAuthStateChanged } from "firebase/auth";
 import AppleCard from '../components/AppleCard/AppleCard.js';
