@@ -144,6 +144,7 @@ export default function Timetable({navigation}) {
     }
 
   const onEventPress = (evt) => {
+    navigation.navigate("Reminder", {moduleCode: evt.title});
     Alert.alert("Event Pressed", JSON.stringify(evt));
   };
 

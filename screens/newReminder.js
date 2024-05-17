@@ -2,20 +2,30 @@ import React, { useState, useEffect } from 'react';
 import { StatusBar } from "expo-status-bar";
 import { Text, View, StyleSheet, Button, TextInput } from 'react-native';
 import { ThemedButton } from 'react-native-really-awesome-button';
+import { FIRESTORE_DB } from '../FirebaseConfig';
+import { addDoc, collection } from 'firebase/firestore';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 export default function NewReminder({ navigation }) {
   const [title, setTitle] = useState("");
   const [dueDate, setDueDate] = useState(new Date());
   const [remind, setRemind] = useState(new Date());
 
-  const submitHandler = () => {
-    console.log(title);
-    console.log(dueDate);
-    console.log(remind);
+  const submitHandler = async () => {
+    const doc = addDoc(collection(FIRESTORE_DB, 'reminders'), 
+    { title: title, dueDate: dueDate, remind: remind, done: false});
     setTitle("");
     setDueDate(new Date());
     setRemind(new Date());
+    navigation.pop();
   }
+
+  const onChange = (event, selectedDate) => {
+    const currentDate = selectedDate;
+    setDueDate(currentDate);
+    console.log(currentDate);
+  };
+
 
   navigation.setOptions({
     headerRight: () => (
@@ -25,7 +35,7 @@ export default function NewReminder({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Text>Create New Reminder</Text>
+      <Text style={styles.text}>Create New Reminder</Text>
       <TextInput 
         style={styles.input}
         placeholder="Reminder Title"
@@ -33,20 +43,28 @@ export default function NewReminder({ navigation }) {
         onChangeText={(val) => setTitle(val)}
         value={title}
       />
-      <TextInput 
-        style={styles.input}
-        placeholder="Due Date"
-        placeholderTextColor="#9E9E9E"
-        onChangeText={(val) => setDueDate(val)}
-        value={dueDate}
-      />
-      <TextInput 
-        style={styles.input}
-        placeholder="Remind Me"
-        placeholderTextColor="#9E9E9E"
-        onChangeText={(val) => setRemind(val)}
-        value={remind}
-      />
+      <View style={styles.datetimeContainer}>
+        <Text style={styles.text}> Due Date: </Text>
+        <DateTimePicker
+          style = {styles.datetime}
+          testID="dateTimePicker"
+          value={dueDate}
+          mode={'datetime'}
+          is24Hour={true}
+          onChange={onChange}
+        />
+      </View>
+      <View style={styles.datetimeContainer}>
+        <Text style={styles.text}> Remind Me: </Text>
+        <DateTimePicker
+          style = {styles.datetime}
+          testID="dateTimePicker"
+          value={dueDate}
+          mode={'datetime'}
+          is24Hour={true}
+          onChange={onChange}
+        />
+      </View>
       <ThemedButton name='rick' type='secondary' onPress={() => {submitHandler()}}>Create</ThemedButton>
       <StatusBar style="light" />
     </View>
@@ -66,7 +84,9 @@ const styles = StyleSheet.create({
     },
     text: {
         fontSize: 20,
-        textAlign: "center"
+        fontFamily: 'System',
+        textAlign: "center",
+        alignSelf: "center"
     },
     button: {
         margin: 10,
@@ -79,6 +99,15 @@ const styles = StyleSheet.create({
       borderRadius: 10,
       paddingHorizontal: 10,
       backgroundColor: '#F0F0F0',
-      top: '40%',
+      margin: 10
     },
+    datetimeContainer: {
+      justifyContent: 'flex-start',
+      flexDirection: "row",
+    },
+    datetime: {
+      marginVertical: 10,
+      marginHorizontal: 10,
+      alignSelf: "center",
+    }
 })
