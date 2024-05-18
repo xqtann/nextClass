@@ -63,7 +63,9 @@ function RemindersTT() {
           headerTitleStyle: { fontWeight: 'bold', fontSize: 16}, // Customize the header title style here
         }}>
         <Stack.Screen name="Timetable" component={Timetable} />
-        <Stack.Screen name="Reminder" component={Reminder} />
+        <Stack.Screen name="Reminder" component={Reminder} 
+          options={({ route }) => ({ title: route.params.screenTitle })}  />
+        <Stack.Screen name="Map" component={Map} />
         <Stack.Screen name="NewReminder" component={NewReminder} options={{ presentation: 'modal', headerTitle: 'New Reminder' }} />
       </Stack.Navigator>
     </NavigationContainer>

@@ -13,7 +13,7 @@
     "@freakycoder/react-native-bounceable": "^1.0.3",
     "@paraboly/react-native-information-card": "^0.1.1",
     "@react-native-async-storage/async-storage": "1.23.1",
-    "@react-native-community/datetimepicker": "8.0.1",
+    "@react-native-community/datetimepicker": "^8.0.1",
     "@react-navigation/bottom-tabs": "^6.5.20",
     "@react-navigation/native": "^6.1.17",
     "@react-navigation/native-stack": "^6.9.26",
@@ -46,7 +46,12 @@
     "react-native-url-polyfill": "^2.0.0",
     "react-native-vector-icons": "^10.1.0",
     "typescript": "~5.3.3",
+<<<<<<< HEAD
     "yup": "^1.4.0"
+=======
+    "yup": "^1.4.0",
+    "@react-native-picker/picker": "2.7.5"
+>>>>>>> 38e63c35fafb2935f78e2f6583c39b0a41791087
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
