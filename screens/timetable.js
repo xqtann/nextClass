@@ -171,11 +171,6 @@ export default function Timetable({navigation}) {
     }
 
   const onEventPress = (evt) => {
-<<<<<<< HEAD
-    navigation.navigate("Reminder", {moduleCode: evt.title});
-    Alert.alert("Event Pressed", JSON.stringify(evt));
-  };
-=======
       start = new Date(evt.startTime);
       startHour = start.getHours();
       startMin = start.getMinutes() == 0 ? '00' : start.getMinutes();
@@ -189,7 +184,6 @@ export default function Timetable({navigation}) {
       );
     };
 
->>>>>>> 7e154f232e4365abd506d1d78f257a0ab84c00b0
 
   return imported ? (
     <SafeAreaView style={{flex: 1}}>
