@@ -24,6 +24,9 @@ function Profile() {
   return (
     <Tab.Navigator
     screenOptions={({ route }) => ({
+      headerStyle: { backgroundColor: '#ff7f50' }, 
+      headerTintColor: '#fff', // Set the header text color here
+      headerTitleStyle: { fontWeight: 'bold', fontSize: 16}, // Customize the header title style here
       tabBarActiveTintColor: 'tomato',
       tabBarInactiveTintColor: 'gray',
       tabBarStyle: {
@@ -45,7 +48,11 @@ function Profile() {
 function Reminders() {
   return (
     <NavigationContainer independent={true}>
-      <Stack.Navigator>
+      <Stack.Navigator screenOptions={{
+          headerStyle: { backgroundColor: '#ff7f50' }, 
+          headerTintColor: '#fff', // Set the header text color here
+          headerTitleStyle: { fontWeight: 'bold', fontSize: 16}, // Customize the header title style here
+        }}>
         <Stack.Screen name="Home" component={Home} />
         <Stack.Screen name="Reminder" component={Reminder} />
         <Stack.Screen name="NewReminder" component={NewReminder} options={{ presentation: 'modal', headerTitle: 'New Reminder' }} />
