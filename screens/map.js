@@ -63,7 +63,9 @@ export default function Map({ navigation }) {
     console.log(location);
 
     const goHandler = () => {
-      
+      venues[origin].location != undefined 
+      ? mapRef.current.animateCamera({center: {latitude: venues[origin].location.y, longitude: venues[origin].location.x }}, {duration: 2000}) 
+      : console.log("location undefined");
     }
   
     return (
@@ -102,7 +104,7 @@ export default function Map({ navigation }) {
           ))
           } */}
           
-          {origin != '' ? <Marker coordinate={{latitude: venues[origin].location.y, longitude: venues[origin].location.x}}/> : <Marker />}
+          {origin != '' ? <Marker coordinate={{latitude: venues[origin].location.y, longitude: venues[origin].location.x}} pinColor='blue'/> : <Marker />}
           {dest != '' ? <Marker coordinate={{latitude: venues[dest].location.y, longitude: venues[dest].location.x}}/> : <Marker />}
           {(origin != '' && dest != '') ? <MapViewDirections
             origin={{latitude: venues[origin].location.y, longitude: venues[origin].location.x}}
@@ -198,16 +200,18 @@ const styles = StyleSheet.create({
       flex: 1,
       position: 'absolute',
       top: '3%',
+      left: '8%',
       height: ScreenHeight * 0.15,
-      width: ScreenWidth * 0.85,
+      width: ScreenWidth * 0.6,
       flexDirection: "row"
     },
     overlayContainerDest: {
       flex: 1,
       position: 'absolute',
       top: '12%',
+      left: '8%',
       height: ScreenHeight * 0.15,
-      width: ScreenWidth * 0.85,
+      width: ScreenWidth * 0.6,
       flexDirection: "row"
     },
     textInputBox: {
@@ -291,11 +295,12 @@ const styles = StyleSheet.create({
       paddingHorizontal: 12,
       borderColor: "black",
       borderWidth: 2,
-      marginLeft: 20
+      marginLeft: 20,
+      zIndex: 20
     },
     goText: {
       fontSize: 40,
       fontFamily: 'System',
-      fontWeight: "bold"
+      fontWeight: "bold",
     }
 })
