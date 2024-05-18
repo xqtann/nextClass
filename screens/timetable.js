@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, StyleSheet, View, Alert, Dimensions, ImageBackground, TextInput, Text, Button, TouchableOpacity } from 'react-native';
+import { SafeAreaView, StyleSheet, View, Alert, Dimensions, ImageBackground, TextInput, Text, Button, TouchableOpacity, Modal, TouchableWithoutFeedback } from 'react-native';
 import TimeTableView, { genTimeBlock } from 'react-native-timetable';
 import { BlurView } from 'expo-blur';
 import { ThemedButton } from "react-native-really-awesome-button";
 import * as Yup from 'yup';
 import { setAnalyticsCollectionEnabled } from 'firebase/analytics';
-import { Menu, MenuOptions, MenuOption, MenuTrigger, MenuProvider } from 'react-native-popup-menu';
 
 let actual_data = [];
 
@@ -24,6 +23,8 @@ export default function Timetable({navigation}) {
     const [formUrl, setForm] = useState('');
     const [error, setError] = useState('');
     const [imported, setImported] = useState(false);
+    const [openModal, setModal] = useState(false);
+    const [currentEvt, setEvt] = useState(null);
 
     const optionHandler = () => {
       setImported(false);
@@ -81,8 +82,6 @@ export default function Timetable({navigation}) {
             classDetails = module[1].split(',');
             try {
                 const classData = await getData(moduleCode, sem);
-
-                moduleCode == 'HSI1000' ? console.log(classData) : null;
 
                 for (let j = 0; j < classDetails.length; j++) {
                     classLst = classDetails[j].split(':');
@@ -170,28 +169,54 @@ export default function Timetable({navigation}) {
                 setError('');
     }
 
+  const renderModal = () => {
+    if (!currentEvt) return null;
+
+    start = new Date(currentEvt.startTime);
+    startHour = start.getHours();
+    startMin = start.getMinutes() == 0 ? '00' : start.getMinutes();
+    end = new Date(currentEvt.endTime);
+    endHour = end.getHours();
+    endMin = (end.getMinutes() == 0) ? '00' : end.getMinutes();
+
+    return (
+      <Modal
+      visible={openModal}
+      transparent={true}
+      animationType="fade"
+      onRequestClose={() => setModal(false)}
+      >
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalContent}>
+          <TouchableOpacity style={styles.closeButton} onPress={() => setModal(false)}>
+            <Text style={styles.closeButtonText}>X</Text>
+          </TouchableOpacity>
+          <Text>
+            {`Module: ${currentEvt.title}\n
+            ${currentEvt.extra_descriptions.join(" ")}\n
+            Time: ${startHour}:${startMin} - ${endHour}:${endMin}\n
+            Venue: ${currentEvt.location}\n`}
+          </Text>
+          <View style={styles.buttonGroup}>
+            <Button title="Reminders" onPress={() => {navigation.navigate('Reminder', { 
+                moduleCode: currentEvt.title,
+                screenTitle: currentEvt.title 
+              }); setModal(false)}} />
+            <Button title="Get Route" onPress={() => {navigation.navigate('Map'); setModal(false)}} />
+          </View>
+        </View>
+      </View>
+    </Modal>
+    )
+  }
+
   const onEventPress = (evt) => {
-<<<<<<< HEAD
-    navigation.navigate("Reminder", {moduleCode: evt.title});
-    Alert.alert("Event Pressed", JSON.stringify(evt));
+      setEvt(evt);
+      setModal(true);
   };
-=======
-      start = new Date(evt.startTime);
-      startHour = start.getHours();
-      startMin = start.getMinutes() == 0 ? '00' : start.getMinutes();
-      end = new Date(evt.endTime);
-      endHour = end.getHours();
-      endMin = (end.getMinutes() == 0) ? '00' : end.getMinutes();
-
-      Alert.alert(
-        "Event Details",
-        `Title: ${evt.title} \n ${evt.extra_descriptions.join(" ")} \n${startHour}:${startMin} - ${endHour}:${endMin} \nLocation: ${evt.location}\n`
-      );
-    };
-
->>>>>>> 7e154f232e4365abd506d1d78f257a0ab84c00b0
 
   return imported ? (
+    <TouchableWithoutFeedback onPress={() => setModal(false)}>
     <SafeAreaView style={{flex: 1}}>
       <View style={styles.container}>
         <TimeTableView
@@ -205,8 +230,10 @@ export default function Timetable({navigation}) {
           formatDateHeader="dddd"
           locale="en"
         />
+      {renderModal()}
       </View>
     </SafeAreaView>
+    </TouchableWithoutFeedback>
   ) : 
   ( <SafeAreaView style={styles.blurContainer}> 
           <ImageBackground style={styles.image} resizeMode="contain"  source={require('../assets/temptimetable1.jpg')} />
@@ -288,10 +315,39 @@ const styles = StyleSheet.create({
     top: '47%',
   },
   buttonText: {
-    color: '#fff', // Customize the text color
+    color: '#fff', 
     fontSize: 16,
   },
   button: {
     fontSize: 10,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    width: '80%',
+    padding: 20,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+  },
+  closeButtonText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: 'black',
+  },
+  buttonGroup: {
+    marginTop: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
   }
 });

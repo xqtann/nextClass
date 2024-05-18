@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { StatusBar } from "expo-status-bar";
 import { Text, View, StyleSheet, Button, TextInput } from 'react-native';
 import { ThemedButton } from 'react-native-really-awesome-button';
@@ -12,31 +12,40 @@ export default function NewReminder({ navigation }) {
   const [remind, setRemind] = useState(new Date());
 
   const submitHandler = async () => {
-    const doc = addDoc(collection(FIRESTORE_DB, 'reminders'), 
-    { title: title, dueDate: dueDate, remind: remind, done: false});
+    await addDoc(collection(FIRESTORE_DB, 'reminders'), {
+      title: title, 
+      dueDate: dueDate, 
+      remind: remind, 
+      done: false
+    });
     setTitle("");
     setDueDate(new Date());
     setRemind(new Date());
     navigation.pop();
-  }
-
-  const onChange = (event, selectedDate) => {
-    const currentDate = selectedDate;
-    setDueDate(currentDate);
-    console.log(currentDate);
   };
 
+  const onDueDateChange = (event, selectedDate) => {
+    const currentDate = selectedDate || dueDate;
+    setDueDate(currentDate);
+    console.log("Due Date:", currentDate);
+  };
+
+  const onRemindChange = (event, selectedDate) => {
+    const currentDate = selectedDate || remind;
+    setRemind(currentDate);
+    console.log("Remind Date:", currentDate);
+  };
 
   navigation.setOptions({
     headerRight: () => (
-      <Button onPress={() => {navigation.pop()}} title="Dismiss" /> 
+      <Button onPress={() => { navigation.pop() }} title="Dismiss" />
     ),
   });
 
   return (
     <View style={styles.container}>
       <Text style={styles.text}>Create New Reminder</Text>
-      <TextInput 
+      <TextInput
         style={styles.input}
         placeholder="Reminder Title"
         placeholderTextColor="#9E9E9E"
@@ -46,68 +55,77 @@ export default function NewReminder({ navigation }) {
       <View style={styles.datetimeContainer}>
         <Text style={styles.text}> Due Date: </Text>
         <DateTimePicker
-          style = {styles.datetime}
-          testID="dateTimePicker"
+          style={styles.datetime}
+          testID="dateTimePickerDue"
           value={dueDate}
           mode={'datetime'}
           is24Hour={true}
-          onChange={onChange}
+          onChange={onDueDateChange}
         />
       </View>
       <View style={styles.datetimeContainer}>
         <Text style={styles.text}> Remind Me: </Text>
         <DateTimePicker
-          style = {styles.datetime}
-          testID="dateTimePicker"
-          value={dueDate}
+          style={styles.datetime}
+          testID="dateTimePickerRemind"
+          value={remind}
           mode={'datetime'}
           is24Hour={true}
-          onChange={onChange}
+          onChange={onRemindChange}
         />
       </View>
-      <ThemedButton name='rick' type='secondary' onPress={() => {submitHandler()}}>Create</ThemedButton>
+      <ThemedButton name='rick' type='secondary' onPress={submitHandler}>Create</ThemedButton>
       <StatusBar style="light" />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        margin: 10,
-    },
-    heading: {
-      fontSize: 30,
-      paddingLeft: 5,
-      fontWeight: "bold",
-      textAlign: "left"
-    },
-    text: {
-        fontSize: 20,
-        fontFamily: 'System',
-        textAlign: "center",
-        alignSelf: "center"
-    },
-    button: {
-        margin: 10,
-        alignSelf: "center"
-    },
-    input: {
-      width: '80%',
-      height: 40,
-      borderWidth: 2,
-      borderRadius: 10,
-      paddingHorizontal: 10,
-      backgroundColor: '#F0F0F0',
-      margin: 10
-    },
-    datetimeContainer: {
-      justifyContent: 'flex-start',
-      flexDirection: "row",
-    },
-    datetime: {
-      marginVertical: 10,
-      marginHorizontal: 10,
-      alignSelf: "center",
-    }
-})
+  // The main container of the component, with padding and a light background color
+  container: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: '#F5F5F5',
+  },
+  // The heading text at the top, with larger font size, bold weight, centered alignment, and bottom margin for spacing
+  heading: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#333',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  // The text input for the reminder title, with a specific height, border, padding, background color, border color, bottom margin, and font size
+  input: {
+    width: '100%',
+    height: 50,
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 15,
+    backgroundColor: '#FFF',
+    borderColor: '#DDD',
+    marginBottom: 20,
+    fontSize: 18,
+  },
+  // A container for the date/time picker and its label, with row direction, center alignment, and bottom margin for spacing
+  datetimeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  // The label text for date/time pickers, with specific font size and color for better readability
+  label: {
+    fontSize: 18,
+    color: '#333',
+  },
+  // The date/time picker style, taking full available width and margin on the left for spacing from the label
+  datetime: {
+    flex: 1,
+    marginLeft: 10,
+  },
+  // The themed button style, centered horizontally and with top margin for spacing
+  button: {
+    alignSelf: 'center',
+    marginTop: 20,
+  }
+});
