@@ -5,6 +5,7 @@ import { BlurView } from 'expo-blur';
 import { ThemedButton } from "react-native-really-awesome-button";
 import * as Yup from 'yup';
 import { setAnalyticsCollectionEnabled } from 'firebase/analytics';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 let actual_data = [];
 
@@ -26,10 +27,35 @@ export default function Timetable({navigation}) {
     const [openModal, setModal] = useState(false);
     const [currentEvt, setEvt] = useState(null);
 
-    const optionHandler = () => {
+    useEffect(() => {
+      const loadData = async () => {
+          try {
+              const storedData = await AsyncStorage.getItem('timetableData');
+              if (storedData) {
+                  actual_data = JSON.parse(storedData);
+                  setImported(true);
+              }
+          } catch (error) {
+              console.error('Error loading data from AsyncStorage:', error);
+          }
+      };
+  
+      loadData();
+    }, []);
+
+    const optionHandler = async () => {
       setImported(false);
       actual_data = [];
+      await AsyncStorage.removeItem('timetableData');
     }
+
+    const saveData = async () => {
+      try {
+          await AsyncStorage.setItem('timetableData', JSON.stringify(actual_data));
+      } catch (error) {
+          console.error('Error saving data to AsyncStorage:', error);
+      }
+    };
 
     useEffect(() => {
       if (imported) {
@@ -153,6 +179,7 @@ export default function Timetable({navigation}) {
             }
         }
         setImported(true);
+        saveData();
     }
 
     const handleSubmit = () => {

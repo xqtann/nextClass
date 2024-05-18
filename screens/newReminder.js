@@ -6,19 +6,24 @@ import { FIRESTORE_DB } from '../FirebaseConfig';
 import { addDoc, collection } from 'firebase/firestore';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-export default function NewReminder({ navigation }) {
+export default function NewReminder({ navigation, route }) {
+  const { moduleCode } = route.params;
   const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState(new Date());
   const [remind, setRemind] = useState(new Date());
 
   const submitHandler = async () => {
     await addDoc(collection(FIRESTORE_DB, 'reminders'), {
       title: title, 
+      description: description,
       dueDate: dueDate, 
       remind: remind, 
-      done: false
+      done: false,
+      moduleCode: moduleCode,
     });
     setTitle("");
+    setDescription("");
     setDueDate(new Date());
     setRemind(new Date());
     navigation.pop();
@@ -27,13 +32,11 @@ export default function NewReminder({ navigation }) {
   const onDueDateChange = (event, selectedDate) => {
     const currentDate = selectedDate || dueDate;
     setDueDate(currentDate);
-    console.log("Due Date:", currentDate);
   };
 
   const onRemindChange = (event, selectedDate) => {
     const currentDate = selectedDate || remind;
     setRemind(currentDate);
-    console.log("Remind Date:", currentDate);
   };
 
   navigation.setOptions({
@@ -44,13 +47,21 @@ export default function NewReminder({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Create New Reminder</Text>
       <TextInput
         style={styles.input}
         placeholder="Reminder Title"
         placeholderTextColor="#9E9E9E"
         onChangeText={(val) => setTitle(val)}
         value={title}
+      />
+      <TextInput
+        style={[styles.input, styles.descriptionInput]}
+        placeholder="Description"
+        placeholderTextColor="#9E9E9E"
+        onChangeText={(val) => setDescription(val)}
+        value={description}
+        multiline={true}
+        numberOfLines={4}
       />
       <View style={styles.datetimeContainer}>
         <Text style={styles.text}> Due Date: </Text>
@@ -106,6 +117,11 @@ const styles = StyleSheet.create({
     borderColor: '#DDD',
     marginBottom: 20,
     fontSize: 18,
+  },
+  // The text input for the description, with additional styles for multiline input
+  descriptionInput: {
+    height: 100,
+    textAlignVertical: 'top', // Align text to the top for multiline input
   },
   // A container for the date/time picker and its label, with row direction, center alignment, and bottom margin for spacing
   datetimeContainer: {
