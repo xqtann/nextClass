@@ -1,15 +1,78 @@
 import React, { useState, useEffect } from 'react';
 import { StatusBar } from "expo-status-bar";
-import { Text, View, StyleSheet, ScrollView } from 'react-native';
-import { FIREBASE_AUTH } from '../FirebaseConfig';
+import { Text, View, StyleSheet, Modal, TextInput, Button, FlatList } from 'react-native';
+import { FIREBASE_AUTH, FIRESTORE_DB } from '../FirebaseConfig';
 import { onAuthStateChanged } from "firebase/auth";
-import AppleCard from '../components/AppleCard/AppleCard.js';
 import AppOfTheDayCard from '../components/AppOfTheDayCard/AppOfTheDayCard.js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import CustomCard from '../components/CustomCard.js';
 
 export default function Home({ navigation }) {
   const [user, setUser] = useState(null);
   const [nextClasses, setNextClasses] = useState([]);
+  const [reminders, setReminders] = useState([]);
+  const [userName, setUserName] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const fetchReminders = async () => {
+    const remindersCollection = collection(FIRESTORE_DB, 'reminders');
+    const remindersQuery = query(remindersCollection, orderBy('dueDate', 'asc'));
+    const querySnapshot = await getDocs(remindersQuery);
+    const reminders = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    return reminders;
+  };
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const storedData = await AsyncStorage.getItem('userName');
+        if (storedData) {
+          setUserName(storedData);
+        } else {
+          setModalVisible(true);
+        }
+      } catch (error) {
+        console.error('Error loading data from AsyncStorage:', error);
+      }
+    };
+    loadData();
+  }, []);
+
+  const saveData = async () => {
+    try {
+      await AsyncStorage.setItem('userName', userName);
+      setModalVisible(false);
+    } catch (error) {
+      console.error('Error saving data to AsyncStorage:', error);
+    }
+  };
+
+  const renderModal = () => {
+    return (
+      <Modal
+        visible={modalVisible}
+        transparent={true}
+        animationType="slide"
+      >
+        <View style={styles.userModalContainer}>
+          <View style={styles.userModalContent}>
+            <Text style={styles.userModalText}>What is your name?</Text>
+            <TextInput
+              style={styles.userTextInput}
+              value={userName}
+              onChangeText={setUserName}
+              placeholder="Enter your name"
+            />
+            <Button title="Save" onPress={saveData} />
+          </View>
+        </View>
+      </Modal>
+    );
+  };
 
   useEffect(() => {
     onAuthStateChanged(FIREBASE_AUTH, (user) => {
@@ -35,12 +98,18 @@ export default function Home({ navigation }) {
       }
     };
 
+    const fetchAllData = async () => {
+      const remindersData = await fetchReminders();
+      setReminders(remindersData);
+    };
+
     fetchTimetableData();
+    fetchAllData();
   }, []);
 
   const getNextTwoClasses = (timetable) => {
     const now = new Date();
-    const nowDay = now.getDay() + 1; // 0 (Sunday) to 6 (Saturday)
+    const nowDay = now.getDay(); // 0 (Sunday) to 6 (Saturday)
     const nowTime = now.getHours() * 60 + now.getMinutes(); // Time in minutes from midnight
 
     const upcomingClasses = timetable.filter(event => {
@@ -72,12 +141,21 @@ export default function Home({ navigation }) {
     return upcomingClasses.slice(0, 2);
   };
 
+  const renderReminderItem = ({ item }) => (
+    <View style={styles.reminderItem}>
+      <Text style={styles.reminderTitle}>{item.title}</Text>
+      <Text style={styles.reminderDate}>
+        {new Date(item.dueDate.seconds * 1000).toLocaleString()}
+      </Text>
+    </View>
+  );
 
   return (
-    <ScrollView>
+    <>
+      {renderModal()}
       <View style={styles.container}>
         <StatusBar style="auto" />
-        <Text style={styles.heading}> Welcome back, {user ? user.email : "Guest"}! </Text>
+        <Text style={styles.heading}> Welcome back, {userName || "Guest"}! </Text>
         
         {nextClasses.length > 0 ? (
           nextClasses.map((event, index) => (
@@ -99,16 +177,22 @@ export default function Home({ navigation }) {
           </View>
         )}
 
-        <View style={styles.reminderContainer}>
-          <AppleCard
-            style={styles.card}
-            source={require("../assets/nextclass_logo.png")}
-            largeTitle='Reminders'
+        <CustomCard
+          title="Reminders"
+          style={styles.reminderContainer}
+          onPress={() => console.log("Card Pressed")}
+          backgroundSource={require("../assets/nextclass_logo.png")}
+        >
+          <FlatList
+            data={reminders}
+            renderItem={renderReminderItem}
+            keyExtractor={item => item.id}
+            style={styles.flatList}
           />
-        </View>
+        </CustomCard>
       </View>
-    </ScrollView>
-  )
+    </>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -118,28 +202,19 @@ const styles = StyleSheet.create({
   },
   heading: {
     fontSize: 30,
-    paddingLeft: 5,
     fontWeight: "bold",
-    textAlign: "left",
+    textAlign: "center",
     fontFamily: "System",
-  },
-  text: {
-    fontSize: 20,
-    textAlign: "center"
-  },
-  button: {
-    margin: 10,
-    alignSelf: "center"
-  },
-  card: {
-    borderRadius: 25,
-    height: 140,
-    alignSelf: "center",
-    position: "absolute"
+    marginVertical: 20,
   },
   mainCardContainer: {
     marginVertical: 10,
     height: 140,
+  },
+  card: {
+    borderRadius: 25,
+    height: '100%',
+    alignSelf: "center",
   },
   noClassesContainer: {
     justifyContent: 'center',
@@ -153,7 +228,49 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   reminderContainer: {
+    flex: 1,
     marginVertical: 20,
-    height: 500,
-  }
+  },
+  flatList: {
+    flexGrow: 1,
+  },
+  reminderItem: {
+    marginVertical: 10,
+    padding: 10,
+    backgroundColor: '#f9f9f9',
+    borderRadius: 10,
+  },
+  reminderTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  reminderDate: {
+    fontSize: 16,
+    color: '#666',
+  },
+  userModalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  userModalContent: {
+    width: 300,
+    padding: 20,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  userModalText: {
+    fontSize: 18,
+    marginBottom: 10,
+  },
+  userTextInput: {
+    width: '100%',
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    marginBottom: 20,
+    paddingHorizontal: 10,
+  },
 });

@@ -22,7 +22,14 @@ export default function Reminder({ navigation, route }) {
             ...doc.data()
           });
         });
-        setReminders(reminderList);
+        const sortedReminderList = reminderList.sort((a, b) => {
+          if (a.dueDate && b.dueDate) {
+            return a.dueDate.seconds - b.dueDate.seconds;
+          } else {
+            return 0;
+          }
+        });
+        setReminders(sortedReminderList);
       }});
 
       return () => subscriber();
@@ -59,10 +66,7 @@ export default function Reminder({ navigation, route }) {
         <StatusBar style="auto" />
         <Text style={styles.noreminders}>No new reminders! 😊</Text>
       </View>
-    );
-    
-    
-}
+    );}
 
 const styles = StyleSheet.create({
   container: {
