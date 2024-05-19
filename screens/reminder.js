@@ -4,8 +4,6 @@ import { Text, View, StyleSheet, Button, FlatList, TouchableOpacity } from 'reac
 import { collection, onSnapshot, query, where } from '@firebase/firestore';
 import { FIRESTORE_DB } from '../FirebaseConfig';
 
-
-
 export default function Reminder({ navigation, route }) {
   const { moduleCode } = route.params;
   const [allReminders, setReminders] = useState([]);
@@ -43,17 +41,16 @@ export default function Reminder({ navigation, route }) {
           data={allReminders}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
+            <TouchableOpacity onPress={() => {navigation.navigate("ReminderPage", { reminder: item })}}>
             <View style={styles.reminderItem}>
               <View style={styles.reminderHeader}>
                 <Text style={styles.reminderTitle}>{item.title}</Text>
-                <TouchableOpacity style={styles.optionsButton} onPress={() => {/* Add your options handler here */}}>
-                  <Text style={styles.optionsButtonText}>Options</Text>
-                </TouchableOpacity>
               </View>
-              <Text style={styles.description}>{item.description}</Text>
+              <Text style={styles.description} numberOfLines={2} ellipsizeMode="tail">{item.description}</Text>
               <Text>On: {new Date(item.dueDate.seconds * 1000).toLocaleString()}</Text>
               <Text>Remind Me: {new Date(item.remind.seconds * 1000).toLocaleString()}</Text>
             </View>
+            </TouchableOpacity>
           )}
         />
       </View>

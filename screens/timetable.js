@@ -4,7 +4,6 @@ import TimeTableView, { genTimeBlock } from 'react-native-timetable';
 import { BlurView } from 'expo-blur';
 import { ThemedButton } from "react-native-really-awesome-button";
 import * as Yup from 'yup';
-import { setAnalyticsCollectionEnabled } from 'firebase/analytics';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 let actual_data = [];
@@ -32,7 +31,11 @@ export default function Timetable({navigation}) {
           try {
               const storedData = await AsyncStorage.getItem('timetableData');
               if (storedData) {
-                  actual_data = JSON.parse(storedData);
+                  actual_data = JSON.parse(storedData).map(event => ({
+                    ...event,
+                    startTime: new Date(event.startTime),
+                    endTime: new Date(event.endTime),
+                  }));
                   setImported(true);
               }
           } catch (error) {
@@ -42,6 +45,17 @@ export default function Timetable({navigation}) {
   
       loadData();
     }, []);
+
+    const confirmImport = () => {
+      Alert.alert(
+        'New Import',
+        'Are you sure you want to import a new timetable?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Yes', style: 'destructive', onPress: optionHandler }
+        ]
+      );
+    };
 
     const optionHandler = async () => {
       setImported(false);
@@ -62,7 +76,7 @@ export default function Timetable({navigation}) {
         navigation.setOptions({
           headerLeft: () => (
             <TouchableOpacity 
-              onPress={optionHandler} 
+              onPress={confirmImport} 
               style={styles.button}
             >
               <Text style={styles.buttonText}>Import New</Text>
