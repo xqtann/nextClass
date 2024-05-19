@@ -16,6 +16,8 @@ import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { FIREBASE_AUTH } from "./FirebaseConfig";
 import { StyleSheet } from "react-native";
+import ReminderPage from "./screens/reminderPage";
+import EditReminder from "./screens/editReminder";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -54,8 +56,13 @@ function Reminders() {
           headerTitleStyle: { fontWeight: 'bold', fontSize: 16}, // Customize the header title style here
         }}>
         <Stack.Screen name="Home" component={Home} />
-        <Stack.Screen name="Reminder" component={Reminder} />
+        <Stack.Screen name="Reminder" component={Reminder} 
+          options={({ route }) => ({ title: route.params.moduleCode })}  />
         <Stack.Screen name="NewReminder" component={NewReminder} options={{ presentation: 'modal', headerTitle: 'New Reminder' }} />
+        <Stack.Screen name="ReminderPage" component={ReminderPage} 
+          options={({ route }) => ({ title: route.params.reminder.title })}
+        />
+        <Stack.Screen name="EditReminder" component={EditReminder} />
       </Stack.Navigator>
     </NavigationContainer>
   )
@@ -74,6 +81,10 @@ function RemindersTT() {
           options={({ route }) => ({ title: route.params.screenTitle })}  />
         <Stack.Screen name="Map" component={Map} />
         <Stack.Screen name="NewReminder" component={NewReminder} options={{ presentation: 'modal', headerTitle: 'New Reminder' }} />
+        <Stack.Screen name="ReminderPage" component={ReminderPage} 
+          options={({ route }) => ({ title: route.params.reminder.title })}
+        />
+        <Stack.Screen name="EditReminder" component={EditReminder} />
       </Stack.Navigator>
     </NavigationContainer>
   )
