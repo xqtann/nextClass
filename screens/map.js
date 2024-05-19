@@ -1,10 +1,11 @@
 import React, {useState, useEffect, useRef} from 'react';
 import { Text, View, StyleSheet, Button, TextInput, ScrollView, TouchableOpacity } from 'react-native';
-import MapView, { UrlTile, Marker } from 'react-native-maps';
+import MapView, { UrlTile, Marker, Polyline } from 'react-native-maps';
 import * as Location from 'expo-location';
 import MapViewDirections from 'react-native-maps-directions';
 import { ScreenHeight, ScreenWidth } from 'react-native-elements/dist/helpers';
-import SelectDropdown from 'react-native-select-dropdown'
+import SelectDropdown from 'react-native-select-dropdown';
+import GHUtil from '../utils/GHUtil';
 
 export default function Map({ navigation }) {
   const [location, setLocation] = useState(null);
@@ -13,6 +14,10 @@ export default function Map({ navigation }) {
   const venues = require('../assets/venues.json');
   const [origin, setOrigin] = useState("");
   const [dest, setDest] = useState("");
+  const [polylinesLoaded, setPolylinesLoaded] = useState(false);
+  const [polylinesD, setPolylinesD] = useState([]);
+  let polylines =[];
+
 
   const INITIAL_CAMERA = {
     center: {
@@ -35,10 +40,62 @@ export default function Map({ navigation }) {
   //   longitude: 103.77401107931558
   // }
 
-  // const as7 = {
-  //   latitude: 1.2946298656111013,
-  //   longitude: 103.7710383009886
+  // const as6 = {
+  //   latitude: 1.295361335555679,
+  //   longitude: 103.77326160572798
   // }
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      const query = new URLSearchParams({
+        key: 'c82f39fb-375e-4d61-b0cc-9f9dd9a8b142'
+      }).toString();
+
+      console.log(venues[origin].location.y, venues[origin].location.x, venues[dest].location.y, venues[dest].location.x);
+      
+      const resp = await fetch(
+        `https://graphhopper.com/api/1/route?${query}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            profile: 'foot',
+            points: [
+              [venues[origin].location.x, venues[origin].location.y],
+              [venues[dest].location.x, venues[dest].location.y]
+            ],
+            snap_preventions: [
+              'motorway',
+              'ferry',
+              'tunnel'
+            ],
+            details: ['road_class', 'surface', 'country'],
+            debug: true,
+            instructions: true,
+            calc_points: true
+          })
+        });
+  
+      const GHdata = await resp.json();
+      console.log(GHdata);
+
+      const polylinesDecoded = GHUtil.prototype.decodePath(GHdata.paths[0].points);
+      setPolylinesLoaded(polylinesDecoded.length > 0);
+      setPolylinesD(polylinesDecoded);
+    };
+    if (venues[origin] != undefined && venues[dest] != undefined) {
+      fetchData();
+    }
+  // console.log(polylines);
+  }, [origin, dest]);
+
+  if (polylinesLoaded) {
+    for (let i = 0; i < polylinesD.length; i++) {
+      polylines[i] = ({latitude: polylinesD[i][1], longitude: polylinesD[i][0]});
+    }
+  }
 
   useEffect(() => {
     (async () => {
@@ -60,7 +117,7 @@ export default function Map({ navigation }) {
       text = JSON.stringify(location);
     };
 
-    console.log(location);
+    // console.log(location);
 
     const goHandler = () => {
       venues[origin].location != undefined 
@@ -82,7 +139,7 @@ export default function Map({ navigation }) {
           rotateEnabled={true}
           loadingEnabled={true}
           cameraZoomRange={{
-            minCenterCoordinateDistance: 500,
+            minCenterCoordinateDistance: 300,
             maxCenterCoordinateDistance: 15000,
             animated: true,
           }}
@@ -106,15 +163,16 @@ export default function Map({ navigation }) {
           
           {origin != '' ? <Marker coordinate={{latitude: venues[origin].location.y, longitude: venues[origin].location.x}} pinColor='blue'/> : <Marker />}
           {dest != '' ? <Marker coordinate={{latitude: venues[dest].location.y, longitude: venues[dest].location.x}}/> : <Marker />}
-          {(origin != '' && dest != '') ? <MapViewDirections
+          {/* {(origin != '' && dest != '') ? <MapViewDirections
             origin={{latitude: venues[origin].location.y, longitude: venues[origin].location.x}}
             destination={{latitude: venues[dest].location.y, longitude: venues[dest].location.x}}
             apikey='AIzaSyB2q70gqjArHkUR9DqiRZTHHdDarrktG5Q'
             strokeColor='red'
             strokeWidth={4}
             mode='WALKING'
-          /> : <Marker />}
-
+          /> : <Marker />} */}
+          {polylinesLoaded && polylines.length > 0 ? <Polyline coordinates={polylines} strokeWidth={4} strokeColor='red' /> : console.log("polylines not loaded")}
+          {console.log(polylines)}
           </MapView>
           <View style={styles.overlayContainer}>
               <SelectDropdown
