@@ -72,7 +72,9 @@ export default function Map({ navigation }) {
               'tunnel'
             ],
             details: ['road_class', 'surface', 'country'],
-            debug: true
+            debug: true,
+            instructions: true,
+            calc_points: true
           })
         });
   
