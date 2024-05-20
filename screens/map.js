@@ -172,12 +172,12 @@ export default function Map({ navigation }) {
             mode='WALKING'
           /> : <Marker />} */}
           {polylinesLoaded && polylines.length > 0 ? <Polyline coordinates={polylines} strokeWidth={4} strokeColor='red' /> : console.log("polylines not loaded")}
-          {console.log(polylines)}
           </MapView>
           <View style={styles.overlayContainer}>
               <SelectDropdown
               data={data}
               search={true}
+              disableAutoScroll={true}
               onSelect={(selectedItem, index) => {
                 setOrigin(selectedItem.venue);
               }}
@@ -208,6 +208,7 @@ export default function Map({ navigation }) {
               <SelectDropdown
               data={data}
               search={true}
+              disableAutoScroll={true}
               onSelect={(selectedItem, index) => {
                 setDest(selectedItem.venue);
               }}
