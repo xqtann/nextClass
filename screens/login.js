@@ -99,12 +99,12 @@ export default function Login({ navigation }) {
             style={styles.signupContainer}
             onPress={() => navigation.push("Register")}
           >
-            <CheckBox
+            {/* <CheckBox
               center
               title="Keep Me Logged In"
               checked={keepLogin}
               onPress={() => setKeepLogin(!keepLogin)}
-            />
+            /> */}
             <Text style={styles.signupText}>
               Don't have an account? <Text style={styles.signupLink}>Sign up now</Text>
             </Text>

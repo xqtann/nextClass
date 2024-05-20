@@ -2,24 +2,46 @@ import React, { useState, useEffect } from 'react';
 import { Text, View, StyleSheet, Button } from 'react-native';
 import { ThemedButton } from 'react-native-really-awesome-button';
 import { FIREBASE_AUTH } from '../FirebaseConfig';
-import { onAuthStateChanged } from "firebase/auth";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Account({ navigation }) {
-  const [user, setUser] = useState(null);
+
+  const auth = getAuth();
+  const user = auth.currentUser;
+  const [storedUser, setStoredUser] = useState('');
 
   useEffect(() => {
-    onAuthStateChanged(FIREBASE_AUTH, (user) => {
-      setUser(user);
-    });
-  })
+    const loadData = async () => {
+      try {
+        const storedUsername = await AsyncStorage.getItem('username');
+        console.log('Stored data:', storedUsername);
+        if (storedUsername) {
+          setStoredUser(storedUsername);
+        } else {
+        }
+      } catch (error) {
+        console.error('Error loading data from AsyncStorage:', error);
+      }
+    };
+    loadData();
+  }, []);
+
     return (
       <View style={styles.container}>
-        <Text style={styles.text}> Account Page for {user ? user.email : "Guest"} </Text>
+        <Text style={styles.text}> Account Page for {user ? user.displayName : storedUser} </Text>
         {/* {!user ? <ThemedButton name="rick" type="primary" style={styles.button} onPress={() => navigation.navigate("Login")}>Login</ThemedButton> : ""} */}
-        {user ? <ThemedButton name="rick" type="primary" style={styles.button} onPress={() => FIREBASE_AUTH.signOut()}>LogOut</ThemedButton> : ""}
+        {user || storedUser != '' ? <ThemedButton name="rick" type="primary" style={styles.button} onPress={() => {
+          FIREBASE_AUTH.signOut(); 
+          navigation.navigate("Login"); 
+          AsyncStorage.removeItem("username")
+          }}>
+            LogOut</ThemedButton> : ""}
       </View>
     )
 }
+
+// AsyncStorage.removeItem("username");
 
 const styles = StyleSheet.create({
   container: {
