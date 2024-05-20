@@ -11,8 +11,9 @@ import {
 } from "react-native";
 import { ThemedButton } from "react-native-really-awesome-button";
 import TextInput from "react-native-text-input-interactive";
-import { FIREBASE_AUTH, FIREBASE_DB } from "../FirebaseConfig";
-import { setDoc, doc } from "firebase/firestore";
+import { FIREBASE_AUTH, FIRESTORE_DB } from "../FirebaseConfig";
+import { setDoc, doc, addDoc, collection } from "firebase/firestore";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 
 export default function Register({ navigation }) {
   const [email, setEmail] = useState("");
@@ -35,20 +36,24 @@ export default function Register({ navigation }) {
   const signUp = () => {
     setLoading(true);
   
-    auth()
-      .createUserWithEmailAndPassword(email, password)
+    createUserWithEmailAndPassword(FIREBASE_AUTH, email, password)
       .then((response) => {
         // Save the username to Firestore
-        setDoc(doc(FIREBASE_DB, "users", response.user.uid), {
+        addDoc(collection(FIRESTORE_DB, "users"), {
+          uid: response.user.uid,
           username: username,
           email: email,
         });
+    
+      updateProfile(FIREBASE_AUTH.currentUser, { 
+        displayName: username
+      });
       })
       .then(() => {
         navigation.navigate("Login");
       })
       .catch((err) => {
-        alert(err.nativeErrorMessage); // Display the error message
+        alert(err.message); // Display the error message
       })
       .finally(() => {
         setLoading(false);

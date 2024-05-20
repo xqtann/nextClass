@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react';
-import { Text, View, StyleSheet, Button, TextInput, ScrollView, TouchableOpacity } from 'react-native';
+import { Text, View, StyleSheet, Button, TextInput, ScrollView, TouchableOpacity, Modal } from 'react-native';
 import MapView, { UrlTile, Marker, Polyline } from 'react-native-maps';
 import * as Location from 'expo-location';
 import MapViewDirections from 'react-native-maps-directions';
@@ -16,9 +16,11 @@ export default function Map({ navigation }) {
   const [dest, setDest] = useState("");
   const [polylinesLoaded, setPolylinesLoaded] = useState(false);
   const [polylinesD, setPolylinesD] = useState([]);
+  const [openModal, setOpenModal] = useState(false);
   let polylines =[];
 
 
+  // INITIAL_CAMERA position at NUS
   const INITIAL_CAMERA = {
     center: {
       latitude: 1.2968034900222334,
@@ -120,10 +122,42 @@ export default function Map({ navigation }) {
     // console.log(location);
 
     const goHandler = () => {
-      venues[origin].location != undefined 
+      origin != '' && dest != '' 
       ? mapRef.current.animateCamera({center: {latitude: venues[origin].location.y, longitude: venues[origin].location.x }}, {duration: 2000}) 
       : console.log("location undefined");
     }
+
+    const optionHandler = () => {
+      console.log("Options clicked");
+      setOpenModal(true);
+    };
+
+    const renderModal = () => {
+      return (
+        <Modal
+        visible={openModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setOpenModal(false)}
+        >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <TouchableOpacity style={styles.closeButton} onPress={() => setOpenModal(false)}>
+              <Text style={styles.closeButtonText}>X</Text>
+            </TouchableOpacity>
+            <Text>
+              {`Options\n
+              Foot/Car\n`}
+            </Text>
+            <View style={styles.buttonGroup}>
+              <Button title="Cancel" onPress={() => setOpenModal(false)} />
+              <Button title="Apply" onPress={() => {setOpenModal(false)}} />
+            </View>
+          </View>
+        </View>
+      </Modal>
+      )
+    };
   
     return (
       <View style={styles.container}>
@@ -231,7 +265,10 @@ export default function Map({ navigation }) {
               showsVerticalScrollIndicator={false}
               dropdownStyle={styles.dropdownMenuStyle}
             />
-            
+            <TouchableOpacity style={styles.optionButton} onPress={optionHandler}>
+              <Text style={styles.optionText}>OPTIONS</Text>
+            </TouchableOpacity>
+            {renderModal()}
             
           </View>
       </View>
@@ -344,10 +381,9 @@ const styles = StyleSheet.create({
     },
     goButton: {
       width: 80,
-      height: 80,
-      top: '12%',
+      height: 50,
       backgroundColor: '#8bbc68',
-      borderRadius: 25,
+      borderRadius: 20,
       flexDirection: 'row',
       justifyContent: 'center',
       alignItems: 'center',
@@ -357,9 +393,57 @@ const styles = StyleSheet.create({
       marginLeft: 20,
       zIndex: 20
     },
+    optionButton: {
+      width: 80,
+      height: 50,
+      backgroundColor: 'gray',
+      borderRadius: 20,
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingHorizontal: 1,
+      borderColor: "black",
+      borderWidth: 2,
+      marginLeft: 20,
+      zIndex: 20
+    },
     goText: {
       fontSize: 40,
       fontFamily: 'System',
       fontWeight: "bold",
+    },
+    optionText: {
+      fontSize: 17,
+      fontFamily: 'System',
+      fontWeight: "bold",
+    },
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    modalContent: {
+      width: '80%',
+      padding: 20,
+      backgroundColor: 'white',
+      borderRadius: 10,
+      alignItems: 'center',
+    },
+    closeButton: {
+      position: 'absolute',
+      top: 10,
+      right: 10,
+    },
+    closeButtonText: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: 'black',
+    },
+    buttonGroup: {
+      marginTop: 20,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      width: '100%',
     }
 })

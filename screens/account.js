@@ -15,7 +15,7 @@ export default function Account({ navigation }) {
     return (
       <View style={styles.container}>
         <Text style={styles.text}> Account Page for {user ? user.email : "Guest"} </Text>
-        {!user ? <ThemedButton name="rick" type="primary" style={styles.button} onPress={() => navigation.navigate("Login")}>Login</ThemedButton> : ""}
+        {/* {!user ? <ThemedButton name="rick" type="primary" style={styles.button} onPress={() => navigation.navigate("Login")}>Login</ThemedButton> : ""} */}
         {user ? <ThemedButton name="rick" type="primary" style={styles.button} onPress={() => FIREBASE_AUTH.signOut()}>LogOut</ThemedButton> : ""}
       </View>
     )

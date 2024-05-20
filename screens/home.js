@@ -29,11 +29,12 @@ export default function Home({ navigation }) {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const storedData = await AsyncStorage.getItem('userName');
+        const storedData = await AsyncStorage.getItem('username');
+        console.log('Stored data:', storedData);
         if (storedData) {
           setUserName(storedData);
         } else {
-          setModalVisible(true);
+          // setModalVisible(true);
         }
       } catch (error) {
         console.error('Error loading data from AsyncStorage:', error);
@@ -41,38 +42,6 @@ export default function Home({ navigation }) {
     };
     loadData();
   }, []);
-
-  const saveData = async () => {
-    try {
-      await AsyncStorage.setItem('userName', userName);
-      setModalVisible(false);
-    } catch (error) {
-      console.error('Error saving data to AsyncStorage:', error);
-    }
-  };
-
-  const renderModal = () => {
-    return (
-      <Modal
-        visible={modalVisible}
-        transparent={true}
-        animationType="slide"
-      >
-        <View style={styles.userModalContainer}>
-          <View style={styles.userModalContent}>
-            <Text style={styles.userModalText}>What is your name?</Text>
-            <TextInput
-              style={styles.userTextInput}
-              value={userName}
-              onChangeText={setUserName}
-              placeholder="Enter your name"
-            />
-            <Button title="Save" onPress={saveData} />
-          </View>
-        </View>
-      </Modal>
-    );
-  };
 
   useEffect(() => {
     onAuthStateChanged(FIREBASE_AUTH, (user) => {
@@ -150,9 +119,10 @@ export default function Home({ navigation }) {
     </View>
   );
 
+  // AsyncStorage.clear();
+  
   return (
     <>
-      {renderModal()}
       <View style={styles.container}>
         <StatusBar style="auto" />
         <Text style={styles.heading}> Welcome back, {userName || "Guest"}! </Text>
