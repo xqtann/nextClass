@@ -1,13 +1,18 @@
 import React, { useState } from "react";
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, SafeAreaView, Keyboard, TouchableWithoutFeedback, View, Text } from "react-native";
-import LogInHeader from "../components/logInHeader";
+import {
+  StyleSheet,
+  SafeAreaView,
+  Keyboard,
+  TouchableWithoutFeedback,
+  View,
+  Text,
+  TouchableOpacity
+} from "react-native";
 import { ThemedButton } from "react-native-really-awesome-button";
 import TextInput from "react-native-text-input-interactive";
 import { FIREBASE_AUTH } from "../FirebaseConfig";
-import {
-  signInWithEmailAndPassword,
-} from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 export default function Login({ navigation }) {
   const [email, setEmail] = useState("");
@@ -18,6 +23,7 @@ export default function Login({ navigation }) {
   const emailHandler = (text) => {
     setEmail(text);
   };
+
   const passWordHandler = (text) => {
     setPassword(text);
   };
@@ -39,24 +45,31 @@ export default function Login({ navigation }) {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <SafeAreaView style={styles.outContainer}>
-        <LogInHeader />
         <View style={styles.container}>
           <TextInput
             style={styles.input}
             placeholder="Enter your email"
             autoCapitalize="none"
-            onChangeText={emailHandler} // Update to use setUsername
-            value={email} // Add value prop to bind state
+            onChangeText={emailHandler}
+            value={email}
           />
-
           <TextInput
             style={styles.input}
             placeholder="Enter your password"
-            secureTextEntry={true} // Hides the password
+            secureTextEntry={true}
             autoCapitalize="none"
-            onChangeText={passWordHandler} // Update to use setPassword
-            value={password} // Add value prop to bind state
+            onChangeText={passWordHandler}
+            value={password}
           />
+
+          <TouchableOpacity
+            style={styles.signupContainer}
+            onPress={() => navigation.push("Register")}
+          >
+            <Text style={styles.signupText}>
+              Don't have an account? <Text style={styles.signupLink}>Sign up now</Text>
+            </Text>
+          </TouchableOpacity>
 
           <ThemedButton
             name="rick"
@@ -72,24 +85,6 @@ export default function Login({ navigation }) {
             Login
           </ThemedButton>
         </View>
-        <ThemedButton
-          name="rick"
-          type="secondary"
-          raiseLevel={2}
-          style={styles.otherButton}
-          onPress={() => navigation.navigate("Profile")}
-        >
-          Log in as Guest
-        </ThemedButton>
-        <ThemedButton
-          name="rick"
-          type="secondary"
-          raiseLevel={2}
-          style={styles.otherButton}
-          onPress={() => navigation.push("Register")}
-        >
-          Register An Account
-        </ThemedButton>
         <StatusBar style="auto" />
       </SafeAreaView>
     </TouchableWithoutFeedback>
@@ -101,26 +96,44 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     paddingTop: 70,
-  },
-  otherButton: {
-    marginBottom: 10,
+    backgroundColor: "#f0f0f0",
   },
   container: {
     justifyContent: "center",
     padding: 20,
     marginTop: 50,
     alignItems: "center",
+    backgroundColor: "#ffffff",
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   input: {
     marginTop: 10,
+    width: '100%',
+  },
+  signupContainer: {
+    marginTop: 20,
+  },
+  signupText: {
+    color: "#000",
+    fontSize: 14,
+  },
+  signupLink: {
+    color: "#3498db",
+    fontWeight: "bold",
   },
   button: {
     marginTop: 20,
     alignItems: "center",
-    justifyContent: "center", // Ensure text is centered vertically
+    justifyContent: "center",
+    alignSelf: 'center',
   },
   buttonText: {
-    color: "#ffffff", // Changed for better visibility
+    color: "#ffffff",
     fontSize: 13,
     fontWeight: "bold",
   },
