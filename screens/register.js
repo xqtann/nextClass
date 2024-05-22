@@ -38,16 +38,19 @@ export default function Register({ navigation }) {
   
     createUserWithEmailAndPassword(FIREBASE_AUTH, email, password)
       .then((response) => {
-        // Save the username to Firestore
-        addDoc(collection(FIRESTORE_DB, "users"), {
+        // Save the username to Firestore with the document ID as the user's UID
+        const userDocRef = doc(FIRESTORE_DB, "users", response.user.uid);
+        return setDoc(userDocRef, {
           uid: response.user.uid,
           username: username,
           email: email,
         });
-    
-      updateProfile(FIREBASE_AUTH.currentUser, { 
-        displayName: username
-      });
+      })
+      .then(() => {
+        // Update the profile with the display name
+        return updateProfile(FIREBASE_AUTH.currentUser, { 
+          displayName: username 
+        });
       })
       .then(() => {
         navigation.navigate("Login");

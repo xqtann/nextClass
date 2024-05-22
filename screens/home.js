@@ -1,24 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { StatusBar } from "expo-status-bar";
-import { Text, View, StyleSheet, Modal, TextInput, Button, FlatList } from 'react-native';
+import { Text, View, StyleSheet, Modal, TextInput, Button, FlatList, ActivityIndicator } from 'react-native';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../FirebaseConfig';
 import { onAuthStateChanged } from "firebase/auth";
 import AppOfTheDayCard from '../components/AppOfTheDayCard/AppOfTheDayCard.js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, doc, getDoc } from 'firebase/firestore';
 import CustomCard from '../components/CustomCard.js';
 
 export default function Home({ navigation }) {
   const [user, setUser] = useState(null);
   const [nextClasses, setNextClasses] = useState([]);
   const [reminders, setReminders] = useState([]);
-  const [userName, setUserName] = useState('');
+  const [userName, setUserName] = useState('Guest');
+  const [loadingUser, setLoadingUser] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
 
   const fetchReminders = async () => {
     const remindersCollection = collection(FIRESTORE_DB, 'reminders');
     const remindersQuery = query(remindersCollection, orderBy('dueDate', 'asc'));
     const querySnapshot = await getDocs(remindersQuery);
+
     const reminders = querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data(),
@@ -27,26 +29,37 @@ export default function Home({ navigation }) {
   };
 
   useEffect(() => {
-    const loadData = async () => {
+    const loadUserData = async (user) => {
       try {
-        const storedData = await AsyncStorage.getItem('username');
-        console.log('Stored data:', storedData);
-        if (storedData) {
-          setUserName(storedData);
+        console.log('Fetching user data...');
+        const userDocRef = doc(FIRESTORE_DB, 'users', user.uid);
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          setUserName(userData.username || 'Guest');
         } else {
-          // setModalVisible(true);
+          console.log('No such document!');
         }
       } catch (error) {
-        console.error('Error loading data from AsyncStorage:', error);
+        console.error('Error loading user data from Firestore:', error);
+      } finally {
+        setLoadingUser(false);
       }
     };
-    loadData();
-  }, []);
 
-  useEffect(() => {
-    onAuthStateChanged(FIREBASE_AUTH, (user) => {
-      setUser(user);
+    const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, (user) => {
+      if (user) {
+        console.log('Authenticated user:', user);
+        setUser(user);
+        loadUserData(user);
+      } else {
+        setUser(null);
+        setUserName('Guest');
+        setLoadingUser(false);
+      }
     });
+
+    return () => unsubscribe();
   }, []);
 
   useEffect(() => {
@@ -118,14 +131,20 @@ export default function Home({ navigation }) {
       </Text>
     </View>
   );
-
-  // AsyncStorage.clear();
   
+  if (loadingUser) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
+
   return (
     <>
       <View style={styles.container}>
         <StatusBar style="auto" />
-        <Text style={styles.heading}> Welcome back, {userName || "Guest"}! </Text>
+        <Text style={styles.heading}> Welcome back, {userName}! </Text>
         
         {nextClasses.length > 0 ? (
           nextClasses.map((event, index) => (
@@ -218,29 +237,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
   },
-  userModalContainer: {
+  loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  userModalContent: {
-    width: 300,
-    padding: 20,
-    backgroundColor: 'white',
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  userModalText: {
-    fontSize: 18,
-    marginBottom: 10,
-  },
-  userTextInput: {
-    width: '100%',
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    marginBottom: 20,
-    paddingHorizontal: 10,
   },
 });
