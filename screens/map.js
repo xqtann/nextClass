@@ -1,11 +1,12 @@
 import React, {useState, useEffect, useRef} from 'react';
 import { Text, View, StyleSheet, Button, TextInput, ScrollView, TouchableOpacity, Modal } from 'react-native';
-import MapView, { UrlTile, Marker, Polyline } from 'react-native-maps';
+import MapView, { UrlTile, Marker, Polyline, Callout } from 'react-native-maps';
 import * as Location from 'expo-location';
 import MapViewDirections from 'react-native-maps-directions';
 import { ScreenHeight, ScreenWidth } from 'react-native-elements/dist/helpers';
 import SelectDropdown from 'react-native-select-dropdown';
 import GHUtil from '../utils/GHUtil';
+import Carousel, { Pagination } from 'react-native-reanimated-carousel';
 
 export default function Map({ navigation }) {
   const [location, setLocation] = useState(null);
@@ -17,6 +18,8 @@ export default function Map({ navigation }) {
   const [polylinesLoaded, setPolylinesLoaded] = useState(false);
   const [polylinesD, setPolylinesD] = useState([]);
   const [openModal, setOpenModal] = useState(false);
+  const [firstHeading, setFirstHeading] = useState(0);
+  const [instructions, setInstructions] = useState([]);
   let polylines =[];
 
 
@@ -52,8 +55,6 @@ export default function Map({ navigation }) {
       const query = new URLSearchParams({
         key: 'c82f39fb-375e-4d61-b0cc-9f9dd9a8b142'
       }).toString();
-
-      console.log(venues[origin].location.y, venues[origin].location.x, venues[dest].location.y, venues[dest].location.x);
       
       const resp = await fetch(
         `https://graphhopper.com/api/1/route?${query}`,
@@ -81,7 +82,11 @@ export default function Map({ navigation }) {
         });
   
       const GHdata = await resp.json();
-      console.log(GHdata);
+      console.log(GHdata.paths[0].instructions);
+      setInstructions(GHdata.paths[0].instructions);
+      setFirstHeading(GHdata.paths[0].instructions[0].heading);
+      console.log(GHdata.paths[0].distance);
+      console.log(GHdata.paths[0].time);
 
       const polylinesDecoded = GHUtil.prototype.decodePath(GHdata.paths[0].points);
       setPolylinesLoaded(polylinesDecoded.length > 0);
@@ -123,7 +128,9 @@ export default function Map({ navigation }) {
 
     const goHandler = () => {
       origin != '' && dest != '' 
-      ? mapRef.current.animateCamera({center: {latitude: venues[origin].location.y, longitude: venues[origin].location.x }}, {duration: 2000}) 
+      ? mapRef.current.animateCamera({
+        center: {latitude: venues[origin].location.y, longitude: venues[origin].location.x },
+      heading: firstHeading}, {duration: 2000}) 
       : console.log("location undefined");
     }
 
@@ -147,7 +154,7 @@ export default function Map({ navigation }) {
             </TouchableOpacity>
             <Text>
               {`Options\n
-              Foot/Car\n`}
+              Foot/Car\n\n\n\n\n\n`}
             </Text>
             <View style={styles.buttonGroup}>
               <Button title="Cancel" onPress={() => setOpenModal(false)} />
@@ -158,6 +165,7 @@ export default function Map({ navigation }) {
       </Modal>
       )
     };
+
   
     return (
       <View style={styles.container}>
@@ -195,17 +203,30 @@ export default function Map({ navigation }) {
           ))
           } */}
           
-          {origin != '' ? <Marker coordinate={{latitude: venues[origin].location.y, longitude: venues[origin].location.x}} pinColor='blue'/> : <Marker />}
-          {dest != '' ? <Marker coordinate={{latitude: venues[dest].location.y, longitude: venues[dest].location.x}}/> : <Marker />}
-          {/* {(origin != '' && dest != '') ? <MapViewDirections
-            origin={{latitude: venues[origin].location.y, longitude: venues[origin].location.x}}
-            destination={{latitude: venues[dest].location.y, longitude: venues[dest].location.x}}
-            apikey='AIzaSyB2q70gqjArHkUR9DqiRZTHHdDarrktG5Q'
-            strokeColor='red'
-            strokeWidth={4}
-            mode='WALKING'
-          /> : <Marker />} */}
-          {polylinesLoaded && polylines.length > 0 ? <Polyline coordinates={polylines} strokeWidth={4} strokeColor='red' /> : console.log("polylines not loaded")}
+          {origin != '' ? 
+          <Marker 
+          coordinate={{latitude: venues[origin].location.y, longitude: venues[origin].location.x}} 
+          pinColor='blue'>
+            <Callout>
+              <View>
+              <Text>{origin}</Text>
+              </View>
+              </Callout>
+          </Marker> : <Marker />}
+          {dest != '' ? 
+          <Marker 
+          coordinate={{latitude: venues[dest].location.y, longitude: venues[dest].location.x}}
+          pinColor='red'>
+            <Callout>
+              <View>
+              <Text>{dest}</Text>
+              </View>
+              </Callout>
+          </Marker> : <Marker />}
+          {polylinesLoaded && polylines.length > 0 ? <Polyline 
+          coordinates={polylines} 
+          strokeWidth={4} 
+          strokeColor='#8F0000' /> : console.log("polylines not loaded")}
           </MapView>
           <View style={styles.overlayContainer}>
               <SelectDropdown
@@ -269,7 +290,33 @@ export default function Map({ navigation }) {
               <Text style={styles.optionText}>OPTIONS</Text>
             </TouchableOpacity>
             {renderModal()}
-            
+          </View>
+          <View style={styles.carouselContainer}>
+          <Carousel
+                loop={false}
+                width={ScreenWidth * 0.9}
+                height={ScreenHeight * 0.2}
+                data={instructions}
+                scrollAnimationDuration={1000}
+                withAnimation={{
+                  type: "spring",
+                  config: {
+                    damping: 13,
+                  },
+                }}
+                onSnapToItem={(index) => console.log('current index:', instructions[index].text)}
+                renderItem={({ index }) => (
+                    <View
+                        style={styles.carouselItem}
+                    >
+                        <Text style={styles.title}>
+                           {` Route: ${instructions[index].text}\n Distance: ${instructions[index].distance}\n Time: ${instructions[index].time}`
+                      }
+                        </Text>
+                        
+                    </View>
+                )}
+            />
           </View>
       </View>
     )
@@ -285,17 +332,14 @@ const styles = StyleSheet.create({
         margin: 10
     },
     map: {
-      borderRadius: 25,
-      marginTop: 10,
-      borderColor: "black",
-      borderWidth: 1,
-      width: '95%',
-      height: '95%'
+      borderRadius: 15,
+      width: '100%',
+      height: '100%'
     },
     overlayContainer: {
       flex: 1,
       position: 'absolute',
-      top: '3%',
+      top: '1%',
       left: '8%',
       height: ScreenHeight * 0.15,
       width: ScreenWidth * 0.6,
@@ -304,7 +348,7 @@ const styles = StyleSheet.create({
     overlayContainerDest: {
       flex: 1,
       position: 'absolute',
-      top: '12%',
+      top: '10%',
       left: '8%',
       height: ScreenHeight * 0.15,
       width: ScreenWidth * 0.6,
@@ -332,7 +376,7 @@ const styles = StyleSheet.create({
     },
     dropdownButtonStyle: {
       width: ScreenWidth * 0.6,
-      height: 50,
+      height: 45,
       backgroundColor: '#E9ECEF',
       borderRadius: 12,
       flexDirection: 'row',
@@ -381,7 +425,7 @@ const styles = StyleSheet.create({
     },
     goButton: {
       width: 80,
-      height: 50,
+      height: 45,
       backgroundColor: '#8bbc68',
       borderRadius: 20,
       flexDirection: 'row',
@@ -395,7 +439,7 @@ const styles = StyleSheet.create({
     },
     optionButton: {
       width: 80,
-      height: 50,
+      height: 45,
       backgroundColor: 'gray',
       borderRadius: 20,
       flexDirection: 'row',
@@ -445,5 +489,26 @@ const styles = StyleSheet.create({
       flexDirection: 'row',
       justifyContent: 'space-between',
       width: '100%',
+    },
+    carouselContainer: {
+      top: '70%', 
+      position:'absolute',
+      height: ScreenHeight * 0.25,
+      width: ScreenWidth,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    carouselItem: {
+      flex: 1,
+      justifyContent: 'center',
+      backgroundColor:'white', 
+      borderColor:'gray',
+      borderWidth: 2,
+      borderRadius: 20,
+    },
+    title: {
+      textAlign: 'left',
+      fontSize: 30,
+      fontWeight: 'bold',
     }
 })
