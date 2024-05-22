@@ -6,7 +6,7 @@ import { ThemedButton } from "react-native-really-awesome-button";
 import * as Yup from 'yup';
 import { FIREBASE_AUTH, FIRESTORE_DB } from "../FirebaseConfig"; // import Firebase config
 import { onAuthStateChanged } from 'firebase/auth';
-import { setDoc, doc, getDoc } from 'firebase/firestore';
+import { setDoc, doc, getDoc, addDoc, collection } from 'firebase/firestore';
 
 let actual_data = [];
 
@@ -79,8 +79,9 @@ export default function Timetable({ navigation }) {
     const saveData = async () => {
         try {
             if (user) {
-                await setDoc(doc(FIRESTORE_DB, "timetables", user.uid), {
+                await addDoc(collection(FIRESTORE_DB, "timetables"), {
                     timetableData: actual_data,
+                    uid: user.uid,
                 });
             }
         } catch (error) {

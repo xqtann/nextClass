@@ -14,17 +14,18 @@ import {
 import { ThemedButton } from "react-native-really-awesome-button";
 import TextInput from "react-native-text-input-interactive";
 import { FIREBASE_AUTH } from "../FirebaseConfig";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { CheckBox } from '@rneui/themed';
 
 export default function Login({ navigation }) {
+  const [user, setUser] = useState(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [keepLogin, setKeepLogin] = useState(false);
   const auth = FIREBASE_AUTH;
+
 
   const emailHandler = (text) => {
     setEmail(text);
@@ -34,43 +35,46 @@ export default function Login({ navigation }) {
     setPassword(text);
   };
 
-  const signIn = async () => {
-    setLoading(true);
-    try {
-      const response = await signInWithEmailAndPassword(auth, email, password);
-      const saveData = async () => {
-        try {
-          await AsyncStorage.setItem('username', FIREBASE_AUTH.currentUser.displayName);
-          navigation.navigate("Profile");
-        } catch (error) {
-          console.error('Error saving data to AsyncStorage:', error);
-        }
-      };
-      saveData();
-    } catch (error) {
-      console.log(error);
-      alert(error.message);
-    } finally {
-      setLoading(false);
-    }
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      console.log("USER IS STILL LOGGED IN: " , user);
+      if (user) {
+        setUser(user);
+        navigation.navigate("Profile");
+      } else {
+        setModalVisible(true);
+        // navigation.navigate("Login");
+      }
+    });
+  }, [user]);
+
+  const signIn = () => {
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        console.log('User logged in successfully:',  userCredential);
+        setUser(userCredential);
+      })
+      .catch((error) => {
+        console.log('Error', error);
+      });
   };
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const storedData = await AsyncStorage.getItem('username');
-        if (storedData) {
-          navigation.navigate("Profile");
-        } else {
-          setModalVisible(true);
-          // navigation.navigate("Login");
-        }
-      } catch (error) {
-        console.error('Error loading data from AsyncStorage:', error);
-      }
-    };
-    loadData();
-  }, []);
+  // useEffect(() => {
+  //   const loadData = async () => {
+  //     try {
+  //       const user = auth.currentUser;
+  //       if (user) {
+  //         navigation.navigate("Profile");
+  //       } else {
+  //         setModalVisible(true);
+  //         // navigation.navigate("Login");
+  //       }
+  //     } catch (error) {
+  //       console.error('Error loading data from AsyncStorage:', error);
+  //     }
+  //   };
+  //   loadData();
+  // }, []);
 
   // AsyncStorage.clear();
 
@@ -94,7 +98,6 @@ export default function Login({ navigation }) {
             onChangeText={passWordHandler}
             value={password}
           />
-
           <TouchableOpacity
             style={styles.signupContainer}
             onPress={() => navigation.push("Register")}
