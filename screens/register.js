@@ -53,6 +53,9 @@ export default function Register({ navigation }) {
         });
       })
       .then(() => {
+        FIREBASE_AUTH.signOut();
+      })
+      .then(() => {
         navigation.navigate("Login");
       })
       .catch((err) => {
