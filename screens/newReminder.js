@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StatusBar } from "expo-status-bar";
 import { Text, View, StyleSheet, Button, TextInput, Keyboard, TouchableWithoutFeedback, Alert } from 'react-native';
 import { ThemedButton } from 'react-native-really-awesome-button';
-import { FIRESTORE_DB } from '../FirebaseConfig';
-import { addDoc, collection } from 'firebase/firestore';
+import { FIREBASE_AUTH, FIRESTORE_DB } from '../FirebaseConfig';
+import { addDoc, collection, Timestamp } from 'firebase/firestore';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { onAuthStateChanged } from 'firebase/auth';
 
 export default function NewReminder({ navigation, route }) {
   const { moduleCode } = route.params;
@@ -25,20 +26,23 @@ export default function NewReminder({ navigation, route }) {
       Alert.alert("Error", "Please fill all fields before submitting.");
       return;
     }
-    await addDoc(collection(FIRESTORE_DB, 'reminders'), {
-      title: title, 
-      description: description,
-      dueDate: dueDate, 
-      remind: remind, 
-      done: false,
-      moduleCode: moduleCode,
-      uid: user.uid,
-    });
-    setTitle("");
-    setDescription("");
-    setDueDate(new Date());
-    setRemind(new Date());
-    navigation.pop();
+    if (user) {
+      await addDoc(collection(FIRESTORE_DB, `users/${user.uid}/reminders`), {
+        title: title,
+        description: description,
+        dueDate: Timestamp.fromDate(dueDate),
+        remind: Timestamp.fromDate(remind),
+        done: false,
+        moduleCode: moduleCode,
+      });
+      setTitle("");
+      setDescription("");
+      setDueDate(new Date());
+      setRemind(new Date());
+      navigation.pop();
+    } else {
+      Alert.alert("Error", "User not logged in.");
+    }
   };
 
   const onDueDateChange = (event, selectedDate) => {
@@ -58,7 +62,7 @@ export default function NewReminder({ navigation, route }) {
   });
 
   return (
-    <TouchableWithoutFeedback onPress={ Keyboard.dismiss }>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
         <TextInput
           style={styles.input}
@@ -98,11 +102,11 @@ export default function NewReminder({ navigation, route }) {
             onChange={onRemindChange}
           />
         </View>
-        <View style={{padding:5, paddingRight:30, paddingLeft:30}}>
-        <ThemedButton name='rick' type='secondary' style={styles.button} onPress={submitHandler}>
-          <Text style={styles.buttonText}>Create</Text>
-        </ThemedButton>
-        <StatusBar style="light" />
+        <View style={{ padding: 5, paddingRight: 30, paddingLeft: 30 }}>
+          <ThemedButton name='rick' type='secondary' style={styles.button} onPress={submitHandler}>
+            <Text style={styles.buttonText}>Create</Text>
+          </ThemedButton>
+          <StatusBar style="light" />
         </View>
       </View>
     </TouchableWithoutFeedback>
@@ -146,7 +150,7 @@ const styles = StyleSheet.create({
   button: {
     alignSelf: 'center',
     marginTop: 20,
-    paddingVertical: 10, 
+    paddingVertical: 10,
     paddingBottom: 50,
   },
   buttonText: {

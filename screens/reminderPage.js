@@ -3,11 +3,11 @@ import { Text, View, StyleSheet, Button } from 'react-native';
 import { StatusBar } from "expo-status-bar";
 
 export default function ReminderPage({ navigation, route }) {
-  const { reminder } = route.params;
+  const { reminder, reminderID } = route.params;
 
   navigation.setOptions({
     headerRight: () => (
-      <Button onPress={() => { navigation.navigate("EditReminder", { reminder: reminder }) }} title="Edit" />
+      <Button onPress={() => { navigation.navigate("EditReminder", { reminder: reminder, reminderID: reminderID }) }} title="Edit" />
     ),
   });
 

@@ -16,17 +16,17 @@ export default function Home({ navigation }) {
   const [loadingUser, setLoadingUser] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
 
-  const fetchReminders = async () => {
-    const remindersCollection = collection(FIRESTORE_DB, 'reminders');
+  const fetchReminders = async (uid) => {
+    const remindersCollection = collection(FIRESTORE_DB, `users/${uid}/reminders`);
     const remindersQuery = query(remindersCollection, orderBy('dueDate', 'asc'));
     const querySnapshot = await getDocs(remindersQuery);
-
+  
     const reminders = querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data(),
     }));
     return reminders;
-  };
+  };  
 
   useEffect(() => {
     const loadUserData = async (user) => {
@@ -46,7 +46,7 @@ export default function Home({ navigation }) {
         setLoadingUser(false);
       }
     };
-
+  
     const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, (user) => {
       if (user) {
         console.log('Authenticated user:', user);
@@ -58,10 +58,10 @@ export default function Home({ navigation }) {
         setLoadingUser(false);
       }
     });
-
+  
     return () => unsubscribe();
   }, []);
-
+  
   useEffect(() => {
     const fetchTimetableData = async () => {
       try {
@@ -79,16 +79,18 @@ export default function Home({ navigation }) {
         console.error('Error loading timetable data from AsyncStorage:', error);
       }
     };
-
+  
     const fetchAllData = async () => {
-      const remindersData = await fetchReminders();
-      setReminders(remindersData);
+      if (user) {
+        const remindersData = await fetchReminders(user.uid);
+        setReminders(remindersData);
+      }
     };
-
+  
     fetchTimetableData();
     fetchAllData();
-  }, []);
-
+  }, [user]);
+  
   const getNextTwoClasses = (timetable) => {
     const now = new Date();
     const nowDay = now.getDay(); // 0 (Sunday) to 6 (Saturday)

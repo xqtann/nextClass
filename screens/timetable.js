@@ -6,9 +6,7 @@ import { ThemedButton } from "react-native-really-awesome-button";
 import * as Yup from 'yup';
 import { FIREBASE_AUTH, FIRESTORE_DB } from "../FirebaseConfig"; // import Firebase config
 import { onAuthStateChanged } from 'firebase/auth';
-import { setDoc, doc, getDoc, addDoc, collection } from 'firebase/firestore';
-
-let actual_data = [];
+import { setDoc, doc, getDoc, addDoc, collection, getDocsFromCache } from 'firebase/firestore';
 
 const apiUrl = `https://api.nusmods.com/v2`;
 const acadYear = '2023-2024';
@@ -24,15 +22,34 @@ const validationSchema = Yup.object().shape({
 export default function Timetable({ navigation }) {
     const [formUrl, setForm] = useState('');
     const [error, setError] = useState('');
-    const [imported, setImported] = useState(false);
     const [openModal, setModal] = useState(false);
     const [currentEvt, setEvt] = useState(null);
     const [user, setUser] = useState(null); // State to store the current user
+    const [actualData, setActualData] = useState([]); // Change to state
+
+    useEffect(() => {
+        if (actualData.length > 0) {
+            saveData(); // Save data to Firestore
+        }
+    }, [actualData]);    
+
+    const convertToISOString = (timeBlock) => {
+        return timeBlock.toISOString();
+    };
+
+    const convertFromISOString = (isoString) => {
+        const date = new Date(isoString);
+        const day = date.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
+        const hours = date.getHours();
+        const minutes = date.getMinutes();
+        return genTimeBlock(day, hours, minutes);
+    };
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, (user) => {
             if (user) {
                 setUser(user);
+                console.log(user.uid);
                 loadData(user.uid);
             }
         });
@@ -45,8 +62,13 @@ export default function Timetable({ navigation }) {
             const docRef = doc(FIRESTORE_DB, "timetables", uid);
             const docSnap = await getDoc(docRef);
             if (docSnap.exists()) {
-                actual_data = docSnap.data().timetableData;
-                setImported(true);
+                const timetableData = docSnap.data().timetableData;
+                const convertedData = timetableData.map(item => ({
+                    ...item,
+                    startTime: convertFromISOString(item.startTime),
+                    endTime: convertFromISOString(item.endTime),
+                }));
+                setActualData(convertedData); // Update state
             } else {
                 console.log("No such document!");
             }
@@ -56,11 +78,10 @@ export default function Timetable({ navigation }) {
     };
 
     const optionHandler = async () => {
-        setImported(false);
-        actual_data = [];
+        setActualData([]); // Clear state
         if (user) {
             await setDoc(doc(FIRESTORE_DB, "timetables", user.uid), {
-                timetableData: actual_data,
+                timetableData: [],
             });
         }
     };
@@ -79,18 +100,23 @@ export default function Timetable({ navigation }) {
     const saveData = async () => {
         try {
             if (user) {
-                await addDoc(collection(FIRESTORE_DB, "timetables"), {
-                    timetableData: actual_data,
-                    uid: user.uid,
-                });
+                const formattedData = actualData.map(item => ({
+                    ...item,
+                    startTime: convertToISOString(item.startTime),
+                    endTime: convertToISOString(item.endTime)
+                }));
+                await setDoc(doc(FIRESTORE_DB, "timetables", user.uid), { timetableData: formattedData });
+                console.log('Document successfully written!');
+            } else {
+                console.log('No user found, cannot save data');
             }
         } catch (error) {
-            console.error('Error saving data to Firestore:', error);
+            console.log('Error saving data to Firestore:', error);
         }
     };
 
     useEffect(() => {
-        if (imported) {
+        if (actualData.length > 0) {
             navigation.setOptions({
                 headerLeft: () => (
                     <TouchableOpacity
@@ -106,7 +132,7 @@ export default function Timetable({ navigation }) {
                 headerLeft: null,
             });
         }
-    }, [imported]);
+    }, [actualData]);
 
     const numOfDays = 5;
     const pivotDate = genTimeBlock('mon');
@@ -131,88 +157,84 @@ export default function Timetable({ navigation }) {
 
     const urlParser = async (url) => {
         url = url.slice(34);
-        sem = url[0];
-        mods = url.slice(8);
-        modLst = mods.split('&');
+        const sem = url[0];
+        const mods = url.slice(8);
+        const modLst = mods.split('&');
+        const newEvents = []; // Temporary array to store new events
+    
         for (let i = 0; i < modLst.length; i++) {
-            module = modLst[i].split('=');
-            moduleCode = module[0];
-            classDetails = module[1].split(',');
+            const module = modLst[i].split('=');
+            const moduleCode = module[0];
+            const classDetails = module[1].split(',');
             try {
                 const classData = await getData(moduleCode, sem);
-
+    
                 for (let j = 0; j < classDetails.length; j++) {
-                    classLst = classDetails[j].split(':');
-                    classType = classLst[0];
-                    classNum = classLst[1];
-                    if (classType == 'LAB') {
+                    const classLst = classDetails[j].split(':');
+                    let classType = classLst[0];
+                    const classNum = classLst[1];
+                    if (classType === 'LAB') {
                         classType = 'Laboratory';
-                    } else if (classType == 'LEC') {
+                    } else if (classType === 'LEC') {
                         classType = 'Lecture';
-                    } else if (classType == 'TUT') {
+                    } else if (classType === 'TUT') {
                         classType = 'Tutorial';
-                    } else if (classType == 'REC') {
+                    } else if (classType === 'REC') {
                         classType = 'Recitation';
-                    } else if (classType == 'WS') {
+                    } else if (classType === 'WS') {
                         classType = 'Workshop';
-                    } else if (classType == 'SEC') {
+                    } else if (classType === 'SEC') {
                         classType = 'Sectional Teaching';
                     }
-
-                    classTiming = classData.find(x => x.lessonType == classType && x.classNo == classNum);
-
-                    classDay = classTiming['day'];
-
-                    if (classDay == 'Monday') {
-                        classDay = 'MON';
-                    } else if (classDay == 'Tuesday') {
-                        classDay = 'TUE';
-                    } else if (classDay == 'Wednesday') {
-                        classDay = 'WED';
-                    } else if (classDay == 'Thursday') {
-                        classDay = 'THU';
-                    } else if (classDay == 'Friday') {
-                        classDay = 'FRI';
-                    }
-
-                    classStart = classTiming['startTime'];
-                    classStartHour = classStart[0] == '0' ? classStart.slice(1, 2) : classStart.slice(0, 2);
-                    classStartMin = classStart[2] == '0' ? classStart.slice(3) : classStart.slice(2);
-
-                    classEnd = classTiming['endTime'];
-                    classEndHour = classEnd[0] == '0' ? classEnd.slice(1, 2) : classEnd.slice(0, 2);
-                    classEndMin = classEnd[2] == '0' ? classEnd.slice(3) : classEnd.slice(2);
-
-                    classVenue = classTiming['venue'];
-
-                    classWeeks = classTiming['weeks'];
-
+    
+                    const classTiming = classData.find(x => x.lessonType === classType && x.classNo === classNum);
+    
+                    let classDay = classTiming['day'];
+                    if (classDay === 'Monday') classDay = 'MON';
+                    else if (classDay === 'Tuesday') classDay = 'TUE';
+                    else if (classDay === 'Wednesday') classDay = 'WED';
+                    else if (classDay === 'Thursday') classDay = 'THU';
+                    else if (classDay === 'Friday') classDay = 'FRI';
+    
+                    const classStart = classTiming['startTime'];
+                    const classStartHour = classStart[0] === '0' ? classStart.slice(1, 2) : classStart.slice(0, 2);
+                    const classStartMin = classStart[2] === '0' ? classStart.slice(3) : classStart.slice(2);
+    
+                    const classEnd = classTiming['endTime'];
+                    const classEndHour = classEnd[0] === '0' ? classEnd.slice(1, 2) : classEnd.slice(0, 2);
+                    const classEndMin = classEnd[2] === '0' ? classEnd.slice(3) : classEnd.slice(2);
+    
+                    const classVenue = classTiming['venue'];
+    
+                    let classWeeks = classTiming['weeks'];
                     if (classWeeks.length > 6) {
                         classWeeks = 'Weeks: ' + classWeeks[0] + '-' + classWeeks[classWeeks.length - 1];
                     } else {
-                        finalString = 'Weeks: \n';
+                        let finalString = 'Weeks: \n';
                         for (let k = 0; k < classWeeks.length; k++) {
                             finalString += classWeeks[k] + ' ';
                         }
                         classWeeks = finalString;
                     }
-
-                    actual_data.push({
+    
+                    const newEvent = {
                         title: moduleCode,
                         startTime: genTimeBlock(classDay, classStartHour, classStartMin),
                         endTime: genTimeBlock(classDay, classEndHour, classEndMin),
                         location: classVenue,
                         extra_descriptions: [classType, '[' + classNum + ']', classWeeks],
-                    })
+                    };
+    
+                    newEvents.push(newEvent); // Store new event in temporary array
                 }
-
+    
             } catch (error) {
                 console.error(`Error fetching data for module ${moduleCode}:`, error);
             }
         }
-        setImported(true);
-        saveData();
-    }
+    
+        setActualData(prevData => [...prevData, ...newEvents]); // Update state with all new events
+    };
 
     const handleSubmit = () => {
         validationSchema
@@ -229,63 +251,64 @@ export default function Timetable({ navigation }) {
     }
 
     const renderModal = () => {
-      if (!currentEvt) return null;
-  
-      start = new Date(currentEvt.startTime);
-      startHour = start.getHours();
-      startMin = start.getMinutes() == 0 ? '00' : start.getMinutes();
-      end = new Date(currentEvt.endTime);
-      endHour = end.getHours();
-      endMin = (end.getMinutes() == 0) ? '00' : end.getMinutes();
-  
-      return (
-          <Modal
-              visible={openModal}
-              transparent={true}
-              animationType="fade"
-              onRequestClose={() => setModal(false)}
-          >
-              <TouchableWithoutFeedback onPress={() => setModal(false)}>
-                  <View style={styles.modalOverlay}>
-                      <TouchableWithoutFeedback onPress={() => {}}>
-                          <View style={styles.modalContent}>
-                              <TouchableOpacity style={styles.closeButton} onPress={() => setModal(false)}>
-                                  <Text style={styles.closeButtonText}>X</Text>
-                              </TouchableOpacity>
-                              <Text>
-                                  {`Module: ${currentEvt.title}\n
-                                  ${currentEvt.extra_descriptions.join(" ")}\n
-                                  Time: ${startHour}:${startMin} - ${endHour}:${endMin}\n
-                                  Venue: ${currentEvt.location}\n`}
-                              </Text>
-                              <View style={styles.buttonGroup}>
-                                  <Button title="Reminders" onPress={() => {
-                                      navigation.navigate('Reminder', {
-                                          moduleCode: currentEvt.title,
-                                          screenTitle: currentEvt.title
-                                      }); setModal(false)
-                                  }} />
-                                  <Button title="Get Route" onPress={() => { navigation.navigate('Map'); setModal(false) }} />
-                              </View>
-                          </View>
-                      </TouchableWithoutFeedback>
-                  </View>
-              </TouchableWithoutFeedback>
-          </Modal>
-      )
-  }
+        if (!currentEvt) return null;
+    
+        const start = new Date(currentEvt.startTime);
+        const startHour = start.getHours();
+        const startMin = start.getMinutes() === 0 ? '00' : start.getMinutes();
+        const end = new Date(currentEvt.endTime);
+        const endHour = end.getHours();
+        const endMin = end.getMinutes() === 0 ? '00' : end.getMinutes();
+    
+        return (
+            <Modal
+                visible={openModal}
+                transparent={true}
+                animationType="fade"
+                onRequestClose={() => setModal(false)}
+            >
+                <TouchableWithoutFeedback onPress={() => setModal(false)}>
+                    <View style={styles.modalOverlay}>
+                        <TouchableWithoutFeedback onPress={() => {}}>
+                            <View style={styles.modalContent}>
+                                <TouchableOpacity style={styles.closeButton} onPress={() => setModal(false)}>
+                                    <Text style={styles.closeButtonText}>X</Text>
+                                </TouchableOpacity>
+                                <Text style={styles.modalText}>
+                                    {`Module: ${currentEvt.title}\n
+                                    ${currentEvt.extra_descriptions.join(" ")}\n
+                                    Time: ${startHour}:${startMin} - ${endHour}:${endMin}\n
+                                    Venue: ${currentEvt.location}\n`}
+                                </Text>
+                                <View style={styles.buttonGroup}>
+                                    <Button title="Reminders" onPress={() => {
+                                        navigation.navigate('Reminder', {
+                                            moduleCode: currentEvt.title,
+                                            screenTitle: currentEvt.title
+                                        }); setModal(false)
+                                    }} />
+                                    <Button title="Get Route" onPress={() => { navigation.navigate('Map'); setModal(false) }} />
+                                </View>
+                            </View>
+                        </TouchableWithoutFeedback>
+                    </View>
+                </TouchableWithoutFeedback>
+            </Modal>
+        )
+    }
+    
   
     const onEventPress = (evt) => {
         setEvt(evt);
         setModal(true);
     };
 
-    return imported ? (
+    return actualData.length > 0 ? (
         <TouchableWithoutFeedback onPress={() => setModal(false)}>
             <SafeAreaView style={{ flex: 1 }}>
                 <View style={styles.container}>
                     <TimeTableView
-                        events={actual_data}
+                        events={actualData}
                         pivotTime={8}
                         pivotEndTime={19}
                         pivotDate={pivotDate}
@@ -386,33 +409,82 @@ const styles = StyleSheet.create({
     button: {
         fontSize: 10,
     },
+    // modalOverlay: {
+    //     flex: 1,
+    //     backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    //     justifyContent: 'center',
+    //     alignItems: 'center',
+    // },
+    // modalContent: {
+    //     width: '80%',
+    //     padding: 20,
+    //     backgroundColor: 'white',
+    //     borderRadius: 10,
+    //     alignItems: 'center',
+    // },
+    // closeButton: {
+    //     position: 'absolute',
+    //     top: 10,
+    //     right: 10,
+    // },
+    // closeButtonText: {
+    //     fontSize: 18,
+    //     fontWeight: 'bold',
+    //     color: 'black',
+    // },
+    // buttonGroup: {
+    //     marginTop: 20,
+    //     flexDirection: 'row',
+    //     justifyContent: 'space-between',
+    //     width: '100%',
+    // },
     modalOverlay: {
         flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        backgroundColor: 'rgba(0, 0, 0, 0.7)', // Slightly darker overlay
         justifyContent: 'center',
         alignItems: 'center',
     },
     modalContent: {
-        width: '80%',
+        width: '85%', // Slightly wider modal
         padding: 20,
         backgroundColor: 'white',
-        borderRadius: 10,
+        borderRadius: 20, // More rounded corners
         alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
     },
     closeButton: {
         position: 'absolute',
         top: 10,
         right: 10,
+        backgroundColor: '#ff5c5c', // Red close button
+        borderRadius: 20,
+        width: 30,
+        height: 30,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     closeButtonText: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: 'black',
+        color: 'white',
     },
     buttonGroup: {
         marginTop: 20,
         flexDirection: 'row',
         justifyContent: 'space-between',
         width: '100%',
-    }
+    },
+    modalText: {
+        fontSize: 16,
+        marginVertical: 10,
+        textAlign: 'center',
+        width: '60%'
+    },
 });
