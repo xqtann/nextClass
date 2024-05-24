@@ -170,6 +170,7 @@ export default function Home({ navigation }) {
               buttonText={"ROUTE"}
               backgroundSource={require("../assets/nextclass_logo.png")}
               onPress={() => {navigation.navigate("Reminder", { moduleCode: event.title })}}
+              onButtonPress={() => {navigation.navigate("Map", { destVenue: event.location })}}
             />
           </View>
         ))

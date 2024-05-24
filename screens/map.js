@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react';
-import { Text, View, StyleSheet, Button, TextInput, ScrollView, TouchableOpacity, Modal } from 'react-native';
+import { Text, View, StyleSheet, Button, TextInput, ScrollView, TouchableOpacity, Modal, Alert } from 'react-native';
 import MapView, { UrlTile, Marker, Polyline, Callout } from 'react-native-maps';
 import * as Location from 'expo-location';
 import MapViewDirections from 'react-native-maps-directions';
@@ -7,19 +7,27 @@ import { ScreenHeight, ScreenWidth } from 'react-native-elements/dist/helpers';
 import SelectDropdown from 'react-native-select-dropdown';
 import GHUtil from '../utils/GHUtil';
 import Carousel, { Pagination } from 'react-native-reanimated-carousel';
+import { AntDesign } from '@expo/vector-icons';
+import { ThemedButton } from "react-native-really-awesome-button";
 
-export default function Map({ navigation }) {
+export default function Map({ navigation, route }) {
+  const { destVenue } = route.params;
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const mapRef = useRef();
   const venues = require('../assets/venues.json');
   const [origin, setOrigin] = useState("");
-  const [dest, setDest] = useState("");
+  const [dest, setDest] = useState(destVenue);
   const [polylinesLoaded, setPolylinesLoaded] = useState(false);
   const [polylinesD, setPolylinesD] = useState([]);
   const [openModal, setOpenModal] = useState(false);
-  const [firstHeading, setFirstHeading] = useState(0);
   const [instructions, setInstructions] = useState([]);
+  const [tempLat, setTempLat] = useState(0);
+  const [tempLong, setTempLong] = useState(0);
+  const [goPressed, setGoPressed] = useState(false);
+  const [totalTime, setTotalTime] = useState(0);
+  const [totalDist, setTotalDist] = useState(0);
+  let firstHeading = 0;
   let polylines =[];
 
 
@@ -82,11 +90,11 @@ export default function Map({ navigation }) {
         });
   
       const GHdata = await resp.json();
-      console.log(GHdata.paths[0].instructions);
-      setInstructions(GHdata.paths[0].instructions);
-      setFirstHeading(GHdata.paths[0].instructions[0].heading);
-      console.log(GHdata.paths[0].distance);
-      console.log(GHdata.paths[0].time);
+      // console.log(GHdata.paths);
+      await setInstructions(GHdata.paths[0].instructions);
+      firstHeading = await GHdata.paths[0].instructions[0].heading;
+      setTotalTime(GHdata.paths[0].time);
+      setTotalDist(GHdata.paths[0].distance);
 
       const polylinesDecoded = GHUtil.prototype.decodePath(GHdata.paths[0].points);
       setPolylinesLoaded(polylinesDecoded.length > 0);
@@ -130,8 +138,9 @@ export default function Map({ navigation }) {
       origin != '' && dest != '' 
       ? mapRef.current.animateCamera({
         center: {latitude: venues[origin].location.y, longitude: venues[origin].location.x },
-      heading: firstHeading}, {duration: 2000}) 
-      : console.log("location undefined");
+      heading: firstHeading }, {duration: 2000}) 
+      : Alert.alert(`Please select both\n origin and destination`);
+      setGoPressed(!goPressed);
     }
 
     const optionHandler = () => {
@@ -202,7 +211,11 @@ export default function Map({ navigation }) {
             : <Marker />
           ))
           } */}
-          
+          {tempLat != 0 && tempLong != 0 ? <Marker 
+          coordinate={{latitude: tempLat, longitude: tempLong}} 
+          pinColor='gray'>
+          </Marker> : <Marker />}
+
           {origin != '' ? 
           <Marker 
           coordinate={{latitude: venues[origin].location.y, longitude: venues[origin].location.x}} 
@@ -255,9 +268,22 @@ export default function Map({ navigation }) {
               showsVerticalScrollIndicator={false}
               dropdownStyle={styles.dropdownMenuStyle}
             />
-            <TouchableOpacity style={styles.goButton} onPress={goHandler}>
-              <Text style={styles.goText}>GO</Text>
-            </TouchableOpacity>
+             <ThemedButton
+                name="rick"
+                type="secondary"
+                style={styles.goButton}
+                height={45}
+                width={80}
+                raiseLevel={2}
+                progress
+                onPress={async (next) => {
+                  await new Promise((resolve) => setTimeout(resolve, 1000));
+                  next();
+                  goHandler();
+                }}
+              >
+                GO
+              </ThemedButton>
           </View>
           <View style={styles.overlayContainerDest}>
               <SelectDropdown
@@ -270,9 +296,12 @@ export default function Map({ navigation }) {
               renderButton={(selectedItem, isOpened) => {
                 return (
                   <View style={styles.dropdownButtonStyle}>
-                    <Text style={styles.dropdownButtonTxtStyle}>
+                    {dest == "" 
+                    ? <Text style={styles.dropdownButtonTxtStyle}>
                       {(selectedItem && selectedItem.venue) || 'Destination'}
-                    </Text>
+                    </Text> 
+                    : <Text style={styles.dropdownButtonTxtStyle}>{dest}</Text>
+                    }
                   </View>
                 );
               }}
@@ -286,9 +315,22 @@ export default function Map({ navigation }) {
               showsVerticalScrollIndicator={false}
               dropdownStyle={styles.dropdownMenuStyle}
             />
-            <TouchableOpacity style={styles.optionButton} onPress={optionHandler}>
-              <Text style={styles.optionText}>OPTIONS</Text>
-            </TouchableOpacity>
+            <ThemedButton
+                name="rick"
+                type="secondary"
+                style={styles.optionButton}
+                backgroundColor='#9AA0A6'
+                borderColor='#d2d2d2'
+                height={45}
+                width={80}
+                raiseLevel={0}
+                textColor='black'
+                textSize={12}
+                paddingHorizontal={10}
+                onPress={optionHandler}
+              >
+                OPTIONS
+              </ThemedButton>
             {renderModal()}
           </View>
           <View style={styles.carouselContainer}>
@@ -304,15 +346,23 @@ export default function Map({ navigation }) {
                     damping: 13,
                   },
                 }}
-                onSnapToItem={(index) => console.log('current index:', instructions[index].text)}
+                onSnapToItem={(index) => {mapRef.current.animateCamera({
+                  center: {latitude: polylines[instructions[index].interval[0]].latitude, longitude: polylines[instructions[index].interval[0]].longitude },
+                  heading: instructions[index].heading}, {duration: 500}); 
+                  console.log("current coord", instructions[index].interval[0]);
+                  setTempLat(polylines[instructions[index].interval[0]].latitude);
+                  setTempLong(polylines[instructions[index].interval[0]].longitude);
+                }}
                 renderItem={({ index }) => (
                     <View
                         style={styles.carouselItem}
                     >
                         <Text style={styles.title}>
-                           {` Route: ${instructions[index].text}\n Distance: ${instructions[index].distance}\n Time: ${instructions[index].time}`
+                           {` Route: ${instructions[index].text}\n Distance: ${instructions[index].distance}\n Time: ${instructions[index].time} \n Total Dist: ${totalDist}\n Total Time: ${totalTime}\n`
                       }
                         </Text>
+                        <Text style={styles.subtitle}>SWIPE FOR NEXT STEP</Text>
+                        <AntDesign name="doubleright" style={styles.arrow} size={15} color="black" />
                         
                     </View>
                 )}
@@ -424,40 +474,32 @@ const styles = StyleSheet.create({
       marginRight: 8,
     },
     goButton: {
-      width: 80,
-      height: 45,
-      backgroundColor: '#8bbc68',
-      borderRadius: 20,
       flexDirection: 'row',
       justifyContent: 'center',
       alignItems: 'center',
       paddingHorizontal: 12,
-      borderColor: "black",
-      borderWidth: 2,
       marginLeft: 20,
       zIndex: 20
     },
     optionButton: {
       width: 80,
       height: 45,
-      backgroundColor: 'gray',
-      borderRadius: 20,
+      backgroundColor: '#9AA0A6',
+      borderRadius: 25,
       flexDirection: 'row',
       justifyContent: 'center',
       alignItems: 'center',
       paddingHorizontal: 1,
-      borderColor: "black",
-      borderWidth: 2,
       marginLeft: 20,
       zIndex: 20
     },
     goText: {
-      fontSize: 40,
+      fontSize: 30,
       fontFamily: 'System',
       fontWeight: "bold",
     },
     optionText: {
-      fontSize: 17,
+      fontSize: 15,
       fontFamily: 'System',
       fontWeight: "bold",
     },
@@ -478,12 +520,18 @@ const styles = StyleSheet.create({
       position: 'absolute',
       top: 10,
       right: 10,
-    },
-    closeButtonText: {
+      backgroundColor: '#ff5c5c', // Red close button
+      borderRadius: 20,
+      width: 30,
+      height: 30,
+      justifyContent: 'center',
+      alignItems: 'center',
+  },
+  closeButtonText: {
       fontSize: 18,
       fontWeight: 'bold',
-      color: 'black',
-    },
+      color: 'white',
+  },
     buttonGroup: {
       marginTop: 20,
       flexDirection: 'row',
@@ -501,7 +549,8 @@ const styles = StyleSheet.create({
     carouselItem: {
       flex: 1,
       justifyContent: 'center',
-      backgroundColor:'white', 
+      paddingHorizontal: 10,
+      backgroundColor:'#f0f0f0', 
       borderColor:'gray',
       borderWidth: 2,
       borderRadius: 20,
@@ -510,5 +559,20 @@ const styles = StyleSheet.create({
       textAlign: 'left',
       fontSize: 30,
       fontWeight: 'bold',
+      fontFamily: 'System'
+    },
+    subtitle: {
+      position: 'absolute',
+      bottom: 5,
+      right: 25,
+      textAlign: 'right',
+      fontSize: 15,
+      fontStyle: 'italic',
+      fontFamily: 'System'
+    },
+    arrow: {
+      position: 'absolute',
+      bottom: 5,
+      right: 5,
     }
 })

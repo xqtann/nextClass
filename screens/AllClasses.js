@@ -68,6 +68,7 @@ export default function AllClassesScreen({ navigation }) {
         buttonText={"ROUTE"}
         backgroundSource={require("../assets/nextclass_logo.png")}
         onPress={() => navigation.navigate("Reminder", { moduleCode: item.title })}
+        onButtonPress={() => {navigation.navigate("Map", { destVenue: item.location })}}
       />
     </View>
   );
@@ -104,7 +105,6 @@ export default function AllClassesScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    margin: 10,
   },
   loadingContainer: {
     flex: 1,
@@ -125,7 +125,6 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     paddingHorizontal: 15,
     borderRadius: 10,
-    marginVertical: 10,
     justifyContent: 'center',
     alignItems: 'center',
   },

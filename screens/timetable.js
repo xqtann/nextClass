@@ -275,10 +275,10 @@ export default function Timetable({ navigation }) {
                                     <Text style={styles.closeButtonText}>X</Text>
                                 </TouchableOpacity>
                                 <Text style={styles.modalText}>
-                                    {`Module: ${currentEvt.title}\n
-                                    ${currentEvt.extra_descriptions.join(" ")}\n
-                                    Time: ${startHour}:${startMin} - ${endHour}:${endMin}\n
-                                    Venue: ${currentEvt.location}\n`}
+                                    {`Module: ${currentEvt.title}\n 
+    ${currentEvt.extra_descriptions.join(" ")}\n
+    Time: ${startHour}:${startMin} - ${endHour}:${endMin}\n
+    Venue: ${currentEvt.location}\n`}
                                 </Text>
                                 <View style={styles.buttonGroup}>
                                     <Button title="Reminders" onPress={() => {
@@ -287,7 +287,7 @@ export default function Timetable({ navigation }) {
                                             screenTitle: currentEvt.title
                                         }); setModal(false)
                                     }} />
-                                    <Button title="Get Route" onPress={() => { navigation.navigate('Map'); setModal(false) }} />
+                                    <Button title="Get Route" onPress={() => { navigation.navigate('Map', {destVenue: currentEvt.location}); setModal(false) }} />
                                 </View>
                             </View>
                         </TouchableWithoutFeedback>
