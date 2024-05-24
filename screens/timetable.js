@@ -303,6 +303,7 @@ export default function Timetable({ navigation }) {
         setModal(true);
     };
 
+    
     return actualData.length > 0 ? (
         <TouchableWithoutFeedback onPress={() => setModal(false)}>
             <SafeAreaView style={{ flex: 1 }}>

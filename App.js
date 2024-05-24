@@ -18,6 +18,8 @@ import { FIREBASE_AUTH } from "./FirebaseConfig";
 import { StyleSheet } from "react-native";
 import ReminderPage from "./screens/reminderPage";
 import EditReminder from "./screens/editReminder";
+import AllReminders from "./screens/AllReminders";
+import AllClassesScreen from "./screens/AllClasses";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -63,6 +65,8 @@ function Reminders() {
           options={({ route }) => ({ title: route.params.reminder.title })}
         />
         <Stack.Screen name="EditReminder" component={EditReminder} />
+        <Stack.Screen name="AllReminders" options={{title: 'Reminders'}} component={AllReminders} />
+        <Stack.Screen name="AllClasses"component={AllClassesScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   )

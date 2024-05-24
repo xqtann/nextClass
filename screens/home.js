@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { StatusBar } from "expo-status-bar";
-import { Text, View, StyleSheet, Modal, TextInput, Button, FlatList, ActivityIndicator } from 'react-native';
+import { Text, View, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../FirebaseConfig';
 import { onAuthStateChanged } from "firebase/auth";
 import AppOfTheDayCard from '../components/AppOfTheDayCard/AppOfTheDayCard.js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { collection, getDocs, query, orderBy, doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 import CustomCard from '../components/CustomCard.js';
 
 export default function Home({ navigation }) {
@@ -14,54 +14,67 @@ export default function Home({ navigation }) {
   const [reminders, setReminders] = useState([]);
   const [userName, setUserName] = useState('Guest');
   const [loadingUser, setLoadingUser] = useState(true);
-  const [modalVisible, setModalVisible] = useState(false);
-
-  const fetchReminders = async (uid) => {
-    const remindersCollection = collection(FIRESTORE_DB, `users/${uid}/reminders`);
-    const remindersQuery = query(remindersCollection, orderBy('dueDate', 'asc'));
-    const querySnapshot = await getDocs(remindersQuery);
-  
-    const reminders = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-    return reminders;
-  };  
 
   useEffect(() => {
-    const loadUserData = async (user) => {
-      try {
-        console.log('Fetching user data...');
-        const userDocRef = doc(FIRESTORE_DB, 'users', user.uid);
-        const userDoc = await getDoc(userDocRef);
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-          setUserName(userData.username || 'Guest');
-        } else {
-          console.log('No such document!');
-        }
-      } catch (error) {
-        console.error('Error loading user data from Firestore:', error);
-      } finally {
-        setLoadingUser(false);
-      }
-    };
-  
     const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, (user) => {
       if (user) {
-        console.log('Authenticated user:', user);
+        console.log('User logged in:', user);
         setUser(user);
         loadUserData(user);
+        setupReminderListener(user.uid); // Set up real-time listener for reminders
       } else {
+        console.log('No user logged in');
         setUser(null);
         setUserName('Guest');
         setLoadingUser(false);
       }
     });
-  
+
+    navigation.setOptions({
+      headerLeft: () => (
+        <TouchableOpacity
+          onPress={() => navigation.navigate('AllClasses')}
+          style={styles.allClassesButton}
+        >
+          <Text style={styles.allClassesButtonText}>All Classes</Text>
+        </TouchableOpacity>
+      ),
+    });
+
     return () => unsubscribe();
-  }, []);
-  
+  }, [navigation]);
+
+  const loadUserData = async (user) => {
+    try {
+      const userDocRef = doc(FIRESTORE_DB, 'users', user.uid);
+      const userDoc = await getDoc(userDocRef);
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        console.log('User data:', userData);
+        setUserName(userData.username || 'Guest');
+      } else {
+        console.log('No such document!');
+      }
+    } catch (error) {
+      console.error('Error loading user data from Firestore:', error);
+    } finally {
+      setLoadingUser(false);
+    }
+  };
+
+  const setupReminderListener = (uid) => {
+    const remindersCollection = collection(FIRESTORE_DB, `users/${uid}/reminders`);
+    const remindersQuery = query(remindersCollection, orderBy('dueDate', 'asc'));
+
+    return onSnapshot(remindersQuery, (querySnapshot) => {
+      const reminders = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setReminders(reminders);
+    });
+  };
+
   useEffect(() => {
     const fetchTimetableData = async () => {
       try {
@@ -79,18 +92,10 @@ export default function Home({ navigation }) {
         console.error('Error loading timetable data from AsyncStorage:', error);
       }
     };
-  
-    const fetchAllData = async () => {
-      if (user) {
-        const remindersData = await fetchReminders(user.uid);
-        setReminders(remindersData);
-      }
-    };
-  
+
     fetchTimetableData();
-    fetchAllData();
-  }, [user]);
-  
+  }, []);
+
   const getNextTwoClasses = (timetable) => {
     const now = new Date();
     const nowDay = now.getDay(); // 0 (Sunday) to 6 (Saturday)
@@ -101,6 +106,10 @@ export default function Home({ navigation }) {
       const eventDay = eventDate.getDay(); // 0 (Sunday) to 6 (Saturday)
       const eventTime = eventDate.getHours() * 60 + eventDate.getMinutes(); // Time in minutes from midnight
       
+      if (eventDay === 0 || eventDay === 6) {
+        return false; // Omit Saturday and Sunday
+      }
+
       if (eventDay !== nowDay) {
         return false;
       }
@@ -126,14 +135,17 @@ export default function Home({ navigation }) {
   };
 
   const renderReminderItem = ({ item }) => (
-    <View style={styles.reminderItem}>
-      <Text style={styles.reminderTitle}>{item.title}</Text>
-      <Text style={styles.reminderDate}>
-        {new Date(item.dueDate.seconds * 1000).toLocaleString()}
-      </Text>
-    </View>
+    <TouchableOpacity onPress={() => navigation.navigate("ReminderPage", { reminder: item, reminderID: item.id })}>
+      <View style={styles.reminderItem}>
+        <Text style={styles.reminderTitle}>{item.title}</Text>
+        <Text style={styles.reminderDate}>
+          {new Date(item.dueDate.seconds * 1000).toLocaleString()}
+        </Text>
+        <Text style={styles.reminderModule}>Module: {item.moduleCode}</Text>
+      </View>
+    </TouchableOpacity>
   );
-  
+
   if (loadingUser) {
     return (
       <View style={styles.loadingContainer}>
@@ -143,46 +155,48 @@ export default function Home({ navigation }) {
   }
 
   return (
-    <>
-      <View style={styles.container}>
-        <StatusBar style="auto" />
-        <Text style={styles.heading}> Welcome back, {userName}! </Text>
-        
-        {nextClasses.length > 0 ? (
-          nextClasses.map((event, index) => (
-            <View key={index} style={styles.mainCardContainer}>
-              <AppOfTheDayCard
-                style={styles.card}
-                largeTitle={event.title}
-                title={`${new Date(event.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${new Date(event.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
-                subtitle={event.location}
-                buttonText={"ROUTE"}
-                backgroundSource={require("../assets/nextclass_logo.png")}
-                onPress={() => {navigation.navigate("Reminder", { moduleCode: event.title })}}
-              />
-            </View>
-          ))
-        ) : (
-          <View style={styles.noClassesContainer}>
-            <Text style={styles.noClassesText}>No classes left! Enjoy your day!</Text>
+    <View style={styles.container}>
+      <StatusBar style="auto" />
+      <Text style={styles.heading}> Welcome back, {userName}! </Text>
+      
+      {nextClasses.length > 0 ? (
+        nextClasses.map((event, index) => (
+          <View key={index} style={styles.mainCardContainer}>
+            <AppOfTheDayCard
+              style={styles.card}
+              largeTitle={event.title}
+              title={`${new Date(event.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${new Date(event.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
+              subtitle={event.location}
+              buttonText={"ROUTE"}
+              backgroundSource={require("../assets/nextclass_logo.png")}
+              onPress={() => {navigation.navigate("Reminder", { moduleCode: event.title })}}
+            />
           </View>
-        )}
+        ))
+      ) : (
+        <View style={styles.noClassesContainer}>
+          <Text style={styles.noClassesText}>No classes left! Enjoy your day!</Text>
+        </View>
+      )}
 
-        <CustomCard
-          title="Reminders"
-          style={styles.reminderContainer}
-          onPress={() => console.log("Card Pressed")}
-          backgroundSource={require("../assets/nextclass_logo.png")}
-        >
+      <CustomCard
+        title="Reminders"
+        style={styles.reminderContainer}
+        onPress={() => navigation.navigate("AllReminders")}
+        backgroundSource={require("../assets/nextclass_logo.png")}
+      >
+        {reminders.length > 0 ? (
           <FlatList
             data={reminders}
             renderItem={renderReminderItem}
             keyExtractor={item => item.id}
             style={styles.flatList}
           />
-        </CustomCard>
-      </View>
-    </>
+        ) : (
+          <Text style={styles.noRemindersText}>No new reminders 😊</Text>
+        )}
+      </CustomCard>
+    </View>
   );
 }
 
@@ -243,5 +257,28 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  noRemindersText: {
+    fontSize: 18,
+    color: '#999',
+    textAlign: 'center',
+    marginTop: 20,
+  },
+  reminderModule: {
+    fontSize: 16,
+    color: '#666',
+    marginTop: 5,
+  },
+  allClassesButton: {
+    marginLeft: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: '#FFB052',
+    borderRadius: 20,
+  },
+  allClassesButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
