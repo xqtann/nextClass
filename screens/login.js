@@ -15,7 +15,6 @@ import { ThemedButton } from "react-native-really-awesome-button";
 import TextInput from "react-native-text-input-interactive";
 import { FIREBASE_AUTH } from "../FirebaseConfig";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
-import { CheckBox } from '@rneui/themed';
 
 export default function Login({ navigation }) {
   const [user, setUser] = useState(null);
@@ -58,23 +57,6 @@ export default function Login({ navigation }) {
         console.log('Error', error);
       });
   };
-
-  // useEffect(() => {
-  //   const loadData = async () => {
-  //     try {
-  //       const user = auth.currentUser;
-  //       if (user) {
-  //         navigation.navigate("Profile");
-  //       } else {
-  //         setModalVisible(true);
-  //         // navigation.navigate("Login");
-  //       }
-  //     } catch (error) {
-  //       console.error('Error loading data from AsyncStorage:', error);
-  //     }
-  //   };
-  //   loadData();
-  // }, []);
 
   // AsyncStorage.clear();
 
