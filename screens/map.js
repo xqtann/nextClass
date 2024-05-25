@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect, useRef, useMemo } from 'react';
 import { Text, View, StyleSheet, Button, TextInput, ScrollView, TouchableOpacity, Modal, Alert } from 'react-native';
 import MapView, { UrlTile, Marker, Polyline, Callout } from 'react-native-maps';
 import * as Location from 'expo-location';
@@ -9,6 +9,10 @@ import GHUtil from '../utils/GHUtil';
 import Carousel, { Pagination } from 'react-native-reanimated-carousel';
 import { AntDesign } from '@expo/vector-icons';
 import { ThemedButton } from "react-native-really-awesome-button";
+import { FontAwesome5, Feather } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import RadioGroup from 'react-native-radio-buttons-group';
+
 
 export default function Map({ navigation, route }) {
   const { destVenue } = route.params;
@@ -18,6 +22,7 @@ export default function Map({ navigation, route }) {
   const venues = require('../assets/venues.json');
   const [origin, setOrigin] = useState("");
   const [dest, setDest] = useState(destVenue);
+  const [mode, setMode] = useState(1);
   const [polylinesLoaded, setPolylinesLoaded] = useState(false);
   const [polylinesD, setPolylinesD] = useState([]);
   const [openModal, setOpenModal] = useState(false);
@@ -57,6 +62,23 @@ export default function Map({ navigation, route }) {
   //   latitude: 1.295361335555679,
   //   longitude: 103.77326160572798
   // }
+
+  const radioButtons = useMemo(() => ([
+    {
+        id: '1', // acts as primary key, should be unique and non-empty string
+        label: 'Foot',
+        value: 'footMode',
+        size: 18,
+        labelStyle: { fontSize: 18, color: 'black' },
+    },
+    {
+        id: '2',
+        label: 'Car',
+        value: 'carMode',
+        size: 18,
+        labelStyle: { fontSize: 18, color: 'black' },
+    }
+]), []);
   
   useEffect(() => {
     const fetchData = async () => {
@@ -72,7 +94,7 @@ export default function Map({ navigation, route }) {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            profile: 'foot',
+            profile: mode == 1 ? 'foot' : 'car',
             points: [
               [venues[origin].location.x, venues[origin].location.y],
               [venues[dest].location.x, venues[dest].location.y]
@@ -161,14 +183,17 @@ export default function Map({ navigation, route }) {
             <TouchableOpacity style={styles.closeButton} onPress={() => setOpenModal(false)}>
               <Text style={styles.closeButtonText}>X</Text>
             </TouchableOpacity>
-            <Text>
-              {`Options\n
-              Foot/Car\n\n\n\n\n\n`}
-            </Text>
-            <View style={styles.buttonGroup}>
-              <Button title="Cancel" onPress={() => setOpenModal(false)} />
-              <Button title="Apply" onPress={() => {setOpenModal(false)}} />
+            <Text style={{fontSize: 20, fontWeight: 'bold', marginBottom: 10}}>Options</Text>
+            <View style={{flexDirection: 'row'}}>
+              <Text style={{fontSize: 18, marginVertical: 5}}>Mode: </Text>
+            <RadioGroup 
+            layout='row'
+            radioButtons={radioButtons} 
+            onPress={setMode}
+            selectedId={mode}
+        />
             </View>
+            
           </View>
         </View>
       </Modal>
@@ -297,7 +322,7 @@ export default function Map({ navigation, route }) {
                 return (
                   <View style={styles.dropdownButtonStyle}>
                     {dest == "" 
-                    ? <Text style={styles.dropdownButtonTxtStyle}>
+                    ? <Text style={styles.dropdownButtonDestTxtStyle}>
                       {(selectedItem && selectedItem.venue) || 'Destination'}
                     </Text> 
                     : <Text style={styles.dropdownButtonTxtStyle}>{dest}</Text>
@@ -357,10 +382,36 @@ export default function Map({ navigation, route }) {
                     <View
                         style={styles.carouselItem}
                     >
-                        <Text style={styles.title}>
-                           {` Route: ${instructions[index].text}\n Distance: ${instructions[index].distance}\n Time: ${instructions[index].time} \n Total Dist: ${totalDist}\n Total Time: ${totalTime}\n`
+                      <View style={styles.instructionContainer}>
+                        { instructions[index].sign == 0 || instructions[index].sign == 7 || instructions[index].sign == -7 ?
+                        <FontAwesome5 name="arrow-up" size={60} style={styles.directionSign} color="black" />
+                        : instructions[index].sign == 1 ?
+                        <Feather name="arrow-up-right" size={60} style={styles.directionSign} color="black" />
+                        : instructions[index].sign == 2 || instructions[index].sign == 3 ?
+                        <FontAwesome5 name="arrow-right" size={60} style={styles.directionSign} color="black" />
+                        : instructions[index].sign == -1 ?
+                        <Feather name="arrow-up-left" size={60} style={styles.directionSign} color="black" />
+                        : instructions[index].sign == -2 || instructions[index].sign == -3 ?
+                        <FontAwesome5 name="arrow-left" size={60} style={styles.directionSign} color="black" />
+                        : instructions[index].sign == 4 ?
+                        <MaterialCommunityIcons name="map-marker-check" size={60} style={styles.directionSign} color="black" />
+                        : <FontAwesome5 name="arrow-up" size={60} style={styles.directionSign} color="black" />
+                        }
+                      <Text style={styles.distance}>{`${Math.trunc(instructions[index].distance)} m`}</Text>
+
+                      </View>
+                    
+                    <View style={styles.instructionContainer}>
+                        <Text style={styles.title}>{instructions[index].text}</Text>
+                        {index == 0 ?
+                        <Text style={styles.extraInstruction}>
+                           {`Total Distance: ${Math.trunc(totalDist)} m\nTotal Time: ${Math.trunc(totalTime/60000)} min\n`
                       }
-                        </Text>
+                        </Text> : <Text></Text>}
+                        
+                    </View>
+                    
+                        
                         <Text style={styles.subtitle}>SWIPE FOR NEXT STEP</Text>
                         <AntDesign name="doubleright" style={styles.arrow} size={15} color="black" />
                         
@@ -398,7 +449,7 @@ const styles = StyleSheet.create({
     overlayContainerDest: {
       flex: 1,
       position: 'absolute',
-      top: '10%',
+      top: '9%',
       left: '8%',
       height: ScreenHeight * 0.15,
       width: ScreenWidth * 0.6,
@@ -427,20 +478,24 @@ const styles = StyleSheet.create({
     dropdownButtonStyle: {
       width: ScreenWidth * 0.6,
       height: 45,
-      backgroundColor: '#E9ECEF',
-      borderRadius: 12,
+      backgroundColor: 'white',
+      borderRadius: 50,
       flexDirection: 'row',
       justifyContent: 'center',
       alignItems: 'center',
       paddingHorizontal: 12,
-      borderColor: "black",
-      borderWidth: 1
     },
     dropdownButtonTxtStyle: {
       flex: 1,
       fontSize: 18,
       fontWeight: '500',
-      color: '#151E26',
+      color: '#23395d',
+    },
+    dropdownButtonDestTxtStyle: {
+      flex: 1,
+      fontSize: 18,
+      fontWeight: '500',
+      color: '#6f0000',
     },
     dropdownButtonArrowStyle: {
       fontSize: 28,
@@ -548,18 +603,33 @@ const styles = StyleSheet.create({
     },
     carouselItem: {
       flex: 1,
-      justifyContent: 'center',
-      paddingHorizontal: 10,
+      flexDirection: 'row',
+      justifyContent: 'flex-start',
+      padding: 20,
       backgroundColor:'#f0f0f0', 
       borderColor:'gray',
       borderWidth: 2,
       borderRadius: 20,
     },
+    directionSign: {
+      margin: 10,
+    },
     title: {
-      textAlign: 'left',
+      textAlign: 'center',
+      width: 200,
+      fontSize: 30,
+      fontWeight: 'bold',
+      fontFamily: 'System',
+    },
+    distance: {
+      textAlign: 'center',
       fontSize: 30,
       fontWeight: 'bold',
       fontFamily: 'System'
+    },
+    instructionContainer: {
+      marginRight: 20,
+      justifyContent: 'center',
     },
     subtitle: {
       position: 'absolute',
@@ -574,5 +644,11 @@ const styles = StyleSheet.create({
       position: 'absolute',
       bottom: 5,
       right: 5,
+    },
+    extraInstruction: {
+      fontSize: 20,
+      fontFamily: 'System',
+      textAlign: 'center',
+      width: 200,
     }
 })
