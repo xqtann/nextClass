@@ -47,6 +47,14 @@
       "y": 1.293256567172797
     }
   },
+  "BIZ2-0511": {
+    "roomName": "Seminar Room 5-11",
+    "floor": 5,
+    "location": {
+      "x": 103.77534379798186,
+      "y": 1.293256567172797
+    }
+  },
   "BIZ1-0301": {
     "roomName": "Seminar Room 3-1",
     "floor": 3,
@@ -399,6 +407,14 @@
       "y": 1.2947910941174683
     }
   },
+  "COM1-0214": {
+    "roomName": "Seminar Room",
+    "floor": 2,
+    "location": {
+      "x": 103.77400841456318,
+      "y": 1.2947910941174683
+    }
+  },
   "COM1-0204": {
     "roomName": "Seminar Room 2",
     "floor": 2,
@@ -676,6 +692,14 @@
   "AS4-0206": {
     "roomName": "Seminar Room",
     "floor": 2,
+    "location": {
+      "x": 103.77197963582599,
+      "y": 1.294627705573499
+    }
+  },
+  "AS4-0328": {
+    "roomName": "Seminar Room",
+    "floor": 3,
     "location": {
       "x": 103.77197963582599,
       "y": 1.294627705573499
@@ -2063,6 +2087,14 @@
       "y": 1.2988600093939424
     }
   },
+  "E1A-01-06": {
+    "roomName": "E1A-01-06",
+    "floor": 1,
+    "location": {
+      "x": 103.77113643180498,
+      "y": 1.2988600093939424
+    }
+  },
   "i3-0337": {
     "nusRoomCode": "I3-03-37",
     "roomName": "Graduate Students Lab 1",
@@ -2451,6 +2483,38 @@
       "y": 1.299340949393047
     }
   },
+  "E2-01-01": {
+    "roomName": "E2-01-01",
+    "floor": 1,
+    "location": {
+      "x": 103.77113574164383,
+      "y": 1.299340949393047
+    }
+  },
+  "E2-01-02": {
+    "roomName": "E2-01-02",
+    "floor": 1,
+    "location": {
+      "x": 103.77113574164383,
+      "y": 1.299340949393047
+    }
+  },
+  "E2-01-03": {
+    "roomName": "E2-01-03",
+    "floor": 1,
+    "location": {
+      "x": 103.77113574164383,
+      "y": 1.299340949393047
+    }
+  },
+  "E2-B1-02": {
+    "roomName": "E2-B1-02",
+    "floor": -1,
+    "location": {
+      "x": 103.77113574164383,
+      "y": 1.299340949393047
+    }
+  },
   "E2-03-08": {
     "roomName": "PC Cluster 5 (Teaching)",
     "floor": 3,
@@ -2813,6 +2877,14 @@
   },
   "CELC-TR7": {
     "roomName": "Training Room 7",
+    "floor": 3,
+    "location": {
+      "x": 103.77142667770386,
+      "y": 1.2969754103578175
+    }
+  },
+  "CELC-TR6": {
+    "roomName": "Training Room 6",
     "floor": 3,
     "location": {
       "x": 103.77142667770386,
@@ -4563,6 +4635,14 @@
       "y": 1.2985393236945988
     }
   },
+  "E1-06-0506": {
+    "roomName": "E1-06-0506",
+    "floor": 6,
+    "location": {
+      "x": 103.77114811483986,
+      "y": 1.2985393236945988
+    }
+  },
   "MD6-03-01E": {
     "roomName": "03-01-E",
     "floor": 3,
@@ -4579,8 +4659,24 @@
       "y": 1.2949252184799644
     }
   },
+  "COM3-01-19": {
+    "roomName": "Seminar Room",
+    "floor": 1,
+    "location": {
+      "x": 103.77431055530907,
+      "y": 1.2949252184799644
+    }
+  },
   "COM3-01-21": {
     "roomName": "Seminar Room 12",
+    "floor": 1,
+    "location": {
+      "x": 103.77431055530907,
+      "y": 1.2949252184799644
+    }
+  },
+  "COM3-01-22": {
+    "roomName": "Seminar Room 13",
     "floor": 1,
     "location": {
       "x": 103.77431055530907,
@@ -4598,6 +4694,30 @@
   "COM3-01-25": {
     "roomName": "Seminar Room 15",
     "floor": 1,
+    "location": {
+      "x": 103.7749804,
+      "y": 1.2948523
+    }
+  },
+  "COM3-02-60": {
+    "roomName": "Seminar Room",
+    "floor": 2,
+    "location": {
+      "x": 103.7749804,
+      "y": 1.2948523
+    }
+  },
+  "COM3-B1-10": {
+    "roomName": "Seminar Room",
+    "floor": -1,
+    "location": {
+      "x": 103.7749804,
+      "y": 1.2948523
+    }
+  },
+  "COM3-B1-11": {
+    "roomName": "Seminar Room",
+    "floor": -1,
     "location": {
       "x": 103.7749804,
       "y": 1.2948523
@@ -4651,8 +4771,16 @@
       "y": 1.305814938065907
     }
   },
-  "COM4SR3132": {
-    "roomName": "Seminar Room 31 and 32",
+  "COM4SR31": {
+    "roomName": "Seminar Room 31",
+    "floor": 3,
+    "location": {
+      "x": 103.77537384926308,
+      "y": 1.2951198468049192
+    }
+  },
+  "COM4SR32": {
+    "roomName": "Seminar Room 32",
     "floor": 3,
     "location": {
       "x": 103.77537384926308,
@@ -4662,6 +4790,46 @@
   "COM4SR33": {
     "roomName": "Seminar Room 33",
     "floor": 3,
+    "location": {
+      "x": 103.77536866488154,
+      "y": 1.2951105509975482
+    }
+  },
+  "COM4-02-01": {
+    "roomName": "Seminar Room",
+    "floor": 2,
+    "location": {
+      "x": 103.77536866488154,
+      "y": 1.2951105509975482
+    }
+  },
+  "COM4-02-02": {
+    "roomName": "Seminar Room",
+    "floor": 2,
+    "location": {
+      "x": 103.77536866488154,
+      "y": 1.2951105509975482
+    }
+  },
+  "COM4-02-03": {
+    "roomName": "Seminar Room",
+    "floor": 2,
+    "location": {
+      "x": 103.77536866488154,
+      "y": 1.2951105509975482
+    }
+  },
+  "COM4-02-04": {
+    "roomName": "Seminar Room",
+    "floor": 2,
+    "location": {
+      "x": 103.77536866488154,
+      "y": 1.2951105509975482
+    }
+  },
+  "COM4-02-05": {
+    "roomName": "Seminar Room",
+    "floor": 2,
     "location": {
       "x": 103.77536866488154,
       "y": 1.2951105509975482

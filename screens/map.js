@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef, useMemo } from 'react';
-import { Text, View, StyleSheet, Button, TextInput, ScrollView, TouchableOpacity, Modal, Alert } from 'react-native';
+import { Text, View, StyleSheet, Button, TextInput, ScrollView, TouchableOpacity, Modal, Alert, Image } from 'react-native';
 import MapView, { UrlTile, Marker, Polyline, Callout } from 'react-native-maps';
 import * as Location from 'expo-location';
 import MapViewDirections from 'react-native-maps-directions';
@@ -21,8 +21,9 @@ export default function Map({ navigation, route }) {
   const mapRef = useRef();
   const venues = require('../assets/venues.json');
   const [origin, setOrigin] = useState("");
-  const [dest, setDest] = useState(destVenue);
-  const [mode, setMode] = useState(1);
+  console.log(destVenue)
+  const [dest, setDest] = useState(!destVenue.startsWith("E-Learn") && Object.keys(venues).includes(destVenue) ? destVenue : "");
+  const [mode, setMode] = useState('1');
   const [polylinesLoaded, setPolylinesLoaded] = useState(false);
   const [polylinesD, setPolylinesD] = useState([]);
   const [openModal, setOpenModal] = useState(false);
@@ -32,6 +33,7 @@ export default function Map({ navigation, route }) {
   const [goPressed, setGoPressed] = useState(false);
   const [totalTime, setTotalTime] = useState(0);
   const [totalDist, setTotalDist] = useState(0);
+  const [openDirection, setOpenDirection] = useState(false);
   let firstHeading = 0;
   let polylines =[];
 
@@ -51,7 +53,7 @@ export default function Map({ navigation, route }) {
                     .sort()
                     .map(venue => data.push({venue: venue}));
 
-  // console.log(data);
+  // console.log(Object.keys(venues));
 
   // const lt17 = {
   //   latitude: 1.2936062312700383,
@@ -162,6 +164,7 @@ export default function Map({ navigation, route }) {
         center: {latitude: venues[origin].location.y, longitude: venues[origin].location.x },
       heading: firstHeading }, {duration: 2000}) 
       : Alert.alert(`Please select both\n origin and destination`);
+      setOpenDirection(true);
       setGoPressed(!goPressed);
     }
 
@@ -193,7 +196,6 @@ export default function Map({ navigation, route }) {
             selectedId={mode}
         />
             </View>
-            
           </View>
         </View>
       </Modal>
@@ -239,6 +241,9 @@ export default function Map({ navigation, route }) {
           {tempLat != 0 && tempLong != 0 ? <Marker 
           coordinate={{latitude: tempLat, longitude: tempLong}} 
           pinColor='gray'>
+            <Image 
+                source={require('../assets/map-marker-account-outline.png')} 
+                style={{width: 30, height: 30, top: -15, tintColor: 'gray'}} />
           </Marker> : <Marker />}
 
           {origin != '' ? 
@@ -358,6 +363,7 @@ export default function Map({ navigation, route }) {
               </ThemedButton>
             {renderModal()}
           </View>
+          {openDirection ?
           <View style={styles.carouselContainer}>
           <Carousel
                 loop={false}
@@ -379,9 +385,9 @@ export default function Map({ navigation, route }) {
                   setTempLong(polylines[instructions[index].interval[0]].longitude);
                 }}
                 renderItem={({ index }) => (
-                    <View
-                        style={styles.carouselItem}
-                    >
+                    <View style={styles.carouselItem}>
+                      <TouchableOpacity onPress={() => setOpenDirection(false)} style={styles.closeButton}>
+                          <Text style={styles.closeButtonText}>X</Text></TouchableOpacity>
                       <View style={styles.instructionContainer}>
                         { instructions[index].sign == 0 || instructions[index].sign == 7 || instructions[index].sign == -7 ?
                         <FontAwesome5 name="arrow-up" size={60} style={styles.directionSign} color="black" />
@@ -409,16 +415,14 @@ export default function Map({ navigation, route }) {
                       }
                         </Text> : <Text></Text>}
                         
-                    </View>
-                    
-                        
+                    </View> 
                         <Text style={styles.subtitle}>SWIPE FOR NEXT STEP</Text>
-                        <AntDesign name="doubleright" style={styles.arrow} size={15} color="black" />
-                        
+                        <AntDesign name="doubleright" style={styles.arrow} size={15} color="black" />  
                     </View>
                 )}
             />
           </View>
+          : <View></View>}
       </View>
     )
 }
