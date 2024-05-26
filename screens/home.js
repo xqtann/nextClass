@@ -5,7 +5,7 @@ import { FIREBASE_AUTH, FIRESTORE_DB } from '../FirebaseConfig';
 import { onAuthStateChanged } from "firebase/auth";
 import AppOfTheDayCard from '../components/AppOfTheDayCard/AppOfTheDayCard.js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { doc, getDoc, collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { doc, getDoc, collection, query, orderBy, onSnapshot, where } from 'firebase/firestore';
 import CustomCard from '../components/CustomCard.js';
 
 export default function Home({ navigation }) {
@@ -71,8 +71,8 @@ export default function Home({ navigation }) {
   };
 
   const setupReminderListener = (uid) => {
-    const remindersCollection = collection(FIRESTORE_DB, `users/${uid}/reminders`);
-    const remindersQuery = query(remindersCollection, orderBy('dueDate', 'asc'));
+    const remindersCollection = collection(FIRESTORE_DB, 'users', uid, 'reminders');
+    const remindersQuery = query(remindersCollection, orderBy('dueDate', 'asc'), where("done", "==", false));
 
     return onSnapshot(remindersQuery, (querySnapshot) => {
       const reminders = querySnapshot.docs.map(doc => ({

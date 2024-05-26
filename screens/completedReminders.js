@@ -10,16 +10,6 @@ export default function AllReminders({ navigation }) {
   const [user, setUser] = useState(null);
   const [reminderID, setReminderID] = useState("");
 
-  navigation.setOptions({
-    headerRight: () => (
-      <TouchableOpacity
-        onPress={() => navigation.navigate('CompletedReminders')}
-        style={styles.headerRightButton}
-      >
-        <Text style={styles.headerRightButtonText}>Completed</Text>
-      </TouchableOpacity>
-    ),
-  });
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(FIREBASE_AUTH, (user) => {
@@ -34,7 +24,7 @@ export default function AllReminders({ navigation }) {
 
   const fetchAllReminders = (uid) => {
     const reminderRef = collection(FIRESTORE_DB, 'users', uid, 'reminders');
-    const q = query(reminderRef, orderBy("dueDate", "asc"), where("done", "==", false));
+    const q = query(reminderRef, orderBy("dueDate", "asc"), where("done", "==", true));
 
     const subscriber = onSnapshot(q, { next: (snapshot) => {
       const reminderList = [];
@@ -48,14 +38,6 @@ export default function AllReminders({ navigation }) {
     }});
 
     return () => subscriber();
-  };
-
-  const completeReminder = async (itemId) => {
-    await setReminderID(itemId);
-    const reminderRef = doc(FIRESTORE_DB, 'users', user.uid, 'reminders', itemId);
-    await updateDoc(reminderRef, {
-      done: true,
-    });
   };
 
   return (allReminders.length > 0) ? (
@@ -75,7 +57,7 @@ export default function AllReminders({ navigation }) {
               <Text>Remind Me: {new Date(item.remind.seconds * 1000).toLocaleString()}</Text>
               <Text style={styles.reminderModule}>Module: {item.moduleCode}</Text>
               <TouchableOpacity style={styles.completeButton} onPress={() => completeReminder(item.id)}>
-              <Image source={require('../assets/sticker-check-outline.png')} style={{height: 40, width: 40, tintColor:'#003D7C'}}></Image>
+              <Image source={require('../assets/check-circle-outline.png')} style={{height: 40, width: 40, tintColor:'#185A37'}}></Image>
               </TouchableOpacity>
             </View>
           </TouchableOpacity>
@@ -85,7 +67,7 @@ export default function AllReminders({ navigation }) {
   ) : (
     <View style={styles.container}>
       <StatusBar style="auto" />
-      <Text style={styles.noreminders}>No new reminders! 😊</Text>
+      <Text style={styles.noreminders}>No completed reminders!</Text>
     </View>
   );
 }
@@ -147,18 +129,6 @@ const styles = StyleSheet.create({
   optionsButtonText: {
     fontSize: 14,
     color: '#333',
-  },
-  headerRightButton: {
-    marginLeft: 10,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    backgroundColor: '#FFB052',
-    borderRadius: 20,
-  },
-  headerRightButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
   },
   completeButton: {
     position: 'absolute',
