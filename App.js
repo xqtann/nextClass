@@ -20,6 +20,7 @@ import ReminderPage from "./screens/reminderPage";
 import EditReminder from "./screens/editReminder";
 import AllReminders from "./screens/AllReminders";
 import AllClassesScreen from "./screens/AllClasses";
+import NewAllReminder from "./screens/newAllReminders";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -68,6 +69,7 @@ function Reminders() {
         <Stack.Screen name="AllReminders" options={{title: 'Reminders'}} component={AllReminders} />
         <Stack.Screen name="AllClasses"component={AllClassesScreen} />
         <Stack.Screen name="Map" initialParams={{ destVenue: "" }} component={Map} />
+        <Stack.Screen name="NewAllReminder" component={NewAllReminder} options={{title: 'New Reminder'}}/>
       </Stack.Navigator>
     </NavigationContainer>
   )

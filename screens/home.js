@@ -39,6 +39,14 @@ export default function Home({ navigation }) {
           <Text style={styles.allClassesButtonText}>All Classes</Text>
         </TouchableOpacity>
       ),
+      headerRight: () => (
+        <TouchableOpacity
+          onPress={() => navigation.navigate('NewAllReminder')}
+          style={styles.allClassesButton}
+        >
+          <Text style={styles.allClassesButtonText}>New Reminder</Text>
+        </TouchableOpacity>
+      ),
     });
 
     return () => unsubscribe();
