@@ -110,6 +110,7 @@ export default function NewAllReminder({ navigation }) {
             mode={'datetime'}
             is24Hour={true}
             onChange={onDueDateChange}
+            minimumDate={new Date()}
           />
         </View>
         <View style={styles.datetimeContainer}>
@@ -121,25 +122,35 @@ export default function NewAllReminder({ navigation }) {
             mode={'datetime'}
             is24Hour={true}
             onChange={onRemindChange}
+            minimumDate={new Date()}
           />
         </View>
         <View style={styles.dropdownContainer}>
-          <Text style={styles.label}> Module Code: </Text>
+          <Text style={styles.moduleLabel}> Module Code: </Text>
           <SelectDropdown
-            data={moduleCodes}
-            onSelect={(selectedItem, index) => {
-              setModuleCode(selectedItem);
-            }}
-            buttonTextAfterSelection={(selectedItem, index) => {
-              return selectedItem;
-            }}
-            rowTextForSelection={(item, index) => {
-              return item;
-            }}
-            defaultButtonText="Select a Module"
-            buttonStyle={styles.dropdown}
-            buttonTextStyle={styles.dropdownText}
-          />
+              data={moduleCodes}
+              onSelect={(selectedItem, index) => {
+                setModuleCode(selectedItem);
+              }}
+              renderButton={(selectedItem, isOpened) => {
+                return (
+                  <View style={styles.dropdownButtonStyle}>
+                    <Text style={styles.dropdownButtonTxtStyle}>
+                      {selectedItem || 'Select A Module'}
+                    </Text> 
+                  </View>
+                );
+              }}
+              renderItem={(item, index, isSelected) => {
+                return (
+                  <View style={{...styles.dropdownItemStyle, ...(isSelected && {backgroundColor: '#D2D9DF'})}}>
+                    <Text style={styles.dropdownItemTxtStyle}>{item}</Text>
+                  </View>
+                );
+              }}
+              showsVerticalScrollIndicator={false}
+              dropdownStyle={styles.dropdownMenuStyle}
+            />
         </View>
         <View style={{ padding: 5, paddingRight: 30, paddingLeft: 30 }}>
           <ThemedButton name='rick' type='secondary' style={styles.button} onPress={submitHandler}>
@@ -182,12 +193,20 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#333',
   },
+  moduleLabel: {
+    fontSize: 18,
+    color: '#333',
+    marginTop: 10,
+  },
   datetime: {
     flex: 1,
     marginLeft: 10,
   },
   dropdownContainer: {
-    marginBottom: 20,
+      flex: 1,
+      height: 50,
+      width: 100,
+      flexDirection: "row"
   },
   dropdown: {
     width: '100%',
@@ -210,5 +229,41 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 18,
     textAlign: 'center',
-  }
+  },
+  dropdownButtonStyle: {
+    marginLeft: 60,
+    width: 190,
+    height: 35,
+    backgroundColor: '#E5E5E5',
+    borderRadius: 10,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+  },
+  dropdownButtonTxtStyle: {
+    flex: 1,
+    fontSize: 17,
+    color: 'black',
+  },
+  dropdownMenuStyle: {
+    backgroundColor: '#E9ECEF',
+    borderRadius: 8,
+    borderColor: "black",
+    borderWidth: 1
+  },
+  dropdownItemStyle: {
+    width: '100%',
+    flexDirection: 'row',
+    paddingHorizontal: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+  dropdownItemTxtStyle: {
+    flex: 1,
+    fontSize: 18,
+    fontWeight: '500',
+    color: '#151E26',
+  },
 });
