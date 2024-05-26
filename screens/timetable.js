@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, StyleSheet, View, Alert, Dimensions, ImageBackground, TextInput, Text, Button, TouchableOpacity, Modal, TouchableWithoutFeedback } from 'react-native';
+import { SafeAreaView, StyleSheet, View, Alert, Dimensions, ImageBackground, TextInput, Text, Button, TouchableOpacity, Modal, TouchableWithoutFeedback, ActivityIndicator } from 'react-native';
 import TimeTableView, { genTimeBlock } from 'react-native-timetable';
 import { BlurView } from 'expo-blur';
 import { ThemedButton } from "react-native-really-awesome-button";
@@ -26,6 +26,7 @@ export default function Timetable({ navigation }) {
     const [currentEvt, setEvt] = useState(null);
     const [user, setUser] = useState(null); // State to store the current user
     const [actualData, setActualData] = useState([]); // Change to state
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         if (actualData.length > 0) {
@@ -74,6 +75,8 @@ export default function Timetable({ navigation }) {
             }
         } catch (error) {
             console.error('Error loading data from Firestore:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -186,48 +189,49 @@ export default function Timetable({ navigation }) {
                     } else if (classType === 'SEC') {
                         classType = 'Sectional Teaching';
                     }
-    
-                    const classTiming = classData.find(x => x.lessonType === classType && x.classNo === classNum);
-    
-                    let classDay = classTiming['day'];
-                    if (classDay === 'Monday') classDay = 'MON';
-                    else if (classDay === 'Tuesday') classDay = 'TUE';
-                    else if (classDay === 'Wednesday') classDay = 'WED';
-                    else if (classDay === 'Thursday') classDay = 'THU';
-                    else if (classDay === 'Friday') classDay = 'FRI';
-    
-                    const classStart = classTiming['startTime'];
-                    const classStartHour = classStart[0] === '0' ? classStart.slice(1, 2) : classStart.slice(0, 2);
-                    const classStartMin = classStart[2] === '0' ? classStart.slice(3) : classStart.slice(2);
-    
-                    const classEnd = classTiming['endTime'];
-                    const classEndHour = classEnd[0] === '0' ? classEnd.slice(1, 2) : classEnd.slice(0, 2);
-                    const classEndMin = classEnd[2] === '0' ? classEnd.slice(3) : classEnd.slice(2);
-    
-                    const classVenue = classTiming['venue'];
-    
-                    let classWeeks = classTiming['weeks'];
-                    if (classWeeks.length > 6) {
-                        classWeeks = 'Weeks: ' + classWeeks[0] + '-' + classWeeks[classWeeks.length - 1];
-                    } else {
-                        let finalString = 'Weeks: \n';
-                        for (let k = 0; k < classWeeks.length; k++) {
-                            finalString += classWeeks[k] + ' ';
+                    
+                    const classTimings = classData.filter(x => x.lessonType === classType && x.classNo === classNum);
+                    
+                    for (let i = 0; i < classTimings.length; i++) {
+                        let classDay = classTimings[i]['day'];
+                        if (classDay === 'Monday') classDay = 'MON';
+                        else if (classDay === 'Tuesday') classDay = 'TUE';
+                        else if (classDay === 'Wednesday') classDay = 'WED';
+                        else if (classDay === 'Thursday') classDay = 'THU';
+                        else if (classDay === 'Friday') classDay = 'FRI';
+        
+                        const classStart = classTimings[i]['startTime'];
+                        const classStartHour = classStart[0] === '0' ? classStart.slice(1, 2) : classStart.slice(0, 2);
+                        const classStartMin = classStart[2] === '0' ? classStart.slice(3) : classStart.slice(2);
+        
+                        const classEnd = classTimings[i]['endTime'];
+                        const classEndHour = classEnd[0] === '0' ? classEnd.slice(1, 2) : classEnd.slice(0, 2);
+                        const classEndMin = classEnd[2] === '0' ? classEnd.slice(3) : classEnd.slice(2);
+        
+                        const classVenue = classTimings[i]['venue'];
+        
+                        let classWeeks = classTimings[i]['weeks'];
+                        if (classWeeks.length > 6) {
+                            classWeeks = 'Weeks: ' + classWeeks[0] + '-' + classWeeks[classWeeks.length - 1];
+                        } else {
+                            let finalString = 'Weeks: \n';
+                            for (let k = 0; k < classWeeks.length; k++) {
+                                finalString += classWeeks[k] + ' ';
+                            }
+                            classWeeks = finalString;
                         }
-                        classWeeks = finalString;
+        
+                        const newEvent = {
+                            title: moduleCode,
+                            startTime: genTimeBlock(classDay, classStartHour, classStartMin),
+                            endTime: genTimeBlock(classDay, classEndHour, classEndMin),
+                            location: classVenue,
+                            extra_descriptions: [classType, '[' + classNum + ']', classWeeks],
+                        };
+        
+                        newEvents.push(newEvent); // Store new event in temporary array
                     }
-    
-                    const newEvent = {
-                        title: moduleCode,
-                        startTime: genTimeBlock(classDay, classStartHour, classStartMin),
-                        endTime: genTimeBlock(classDay, classEndHour, classEndMin),
-                        location: classVenue,
-                        extra_descriptions: [classType, '[' + classNum + ']', classWeeks],
-                    };
-    
-                    newEvents.push(newEvent); // Store new event in temporary array
                 }
-    
             } catch (error) {
                 console.error(`Error fetching data for module ${moduleCode}:`, error);
             }
@@ -276,9 +280,9 @@ export default function Timetable({ navigation }) {
                                 </TouchableOpacity>
                                 <Text style={styles.modalText}>
                                     {`Module: ${currentEvt.title}\n 
-    ${currentEvt.extra_descriptions.join(" ")}\n
-    Time: ${startHour}:${startMin} - ${endHour}:${endMin}\n
-    Venue: ${currentEvt.location}\n`}
+                                            ${currentEvt.extra_descriptions.join(" ")}\n
+                                            Time: ${startHour}:${startMin} - ${endHour}:${endMin}\n
+                                            Venue: ${currentEvt.location}\n`}
                                 </Text>
                                 <View style={styles.buttonGroup}>
                                     <Button title="Reminders" onPress={() => {
@@ -303,6 +307,13 @@ export default function Timetable({ navigation }) {
         setModal(true);
     };
 
+    if (loading) {
+        return (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#0000ff" />
+          </View>
+        );
+    }
     
     return actualData.length > 0 ? (
         <TouchableWithoutFeedback onPress={() => setModal(false)}>
@@ -488,4 +499,9 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         width: '60%'
     },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
 });
