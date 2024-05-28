@@ -62,7 +62,7 @@ export default function AllReminders({ navigation }) {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <TouchableOpacity onPress={() => {navigation.navigate("ReminderPage", { reminder: item, reminderID: item.id })}}>
-            <View style={item.dueDate > new Date() ? styles.reminderItem : styles.dueItem}>
+            <View style={item.dueDate.seconds > Math.trunc(new Date().valueOf()/1000) ? styles.reminderItem : styles.dueItem}>
               <View style={styles.reminderHeader}>
                 <Text style={styles.reminderTitle}>{item.title}</Text>
               </View>
