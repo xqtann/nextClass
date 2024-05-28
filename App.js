@@ -53,7 +53,7 @@ function Profile() {
 
 function Reminders() {
   return (
-    <NavigationContainer independent={true}>
+    // <NavigationContainer independent={true}>
       <Stack.Navigator screenOptions={{
           headerStyle: { backgroundColor: '#ff7f50' }, 
           headerTintColor: '#fff', // Set the header text color here
@@ -68,18 +68,18 @@ function Reminders() {
         />
         <Stack.Screen name="EditReminder" component={EditReminder} />
         <Stack.Screen name="AllReminders" options={{title: 'Reminders'}} component={AllReminders} />
-        <Stack.Screen name="AllClasses"component={AllClassesScreen} />
+        <Stack.Screen name="AllClasses" options={{title: 'All Classes'}} component={AllClassesScreen} />
         <Stack.Screen name="Map" initialParams={{ destVenue: "" }} component={Map} />
         <Stack.Screen name="NewAllReminder" component={NewAllReminder} options={{title: 'New Reminder'}}/>
-        <Stack.Screen name="CompletedReminders" component={CompletedReminders} options={{title: 'Completed Reminders'}}/>
+        <Stack.Screen name="CompletedReminders" component={CompletedReminders} options={{title: 'Completed'}}/>
       </Stack.Navigator>
-    </NavigationContainer>
+    // </NavigationContainer>
   )
 }
 
 function RemindersTT() {
   return (
-    <NavigationContainer independent={true}>
+    // <NavigationContainer independent={true}>
       <Stack.Navigator screenOptions={{
           headerStyle: { backgroundColor: '#ff7f50' }, 
           headerTintColor: '#fff', // Set the header text color here
@@ -95,7 +95,7 @@ function RemindersTT() {
         />
         <Stack.Screen name="EditReminder" component={EditReminder} />
       </Stack.Navigator>
-    </NavigationContainer>
+    // </NavigationContainer>
   )
 }
 

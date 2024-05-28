@@ -23,6 +23,9 @@ export default function Map({ navigation, route }) {
   const [origin, setOrigin] = useState("");
   console.log(destVenue)
   const [dest, setDest] = useState(!destVenue.startsWith("E-Learn") && Object.keys(venues).includes(destVenue) ? destVenue : "");
+  useEffect(() => {
+    setDest(!destVenue.startsWith("E-Learn") && Object.keys(venues).includes(destVenue) ? destVenue : "");
+  }, [destVenue]);
   const [mode, setMode] = useState('1');
   const [polylinesLoaded, setPolylinesLoaded] = useState(false);
   const [polylinesD, setPolylinesD] = useState([]);
@@ -249,7 +252,7 @@ export default function Map({ navigation, route }) {
           {origin != '' ? 
           <Marker 
           coordinate={{latitude: venues[origin].location.y, longitude: venues[origin].location.x}} 
-          pinColor='blue'>
+          pinColor='#006ca5'>
             <Callout>
               <View>
               <Text>{origin}</Text>
@@ -259,7 +262,7 @@ export default function Map({ navigation, route }) {
           {dest != '' ? 
           <Marker 
           coordinate={{latitude: venues[dest].location.y, longitude: venues[dest].location.x}}
-          pinColor='red'>
+          pinColor='#9b111e'>
             <Callout>
               <View>
               <Text>{dest}</Text>
@@ -330,7 +333,7 @@ export default function Map({ navigation, route }) {
                     ? <Text style={styles.dropdownButtonDestTxtStyle}>
                       {(selectedItem && selectedItem.venue) || 'Destination'}
                     </Text> 
-                    : <Text style={styles.dropdownButtonTxtStyle}>{dest}</Text>
+                    : <Text style={styles.dropdownButtonDestTxtStyle}>{dest}</Text>
                     }
                   </View>
                 );

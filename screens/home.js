@@ -279,7 +279,6 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   allClassesButton: {
-    marginLeft: 10,
     paddingVertical: 8,
     paddingHorizontal: 12,
     backgroundColor: '#FFB052',

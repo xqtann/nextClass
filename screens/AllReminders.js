@@ -58,6 +58,12 @@ export default function AllReminders({ navigation }) {
     });
   };
 
+  const deleteReminder = async (itemId) => {
+    await setReminderID(itemId);
+    const reminderRef = doc(FIRESTORE_DB, 'users', user.uid, 'reminders', itemId);
+    await deleteDoc(reminderRef);
+  }
+
   return (allReminders.length > 0) ? (
     <View style={styles.container}>
       <StatusBar style="auto" />
@@ -66,7 +72,7 @@ export default function AllReminders({ navigation }) {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <TouchableOpacity onPress={() => {navigation.navigate("ReminderPage", { reminder: item, reminderID: item.id })}}>
-            <View style={styles.reminderItem}>
+            <View style={item.dueDate.seconds > Math.trunc(new Date().valueOf()/1000) ? styles.reminderItem : styles.dueItem}>
               <View style={styles.reminderHeader}>
                 <Text style={styles.reminderTitle}>{item.title}</Text>
               </View>
@@ -75,7 +81,10 @@ export default function AllReminders({ navigation }) {
               <Text>Remind Me: {new Date(item.remind.seconds * 1000).toLocaleString()}</Text>
               <Text style={styles.reminderModule}>Module: {item.moduleCode}</Text>
               <TouchableOpacity style={styles.completeButton} onPress={() => completeReminder(item.id)}>
-              <Image source={require('../assets/sticker-check-outline.png')} style={{height: 40, width: 40, tintColor:'#003D7C'}}></Image>
+              <Image source={require('../assets/sticker-check-outline.png')} style={{height: 35, width: 35, tintColor:'#185A37'}}></Image>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.deleteButton} onPress={() => deleteReminder(item.id)}>
+              <Image source={require('../assets/trash-can.png')} style={{height: 35, width: 35, tintColor:'#8b0000'}}></Image>
               </TouchableOpacity>
             </View>
           </TouchableOpacity>
@@ -113,6 +122,13 @@ const styles = StyleSheet.create({
     padding: 15,
     borderBottomWidth: 1,
     borderColor: '#ccc',
+  },
+  dueItem: {
+    padding: 15,
+    borderBottomWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 20,
+    backgroundColor: "#ffcccb"
   },
   reminderHeader: {
     flexDirection: 'row',
@@ -163,8 +179,15 @@ const styles = StyleSheet.create({
   completeButton: {
     position: 'absolute',
     right: 20,
-    top: '40%',
-    height: 40,
-    width: 40,
+    top: '10%',
+    height: 35,
+    width: 35,
+  },
+  deleteButton : {
+    position: 'absolute',
+    right: 20,
+    top: '70%',
+    height: 35,
+    width: 35,
   }
 });

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { StatusBar } from "expo-status-bar";
 import { Text, View, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
-import { collection, onSnapshot, query, orderBy, updateDoc, doc, where } from '@firebase/firestore';
+import { collection, onSnapshot, query, orderBy, updateDoc, doc, where, deleteDoc } from '@firebase/firestore';
 import { FIRESTORE_DB, FIREBASE_AUTH } from '../FirebaseConfig';
 import { onAuthStateChanged } from 'firebase/auth';
 
@@ -40,6 +40,20 @@ export default function AllReminders({ navigation }) {
     return () => subscriber();
   };
 
+  const uncompleteReminder = async (itemId) => {
+    await setReminderID(itemId);
+    const reminderRef = doc(FIRESTORE_DB, 'users', user.uid, 'reminders', itemId);
+    await updateDoc(reminderRef, {
+      done: false,
+    });
+  }
+
+  const deleteReminder = async (itemId) => {
+    await setReminderID(itemId);
+    const reminderRef = doc(FIRESTORE_DB, 'users', user.uid, 'reminders', itemId);
+    await deleteDoc(reminderRef);
+  }
+
   return (allReminders.length > 0) ? (
     <View style={styles.container}>
       <StatusBar style="auto" />
@@ -48,7 +62,7 @@ export default function AllReminders({ navigation }) {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <TouchableOpacity onPress={() => {navigation.navigate("ReminderPage", { reminder: item, reminderID: item.id })}}>
-            <View style={styles.reminderItem}>
+            <View style={item.dueDate > new Date() ? styles.reminderItem : styles.dueItem}>
               <View style={styles.reminderHeader}>
                 <Text style={styles.reminderTitle}>{item.title}</Text>
               </View>
@@ -56,8 +70,11 @@ export default function AllReminders({ navigation }) {
               <Text>On: {new Date(item.dueDate.seconds * 1000).toLocaleString()}</Text>
               <Text>Remind Me: {new Date(item.remind.seconds * 1000).toLocaleString()}</Text>
               <Text style={styles.reminderModule}>Module: {item.moduleCode}</Text>
-              <TouchableOpacity style={styles.completeButton} onPress={() => completeReminder(item.id)}>
-              <Image source={require('../assets/check-circle-outline.png')} style={{height: 40, width: 40, tintColor:'#185A37'}}></Image>
+              <TouchableOpacity style={styles.uncompleteButton} onPress={() => uncompleteReminder(item.id)}>
+              <Image source={require('../assets/arrow-u-left-top.png')} style={{height: 35, width: 35, tintColor:'#003D7C'}}></Image>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.deleteButton} onPress={() => deleteReminder(item.id)}>
+              <Image source={require('../assets/trash-can.png')} style={{height: 35, width: 35, tintColor:'#8b0000'}}></Image>
               </TouchableOpacity>
             </View>
           </TouchableOpacity>
@@ -96,6 +113,13 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: '#ccc',
   },
+  dueItem: {
+    padding: 15,
+    borderBottomWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 20,
+    backgroundColor: "#ffcccb"
+  },
   reminderHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -130,11 +154,18 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#333',
   },
-  completeButton: {
+  uncompleteButton: {
     position: 'absolute',
     right: 20,
-    top: '40%',
-    height: 40,
-    width: 40,
+    top: '10%',
+    height: 35,
+    width: 35,
+  },
+  deleteButton : {
+    position: 'absolute',
+    right: 20,
+    top: '70%',
+    height: 35,
+    width: 35,
   }
 });

@@ -68,7 +68,7 @@ export default function AllClassesScreen({ navigation }) {
         buttonText={"ROUTE"}
         backgroundSource={require("../assets/nextclass_logo.png")}
         onPress={() => navigation.navigate("Reminder", { moduleCode: item.title })}
-        onButtonPress={() => {navigation.navigate("Map", { destVenue: item.location })}}
+        onButtonPress={() => {navigation.navigate("Profile", {screen: "Map", params: {destVenue: item.location} } )}}
       />
     </View>
   );

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View, StyleSheet, Button } from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity } from 'react-native';
 import { StatusBar } from "expo-status-bar";
 
 export default function ReminderPage({ navigation, route }) {
@@ -7,7 +7,12 @@ export default function ReminderPage({ navigation, route }) {
 
   navigation.setOptions({
     headerRight: () => (
-      <Button onPress={() => { navigation.navigate("EditReminder", { reminder: reminder, reminderID: reminderID }) }} title="Edit" />
+      <TouchableOpacity
+        onPress={() => navigation.navigate('EditReminder', { reminder: reminder, reminderID: reminderID })}
+        style={styles.headerRightButton}
+      >
+        <Text style={styles.headerRightButtonText}>Edit</Text>
+      </TouchableOpacity>
     ),
   });
 
@@ -80,5 +85,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
     marginTop: 5,
+  },
+  headerRightButton: {
+    marginLeft: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: '#FFB052',
+    borderRadius: 20,
+  },
+  headerRightButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });

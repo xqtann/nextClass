@@ -92,7 +92,7 @@ export default function Timetable({ navigation }) {
     const confirmImportNew = () => {
         Alert.alert(
             'Import new timetable',
-            'Are you sure you want to remove the current timetable? Importing a new timetable will remove all your reminders!',
+            'Are you sure you want to remove the current timetable?\n Importing a new timetable will remove all your reminders!',
             [
                 { text: 'Cancel', style: 'cancel' },
                 { text: 'Remove', style: 'destructive', onPress: optionHandler }
@@ -122,14 +122,14 @@ export default function Timetable({ navigation }) {
         if (actualData.length > 0) {
             navigation.setOptions({
                 headerLeft: () => (
-                    <TouchableOpacity
-                        onPress={confirmImportNew}
-                        style={styles.button}
-                    >
-                        <Text style={styles.buttonText}>Import New</Text>
-                    </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={confirmImportNew}
+                    style={styles.headerLeftButton}
+                  >
+                    <Text style={styles.headerLeftButtonText}>Import New</Text>
+                  </TouchableOpacity>
                 ),
-            });
+              });
         } else {
             navigation.setOptions({
                 headerLeft: null,
@@ -291,7 +291,7 @@ export default function Timetable({ navigation }) {
                                             screenTitle: currentEvt.title
                                         }); setModal(false)
                                     }} />
-                                    <Button title="Get Route" onPress={() => { navigation.navigate('Map', {destVenue: currentEvt.location}); setModal(false) }} />
+                                    <Button title="Get Route" onPress={() => { navigation.navigate('Profile', {screen: 'Map', params: {destVenue: currentEvt.location}}); setModal(false) }} />
                                 </View>
                             </View>
                         </TouchableWithoutFeedback>
@@ -503,5 +503,16 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-      },
+    },
+    headerLeftButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: '#FFB052',
+    borderRadius: 20,
+    },
+    headerLeftButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+    },
 });

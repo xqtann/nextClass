@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StatusBar } from "expo-status-bar";
-import { Text, View, StyleSheet, Button, TextInput, Keyboard, TouchableWithoutFeedback, Alert } from 'react-native';
+import { Text, View, StyleSheet, Button, TextInput, Keyboard, TouchableWithoutFeedback, Alert, TouchableOpacity } from 'react-native';
 import { ThemedButton } from 'react-native-really-awesome-button';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../FirebaseConfig';
 import { addDoc, collection, Timestamp, getDoc, doc } from 'firebase/firestore';
@@ -78,7 +78,12 @@ export default function NewAllReminder({ navigation }) {
 
   navigation.setOptions({
     headerRight: () => (
-      <Button onPress={() => { navigation.pop() }} title="Dismiss" />
+      <TouchableOpacity
+        onPress={() => navigation.pop()}
+        style={styles.headerRightButton}
+      >
+        <Text style={styles.headerRightButtonText}>Dismiss</Text>
+      </TouchableOpacity>
     ),
   });
 
@@ -265,5 +270,17 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '500',
     color: '#151E26',
+  },
+  headerRightButton: {
+    marginLeft: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: '#FFB052',
+    borderRadius: 20,
+  },
+  headerRightButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
