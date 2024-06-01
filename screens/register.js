@@ -59,7 +59,18 @@ export default function Register({ navigation }) {
         navigation.navigate("Login");
       })
       .catch((err) => {
-        alert(err.message); // Display the error message
+        if (err.code == "auth/email-already-in-use") {
+          alert("Email already in use");
+        }
+        else if (err.code == "auth/weak-password") {
+          alert("Password is too weak");
+        }
+        else if (err.code == "auth/invalid-email") {
+          alert("Invalid Email");
+        }
+        else {
+          alert('An error occurred.\n Please try again.');
+        }
       })
       .finally(() => {
         setLoading(false);

@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef, useMemo } from 'react';
-import { Text, View, StyleSheet, Button, TextInput, ScrollView, TouchableOpacity, Modal, Alert, Image } from 'react-native';
+import { Text, View, StyleSheet, Button, TextInput, ScrollView, TouchableOpacity, Modal, Alert, Image, TouchableWithoutFeedback } from 'react-native';
 import MapView, { UrlTile, Marker, Polyline, Callout } from 'react-native-maps';
 import * as Location from 'expo-location';
 import MapViewDirections from 'react-native-maps-directions';
@@ -184,6 +184,7 @@ export default function Map({ navigation, route }) {
         animationType="fade"
         onRequestClose={() => setOpenModal(false)}
         >
+        <TouchableWithoutFeedback onPress={() => setOpenModal(false)}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <TouchableOpacity style={styles.closeButton} onPress={() => setOpenModal(false)}>
@@ -201,6 +202,7 @@ export default function Map({ navigation, route }) {
             </View>
           </View>
         </View>
+      </TouchableWithoutFeedback>
       </Modal>
       )
     };

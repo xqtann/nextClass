@@ -103,6 +103,7 @@ export default function Home({ navigation }) {
 
     fetchTimetableData();
   }, []);
+  
 
   const getNextTwoClasses = (timetable) => {
     const now = new Date();

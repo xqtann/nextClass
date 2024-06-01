@@ -53,8 +53,13 @@ export default function Login({ navigation }) {
         console.log('User logged in successfully:',  userCredential);
         setUser(userCredential);
       })
-      .catch((error) => {
-        console.log('Error', error);
+      .catch((err) => {
+        if (err.code == "auth/invalid-email") {
+          alert("Invalid email");
+        }
+        else {
+          alert("Invalid password");
+        }
       });
   };
 
@@ -84,12 +89,7 @@ export default function Login({ navigation }) {
             style={styles.signupContainer}
             onPress={() => navigation.push("Register")}
           >
-            {/* <CheckBox
-              center
-              title="Keep Me Logged In"
-              checked={keepLogin}
-              onPress={() => setKeepLogin(!keepLogin)}
-            /> */}
+
             <Text style={styles.signupText}>
               Don't have an account? <Text style={styles.signupLink}>Sign up now</Text>
             </Text>
