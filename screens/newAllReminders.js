@@ -76,17 +76,6 @@ export default function NewAllReminder({ navigation }) {
     setRemind(currentDate);
   };
 
-  navigation.setOptions({
-    headerRight: () => (
-      <TouchableOpacity
-        onPress={() => navigation.pop()}
-        style={styles.headerRightButton}
-      >
-        <Text style={styles.headerRightButtonText}>Dismiss</Text>
-      </TouchableOpacity>
-    ),
-  });
-
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
@@ -158,7 +147,7 @@ export default function NewAllReminder({ navigation }) {
             />
         </View>
         <View style={{ padding: 5, paddingRight: 30, paddingLeft: 30 }}>
-          <ThemedButton name='rick' type='secondary' style={styles.button} onPress={submitHandler}>
+          <ThemedButton name='rick' type='secondary' raiseLevel={1} style={styles.button} onPress={submitHandler}>
             <Text style={styles.buttonText}>Create</Text>
           </ThemedButton>
           <StatusBar style="light" />
@@ -199,6 +188,7 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   moduleLabel: {
+    width: 150,
     fontSize: 18,
     color: '#333',
     marginTop: 10,
@@ -208,7 +198,6 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   dropdownContainer: {
-      flex: 1,
       height: 50,
       width: 100,
       flexDirection: "row"
@@ -236,7 +225,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   dropdownButtonStyle: {
-    marginLeft: 60,
+    left: 15,
     width: 190,
     height: 35,
     backgroundColor: '#E5E5E5',
@@ -270,17 +259,5 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '500',
     color: '#151E26',
-  },
-  headerRightButton: {
-    marginLeft: 10,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    backgroundColor: '#FFB052',
-    borderRadius: 20,
-  },
-  headerRightButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
   },
 });

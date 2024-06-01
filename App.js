@@ -66,7 +66,7 @@ function Reminders() {
         <Stack.Screen name="ReminderPage" component={ReminderPage} 
           options={({ route }) => ({ title: route.params.reminder.title })}
         />
-        <Stack.Screen name="EditReminder" component={EditReminder} />
+        <Stack.Screen name="EditReminder" options={{title: 'Edit Reminder'}} component={EditReminder} />
         <Stack.Screen name="AllReminders" options={{title: 'Reminders'}} component={AllReminders} />
         <Stack.Screen name="AllClasses" options={{title: 'All Classes'}} component={AllClassesScreen} />
         <Stack.Screen name="Map" initialParams={{ destVenue: "" }} component={Map} />
@@ -107,40 +107,6 @@ export default function App() {
       setUser(user);
     });
   })
-
-  useEffect(() => {
-    registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
-  }, []);
-
-  async function registerForPushNotificationsAsync() {
-    let token;
-    if (Constants.isDevice) {
-      const { status: existingStatus } = await Notifications.getPermissionsAsync();
-      let finalStatus = existingStatus;
-      if (existingStatus !== 'granted') {
-        const { status } = await Notifications.requestPermissionsAsync();
-        finalStatus = status;
-      }
-      if (finalStatus !== 'granted') {
-        alert('Failed to get push token for push notification!');
-        return;
-      }
-      token = (await Notifications.getExpoPushTokenAsync()).data;
-    } else {
-      alert('Must use physical device for Push Notifications');
-    }
-  
-    if (Platform.OS === 'android') {
-      Notifications.setNotificationChannelAsync('default', {
-        name: 'default',
-        importance: Notifications.AndroidImportance.MAX,
-        vibrationPattern: [0, 250, 250, 250],
-        lightColor: '#FF231F7C',
-      });
-    }
-  
-    return token;
-  }
 
   return (
     <NavigationContainer>

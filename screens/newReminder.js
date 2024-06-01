@@ -56,7 +56,7 @@ export default function NewReminder({ navigation, route }) {
   };
 
   navigation.setOptions({
-    headerRight: () => (
+    headerLeft: () => (
       <TouchableOpacity
         onPress={() => navigation.pop()}
         style={styles.headerRightButton}
@@ -110,7 +110,7 @@ export default function NewReminder({ navigation, route }) {
           />
         </View>
         <View style={{ padding: 5, paddingRight: 30, paddingLeft: 30 }}>
-          <ThemedButton name='rick' type='secondary' style={styles.button} onPress={submitHandler}>
+          <ThemedButton name='rick' type='secondary' raiseLevel={1} style={styles.button} onPress={submitHandler}>
             <Text style={styles.buttonText}>Create</Text>
           </ThemedButton>
           <StatusBar style="light" />
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
   },
   button: {
     alignSelf: 'center',
-    marginTop: 20,
+    marginTop: 10,
     paddingVertical: 10,
     paddingBottom: 50,
   },

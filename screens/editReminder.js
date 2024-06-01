@@ -127,8 +127,10 @@ export default function EditReminder({ navigation, route }) {
           onChange={onRemindChange}
         />
       </View>
-      <ThemedButton name='rick' type='secondary' onPress={submitHandler}>Update</ThemedButton>
-      <ThemedButton name='rick' type='danger' onPress={confirmDelete} style={styles.deleteButton}>Delete</ThemedButton>
+      <View style={styles.buttonsContainer}>
+        <ThemedButton name='rick' type='secondary' width={150} raiseLevel={2} onPress={submitHandler}>Update</ThemedButton>
+        <ThemedButton name='rick' type='danger' width={150} raiseLevel={2} onPress={confirmDelete} >Delete</ThemedButton>
+      </View>
       <StatusBar style="light" />
     </View>
   );
@@ -175,11 +177,12 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 10,
   },
-  deleteButton: {
-    marginTop: 10,
-  },
   button: {
     alignSelf: 'center',
     marginTop: 20,
+  },
+  buttonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   }
 });

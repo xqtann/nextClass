@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { StatusBar } from "expo-status-bar";
-import { Text, View, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
-import { collection, onSnapshot, query, orderBy, updateDoc, doc, where } from '@firebase/firestore';
+import { Text, View, StyleSheet, FlatList, TouchableOpacity, Image, Alert } from 'react-native';
+import { collection, onSnapshot, query, orderBy, updateDoc, doc, where, deleteDoc } from '@firebase/firestore';
 import { FIRESTORE_DB, FIREBASE_AUTH } from '../FirebaseConfig';
 import { onAuthStateChanged } from 'firebase/auth';
 
@@ -64,6 +64,17 @@ export default function AllReminders({ navigation }) {
     await deleteDoc(reminderRef);
   }
 
+  const confirmDelete = (itemId) => {
+    Alert.alert(
+      'Delete Reminder',
+      'Are you sure you want to delete this reminder?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Delete', style: 'destructive', onPress: () => deleteReminder(itemId) }
+      ]
+    );
+  };
+
   return (allReminders.length > 0) ? (
     <View style={styles.container}>
       <StatusBar style="auto" />
@@ -83,7 +94,7 @@ export default function AllReminders({ navigation }) {
               <TouchableOpacity style={styles.completeButton} onPress={() => completeReminder(item.id)}>
               <Image source={require('../assets/sticker-check-outline.png')} style={{height: 35, width: 35, tintColor:'#185A37'}}></Image>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.deleteButton} onPress={() => deleteReminder(item.id)}>
+              <TouchableOpacity style={styles.deleteButton} onPress={() => confirmDelete(item.id)}>
               <Image source={require('../assets/trash-can.png')} style={{height: 35, width: 35, tintColor:'#8b0000'}}></Image>
               </TouchableOpacity>
             </View>
@@ -122,13 +133,17 @@ const styles = StyleSheet.create({
     padding: 15,
     borderBottomWidth: 1,
     borderColor: '#ccc',
+    borderRadius: 20,
+    backgroundColor: "white",
+    marginBottom: 5
   },
   dueItem: {
     padding: 15,
     borderBottomWidth: 1,
     borderColor: '#ccc',
     borderRadius: 20,
-    backgroundColor: "#ffcccb"
+    backgroundColor: "#ffcccb",
+    marginBottom: 5
   },
   reminderHeader: {
     flexDirection: 'row',
