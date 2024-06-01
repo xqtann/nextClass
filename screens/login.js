@@ -55,10 +55,10 @@ export default function Login({ navigation }) {
       })
       .catch((err) => {
         if (err.code == "auth/invalid-email") {
-          alert("Invalid email");
+          alert("Invalid Email");
         }
         else {
-          alert("Invalid password");
+          alert("Invalid Password");
         }
       });
   };

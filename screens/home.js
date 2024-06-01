@@ -1,12 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { StatusBar } from "expo-status-bar";
-import { Text, View, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { Text, View, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, Button } from 'react-native';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../FirebaseConfig';
 import { onAuthStateChanged } from "firebase/auth";
 import AppOfTheDayCard from '../components/AppOfTheDayCard/AppOfTheDayCard.js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { doc, getDoc, collection, query, orderBy, onSnapshot, where } from 'firebase/firestore';
 import CustomCard from '../components/CustomCard.js';
+import * as Notifications from 'expo-notifications';
+import * as Device from 'expo-device';
+import Constants from 'expo-constants';
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
 
 export default function Home({ navigation }) {
   const [user, setUser] = useState(null);
@@ -14,6 +25,32 @@ export default function Home({ navigation }) {
   const [reminders, setReminders] = useState([]);
   const [userName, setUserName] = useState('Guest');
   const [loadingUser, setLoadingUser] = useState(true);
+
+  const [expoPushToken, setExpoPushToken] = useState('');
+  const [notification, setNotification] = useState(
+    undefined
+  );
+  const notificationListener = useRef();
+  const responseListener = useRef();
+
+  useEffect(() => {
+    registerForPushNotificationsAsync().then(token => token && setExpoPushToken(token));
+
+    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+      setNotification(notification);
+    });
+
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+      console.log(response);
+    });
+
+    return () => {
+      notificationListener.current &&
+        Notifications.removeNotificationSubscription(notificationListener.current);
+      responseListener.current &&
+        Notifications.removeNotificationSubscription(responseListener.current);
+    };
+  }, []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, (user) => {
@@ -162,11 +199,66 @@ export default function Home({ navigation }) {
       </View>
     );
   }
+  
+  async function schedulePushNotification() {
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "You've got mail! 📬",
+        body: 'Here is the notification body',
+        data: { data: 'goes here', test: { test1: 'more data' } },
+      },
+      trigger: { seconds: 300 },
+    });
+  }
+  
+  async function registerForPushNotificationsAsync() {
+    let token;
+
+    if (Device.isDevice) {
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+      if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+      if (finalStatus !== 'granted') {
+        alert('Failed to get push token for push notification!');
+        return;
+      }
+      // Learn more about projectId:
+      // https://docs.expo.dev/push-notifications/push-notifications-setup/#configure-projectid
+      // EAS projectId is used here.
+      try {
+        const projectId =
+          Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
+        if (!projectId) {
+          throw new Error('Project ID not found');
+        }
+        token = (
+          await Notifications.getExpoPushTokenAsync({
+            projectId,
+          })
+        ).data;
+        console.log(token);
+      } catch (e) {
+        token = `${e}`;
+      }
+    } else {
+      alert('Must use physical device for Push Notifications');
+    }
+  
+    return token;
+  }
 
   return (
     <View style={styles.container}>
       <StatusBar style="auto" />
       <Text style={styles.heading}> Welcome back, {userName}! </Text>
+      <Button onPress={async () => {
+          console.log('button pressed');
+          await schedulePushNotification();
+
+        }} title='notification'/> 
       
       {nextClasses.length > 0 ? (
         nextClasses.map((event, index) => (
