@@ -114,6 +114,7 @@ export default function EditReminder({ navigation, route }) {
           mode={'datetime'}
           is24Hour={true}
           onChange={onDueDateChange}
+          minimumDate={new Date()}
         />
       </View>
       <View style={styles.datetimeContainer}>
@@ -125,6 +126,7 @@ export default function EditReminder({ navigation, route }) {
           mode={'datetime'}
           is24Hour={true}
           onChange={onRemindChange}
+          minimumDate={new Date()}
         />
       </View>
       <View style={styles.buttonsContainer}>

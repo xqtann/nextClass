@@ -37,7 +37,7 @@ export default function Map({ navigation, route }) {
   const [totalTime, setTotalTime] = useState(0);
   const [totalDist, setTotalDist] = useState(0);
   const [openDirection, setOpenDirection] = useState(false);
-  let firstHeading = 0;
+  let firstHeading = firstHeading == 0 ? 0 : firstHeading;
   let polylines =[];
 
 
@@ -165,10 +165,10 @@ export default function Map({ navigation, route }) {
       origin != '' && dest != '' 
       ? mapRef.current.animateCamera({
         center: {latitude: venues[origin].location.y, longitude: venues[origin].location.x },
-      heading: firstHeading }, {duration: 2000}) 
+      heading: firstHeading, altitude: 200 }, {duration: 2000}) 
       : Alert.alert(`Please select both\n origin and destination`);
       setOpenDirection(true);
-      setGoPressed(!goPressed);
+      setGoPressed(true);
     }
 
     const optionHandler = () => {
@@ -271,7 +271,7 @@ export default function Map({ navigation, route }) {
               </View>
               </Callout>
           </Marker> : <Marker />}
-          {polylinesLoaded && polylines.length > 0 ? <Polyline 
+          {polylinesLoaded && polylines.length > 0 && goPressed ? <Polyline 
           coordinates={polylines} 
           strokeWidth={4} 
           strokeColor='#8F0000' /> : console.log("polylines not loaded")}
