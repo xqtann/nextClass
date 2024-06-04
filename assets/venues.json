@@ -7,6 +7,86 @@
       "y": 1.2936062312700383
     }
   },
+  "KR MRT (Kent Ridge MRT)": {
+    "roomName": "Kent Ridge MRT",
+    "floor": 1,
+    "location": {
+      "x": 103.78461926762591,
+      "y": 1.293502903109572
+    }
+  },
+  "The Deck Canteen (FASS)": {
+    "roomName": "The Deck Canteen (FASS)",
+    "floor": 1,
+    "location": {
+      "x": 103.77260274089383,
+      "y": 1.2948079855917947
+    }
+  },
+  "The Terrace Canteen (SOC)": {
+    "roomName": "The Terrace Canteen (SOC)",
+    "floor": 1,
+    "location": {
+      "x": 103.77425436577445,
+      "y": 1.2946219728489683
+    }
+  },
+  "Frontier Canteen (FOS)": {
+    "roomName": "Frontier Canteen (FOS)",
+    "floor": 1,
+    "location": {
+      "x": 103.7803852541337,
+      "y": 1.2967038770107144
+    }
+  },
+  "Techno Edge Canteen (FOE)": {
+    "roomName": "Techno Edge Canteen (FOE)",
+    "floor": 1,
+    "location": {
+      "x": 103.77177003085217,
+      "y": 1.2981243464357433
+    }
+  },
+  "PGP Canteen": {
+    "roomName": "PGP Canteen",
+    "floor": 1,
+    "location": {
+      "x": 103.78071068972615,
+      "y": 1.2908964131755432
+    }
+  },
+  "Fine Food Canteen (UTown)": {
+    "roomName": "Fine Food Canteen (UTown)",
+    "floor": 1,
+    "location": {
+      "x": 103.77362546524259,
+      "y": 1.30411755361922
+    }
+  },
+  "Flavours Canteen (UTown)": {
+    "roomName": "Flavours Canteen (UTown)",
+    "floor": 1,
+    "location": {
+      "x": 103.77275642953265,
+      "y": 1.304943459859467
+    }
+  },
+  "Medicine Science Library (MSL)": {
+    "roomName": "Medicine Science Library (MSL)",
+    "floor": 1,
+    "location": {
+      "x": 103.78142041180553,
+      "y": 1.297177046521048
+    }
+  },
+  "Central Library (CLB)": {
+    "roomName": "Central Library (CLB)",
+    "floor": 1,
+    "location": {
+      "x": 103.77262183076138,
+      "y": 1.3009087204066636
+    }
+  },
   "LT16": {
     "roomName": "Lecture Theatre 16",
     "floor": 1,

@@ -14,6 +14,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import RadioGroup from 'react-native-radio-buttons-group';
 
 
+
 export default function Map({ navigation, route }) {
   const { destVenue } = route.params;
   const [location, setLocation] = useState(null);
