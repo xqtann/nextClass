@@ -45,7 +45,7 @@ function Profile() {
       })}>
       <Tab.Screen name="Home" component={Reminders} options={{ tabBarIcon: ({color}) => <Feather name="home" size={24} color={color} />, headerShown: false }} />
       <Tab.Screen name="Timetable" component={RemindersTT} options={{ tabBarIcon: ({color}) => <MaterialCommunityIcons name="timetable" size={24} color={color} />, headerShown: false}} />
-      <Tab.Screen name="Map" component={Map} initialParams={{ destVenue: "" }} options={{ tabBarIcon: ({color}) => <MaterialCommunityIcons name="map-marker" size={24} color={color} />}} />
+      <Tab.Screen name="Map" component={Map} initialParams={{ destVenue: "", currLoc: null }} options={{ tabBarIcon: ({color}) => <MaterialCommunityIcons name="map-marker" size={24} color={color} />}} />
       <Tab.Screen name="Account" component={Account} options={{ tabBarIcon: ({color}) => <MaterialCommunityIcons name="account" size={24} color={color} />}} />
     </Tab.Navigator>
   );

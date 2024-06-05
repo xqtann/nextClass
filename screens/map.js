@@ -1,12 +1,11 @@
 import React, {useState, useEffect, useRef, useMemo } from 'react';
-import { Text, View, StyleSheet, Button, TextInput, ScrollView, TouchableOpacity, Modal, Alert, Image, TouchableWithoutFeedback } from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, Modal, Alert, Image, TouchableWithoutFeedback } from 'react-native';
 import MapView, { UrlTile, Marker, Polyline, Callout } from 'react-native-maps';
 import * as Location from 'expo-location';
-import MapViewDirections from 'react-native-maps-directions';
 import { ScreenHeight, ScreenWidth } from 'react-native-elements/dist/helpers';
 import SelectDropdown from 'react-native-select-dropdown';
 import GHUtil from '../utils/GHUtil';
-import Carousel, { Pagination } from 'react-native-reanimated-carousel';
+import Carousel from 'react-native-reanimated-carousel';
 import { AntDesign } from '@expo/vector-icons';
 import { ThemedButton } from "react-native-really-awesome-button";
 import { FontAwesome5, Feather } from '@expo/vector-icons';
@@ -20,7 +19,7 @@ export default function Map({ navigation, route }) {
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const mapRef = useRef();
-  const venues = require('../assets/venues.json');
+  let venues = require('../assets/venues.json');
   const [origin, setOrigin] = useState("");
   console.log(destVenue)
   const [dest, setDest] = useState(!destVenue.startsWith("E-Learn") && Object.keys(venues).includes(destVenue) ? destVenue : "");
@@ -51,14 +50,32 @@ export default function Map({ navigation, route }) {
     pitch: 30,
     altitude: 2000,
   }
-
+  
+  location != null ?
+  (venues = {
+    ...venues,
+    "Current Location": {
+      location: location == null ? undefined : {
+        x: location.coords.longitude,
+        y: location.coords.latitude
+      }
+    }
+  }) :
+  (venues = {
+    ...venues,
+    "Getting Current Location...": {
+      location: {
+        x: 103.77634025228224,
+        y: 1.2968034900222334
+      }
+    }
+  })
   let data = [];
-  Object.keys(venues).filter(venue => venues[venue].location != undefined)
+  location != null ? data.push({venue: "Current Location"}) : data.push({venue: "Getting Current Location..."});
+  Object.keys(venues).filter(venue => venues[venue].location != undefined && venue != "Current Location")
                     .sort()
                     .map(venue => data.push({venue: venue}));
-
-  // console.log(Object.keys(venues));
-
+  console.log(data);
   // const lt17 = {
   //   latitude: 1.2936062312700383,
   //   longitude: 103.77401107931558
@@ -153,12 +170,6 @@ export default function Map({ navigation, route }) {
     })();
   }, []);
 
-    let text = 'Waiting..';
-    if (errorMsg) {
-      text = errorMsg;
-    } else if (location) {
-      text = JSON.stringify(location);
-    };
 
     // console.log(location);
 
@@ -283,14 +294,17 @@ export default function Map({ navigation, route }) {
               search={true}
               disableAutoScroll={true}
               onSelect={(selectedItem, index) => {
-                setOrigin(selectedItem.venue);
+                selectedItem.venue != "Getting Current Location..." && setOrigin(selectedItem.venue);
               }}
               renderButton={(selectedItem, isOpened) => {
                 return (
                   <View style={styles.dropdownButtonStyle}>
-                    <Text style={styles.dropdownButtonTxtStyle}>
-                      {(selectedItem && selectedItem.venue) || 'Origin'}
-                    </Text>
+                    {origin == "" 
+                    ? <Text style={styles.dropdownButtonTxtStyle}>
+                      {(selectedItem && selectedItem.venue != "Getting Current Location...") || 'Origin'}
+                    </Text> 
+                    : <Text style={styles.dropdownButtonTxtStyle}>{origin}</Text>
+                    }
                   </View>
                 );
               }}
@@ -327,14 +341,14 @@ export default function Map({ navigation, route }) {
               search={true}
               disableAutoScroll={true}
               onSelect={(selectedItem, index) => {
-                setDest(selectedItem.venue);
+                selectedItem.venue != "Getting Current Location..." && setDest(selectedItem.venue);
               }}
               renderButton={(selectedItem, isOpened) => {
                 return (
                   <View style={styles.dropdownButtonStyle}>
                     {dest == "" 
                     ? <Text style={styles.dropdownButtonDestTxtStyle}>
-                      {(selectedItem && selectedItem.venue) || 'Destination'}
+                      {(selectedItem && selectedItem.venue != "Getting Current Location...") || 'Destination'}
                     </Text> 
                     : <Text style={styles.dropdownButtonDestTxtStyle}>{dest}</Text>
                     }
@@ -412,7 +426,6 @@ export default function Map({ navigation, route }) {
                       <Text style={styles.distance}>{`${Math.trunc(instructions[index].distance)} m`}</Text>
 
                       </View>
-                    
                     <View style={styles.instructionContainer}>
                         <Text style={styles.title}>{instructions[index].text}</Text>
                         {index == 0 ?

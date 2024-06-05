@@ -7,6 +7,7 @@ import AppOfTheDayCard from '../components/AppOfTheDayCard/AppOfTheDayCard.js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { doc, getDoc, collection, query, orderBy, onSnapshot, where } from 'firebase/firestore';
 import CustomCard from '../components/CustomCard.js';
+import * as Location from 'expo-location';
 
 export default function Home({ navigation }) {
   const [user, setUser] = useState(null);
@@ -14,6 +15,20 @@ export default function Home({ navigation }) {
   const [reminders, setReminders] = useState([]);
   const [userName, setUserName] = useState('Guest');
   const [loadingUser, setLoadingUser] = useState(true);
+  const [location, setLocation] = useState(null);
+
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        setErrorMsg('Permission to access location was denied');
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      setLocation(location);
+    })();
+  }, []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, (user) => {
@@ -178,7 +193,7 @@ export default function Home({ navigation }) {
               buttonText={"ROUTE"}
               backgroundSource={require("../assets/nextclass_logo.png")}
               onPress={() => {navigation.navigate("Reminder", { moduleCode: event.title })}}
-              onButtonPress={() => {navigation.navigate("Map", { destVenue: event.location })}}
+              onButtonPress={() => {navigation.navigate("Map", { destVenue: event.location, currLoc: location })}}
             />
           </View>
         ))
