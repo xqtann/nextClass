@@ -52,13 +52,13 @@
     "react-native-screens": "3.31.1",
     "react-native-select-dropdown": "^4.0.1",
     "react-native-svg": "15.2.0",
-    "react-native-swipe-gesture-handler": "^1.0.6",
     "react-native-text-input-interactive": "^0.1.5",
     "react-native-timetable": "^1.0.6",
     "react-native-url-polyfill": "^2.0.0",
     "react-native-vector-icons": "^10.1.0",
     "typescript": "~5.3.3",
-    "yup": "^1.4.0"
+    "yup": "^1.4.0",
+    "expo-checkbox": "~3.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

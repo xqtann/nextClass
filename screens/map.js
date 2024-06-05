@@ -1,5 +1,6 @@
 import React, {useState, useEffect, useRef, useMemo } from 'react';
 import { Text, View, StyleSheet, TouchableOpacity, Modal, Alert, Image, TouchableWithoutFeedback } from 'react-native';
+import CheckBox from 'expo-checkbox';
 import MapView, { UrlTile, Marker, Polyline, Callout } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { ScreenHeight, ScreenWidth } from 'react-native-elements/dist/helpers';
@@ -20,6 +21,7 @@ export default function Map({ navigation, route }) {
   const [errorMsg, setErrorMsg] = useState(null);
   const mapRef = useRef();
   let venues = require('../assets/venues.json');
+  let busstops = require('../assets/busstops.json');
   const [origin, setOrigin] = useState("");
   console.log(destVenue)
   const [dest, setDest] = useState(!destVenue.startsWith("E-Learn") && Object.keys(venues).includes(destVenue) ? destVenue : "");
@@ -37,6 +39,7 @@ export default function Map({ navigation, route }) {
   const [totalTime, setTotalTime] = useState(0);
   const [totalDist, setTotalDist] = useState(0);
   const [openDirection, setOpenDirection] = useState(false);
+  const [showBusstops, setShowBusstops] = useState(false);
   let firstHeading = firstHeading == 0 ? 0 : firstHeading;
   let polylines =[];
 
@@ -75,7 +78,12 @@ export default function Map({ navigation, route }) {
   Object.keys(venues).filter(venue => venues[venue].location != undefined && venue != "Current Location")
                     .sort()
                     .map(venue => data.push({venue: venue}));
-  console.log(data);
+  // console.log(data);
+
+  let busstopData = busstops.BusStopsResult.busstops;
+
+  // console.log(busstopData);
+
   // const lt17 = {
   //   latitude: 1.2936062312700383,
   //   longitude: 103.77401107931558
@@ -196,7 +204,7 @@ export default function Map({ navigation, route }) {
         animationType="fade"
         onRequestClose={() => setOpenModal(false)}
         >
-        <TouchableWithoutFeedback onPress={() => setOpenModal(false)}>
+        {/* <TouchableWithoutFeedback onPress={() => setOpenModal(false)}> */}
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <TouchableOpacity style={styles.closeButton} onPress={() => setOpenModal(false)}>
@@ -212,9 +220,36 @@ export default function Map({ navigation, route }) {
             selectedId={mode}
         />
             </View>
+            <View style={{flexDirection: 'row', marginTop: 10, alignSelf: 'left', marginLeft: 35}}>
+              <Text style={{fontSize: 18, marginTop: 2}}>Show: </Text>
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
+              <CheckBox
+              style={{marginLeft: 10}}
+              disabled={false}
+              value={showBusstops}
+              onValueChange={(newValue) => setShowBusstops(newValue)}
+            />
+            <Image 
+                source={require('../assets/bus-marker.png')} 
+                style={{width: 25, height: 25, marginLeft: 10, tintColor: '#004999'}} />
+            <Text style={{fontSize: 18, marginHorizontal: 10}}>Bus Stops</Text>
+            </View>
+            </View>
+            {/* <View style={{flexDirection: 'row', alignItems: 'center', marginLeft: 45, marginTop: 10}}>
+              <CheckBox
+              style={{marginLeft: 10}}
+              disabled={false}
+              value={showBusstops}
+              onValueChange={(newValue) => setShowBusstops(newValue)}
+            />
+            <Image 
+                source={require('../assets/bus-marker.png')} 
+                style={{width: 25, height: 25, marginLeft: 10, tintColor: '#004999'}} />
+            <Text style={{fontSize: 18, marginHorizontal: 10}}>Bus Stops</Text>
+            </View> */}
           </View>
         </View>
-      </TouchableWithoutFeedback>
+      {/* </TouchableWithoutFeedback> */}
       </Modal>
       )
     };
@@ -255,6 +290,15 @@ export default function Map({ navigation, route }) {
             : <Marker />
           ))
           } */}
+          {showBusstops ? busstopData.map((busstop, index) => 
+          (<Marker 
+            coordinate={{latitude: busstop.latitude, longitude: busstop.longitude}} >
+              <Image 
+                source={require('../assets/bus-marker.png')} 
+                style={{width: 25, height: 25, top: -15, tintColor: '#004999'}} />
+            </Marker>))
+          : <Marker />}
+          
           {tempLat != 0 && tempLong != 0 ? <Marker 
           coordinate={{latitude: tempLat, longitude: tempLong}} 
           pinColor='gray'>
@@ -430,8 +474,9 @@ export default function Map({ navigation, route }) {
                         <Text style={styles.title}>{instructions[index].text}</Text>
                         {index == 0 ?
                         <Text style={styles.extraInstruction}>
-                           {`Total Distance: ${Math.trunc(totalDist)} m\nTotal Time: ${Math.trunc(totalTime/60000)} min\n`
-                      }
+                          Total Distance: {totalDist >= 1000 ? `${Math.trunc(totalDist/1000)} km` : `${Math.trunc(totalDist)} m`}
+                          {`\n`}
+                          Total Time: {totalTime >= 3600000 ? `${Math.trunc(totalTime/3600000)} hr` : `${Math.trunc(totalTime/60000)} min`}
                         </Text> : <Text></Text>}
                         
                     </View> 
@@ -530,8 +575,6 @@ const styles = StyleSheet.create({
     dropdownMenuStyle: {
       backgroundColor: '#E9ECEF',
       borderRadius: 8,
-      borderColor: "black",
-      borderWidth: 1
     },
     dropdownItemStyle: {
       width: '100%',
