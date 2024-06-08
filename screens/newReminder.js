@@ -56,7 +56,7 @@ export default function NewReminder({ navigation, route }) {
 
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: moduleCode + ' : ' + title,
+        title: 'Reminder for ' + moduleCode + ': ' + title,
         body: description,
         data: { reminderId : reminderId },
       },

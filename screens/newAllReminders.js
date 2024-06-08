@@ -1,12 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { StatusBar } from "expo-status-bar";
-import { Text, View, StyleSheet, Button, TextInput, Keyboard, TouchableWithoutFeedback, Alert, TouchableOpacity } from 'react-native';
+import { Text, View, StyleSheet, TextInput, Keyboard, TouchableWithoutFeedback, Alert } from 'react-native';
 import { ThemedButton } from 'react-native-really-awesome-button';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../FirebaseConfig';
 import { addDoc, collection, Timestamp, getDoc, doc } from 'firebase/firestore';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { onAuthStateChanged } from 'firebase/auth';
 import SelectDropdown from 'react-native-select-dropdown';
+import * as Notifications from 'expo-notifications';
+import * as Device from 'expo-device';
+import Constants from 'expo-constants';
 
 export default function NewAllReminder({ navigation }) {
   const [title, setTitle] = useState("");
@@ -16,6 +19,80 @@ export default function NewAllReminder({ navigation }) {
   const [moduleCode, setModuleCode] = useState("");
   const [moduleCodes, setModuleCodes] = useState([]);
   const [user, setUser] = useState(null);
+  const [expoPushToken, setExpoPushToken] = useState('');
+  const [notification, setNotification] = useState(undefined);
+  const notificationListener = useRef();
+  const responseListener = useRef();
+
+  useEffect(() => {
+    registerForPushNotificationsAsync().then(token => token && setExpoPushToken(token));
+    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+      setNotification(notification);
+    });
+
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+      console.log(response);
+    });
+
+    return () => {
+      notificationListener.current &&
+        Notifications.removeNotificationSubscription(notificationListener.current);
+      responseListener.current &&
+        Notifications.removeNotificationSubscription(responseListener.current);
+    };
+  }, []);
+
+  async function schedulePushNotification(remindDate, title, moduleCode, description, reminderId) {
+
+    const currentTimeInSeconds = Math.floor(Date.now() / 1000);
+    const remindTimeInSeconds = remindDate.seconds;
+    const secondsDifference = remindTimeInSeconds - currentTimeInSeconds;
+
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: 'Reminder for ' + moduleCode + ': ' + title,
+        body: description,
+        data: { reminderId : reminderId },
+      },
+      trigger: { seconds: secondsDifference },
+    });
+  }
+  
+  async function registerForPushNotificationsAsync() {
+    let token;
+  
+    if (Device.isDevice) {
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+      if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+      if (finalStatus !== 'granted') {
+        alert('Failed to get push token for push notification!');
+        return;
+      }
+      try {
+        const projectId =
+          Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
+        if (!projectId) {
+          throw new Error('Project ID not found');
+        }
+        token = (
+          await Notifications.getExpoPushTokenAsync({
+            projectId,
+          })
+        ).data;
+        console.log(token);
+      } catch (e) {
+        token = `${e}`;
+      }
+    } else {
+      alert('Must use physical device for Push Notifications');
+    }
+  
+    return token;
+  }
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, (user) => {
@@ -47,7 +124,7 @@ export default function NewAllReminder({ navigation }) {
       return;
     }
     if (user) {
-      await addDoc(collection(FIRESTORE_DB, `users/${user.uid}/reminders`), {
+      const docRef = await addDoc(collection(FIRESTORE_DB, `users/${user.uid}/reminders`), {
         title: title,
         description: description,
         dueDate: Timestamp.fromDate(dueDate),
@@ -55,6 +132,11 @@ export default function NewAllReminder({ navigation }) {
         done: false,
         moduleCode: moduleCode,
       });
+
+      const reminderId = docRef.id;
+
+      await schedulePushNotification(Timestamp.fromDate(remind), title, moduleCode, description, reminderId);
+
       setTitle("");
       setDescription("");
       setDueDate(new Date());
