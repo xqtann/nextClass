@@ -4,6 +4,7 @@ import { ThemedButton } from 'react-native-really-awesome-button';
 import { FIREBASE_AUTH } from '../FirebaseConfig';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import SettingsButton from '../components/SettingsButton';
 
 export default function Account({ navigation }) {
 
@@ -30,6 +31,10 @@ export default function Account({ navigation }) {
     return (
       <View style={styles.container}>
         <Text style={styles.text}> Account Page for {user ? user.displayName : storedUser} </Text>
+        <SettingsButton title="Change Username" onPress={()=>console.log("presschangeusername")}/>
+        <SettingsButton title="Change Password" onPress={()=>console.log("presschange pw")}/>
+        <SettingsButton title="Delete Profile" onPress={()=>console.log("delete")}/>
+        <SettingsButton title="Feedback and Suggestions" onPress={()=>console.log("fb")}/>
         {/* {!user ? <ThemedButton name="rick" type="primary" style={styles.button} onPress={() => navigation.navigate("Login")}>Login</ThemedButton> : ""} */}
         {user || storedUser != '' ? <ThemedButton name="rick" type="primary" style={styles.button} onPress={() => {
           FIREBASE_AUTH.signOut(); 
