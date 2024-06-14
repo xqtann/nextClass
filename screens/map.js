@@ -22,6 +22,8 @@ export default function Map({ navigation, route }) {
   const mapRef = useRef();
   let venues = require('../assets/venues.json');
   let busstops = require('../assets/busstops.json');
+  const [bustimings, setbustimings] = useState([]);
+  const [querybusstopname, setQueryBusstopname] = useState("");
   const [origin, setOrigin] = useState("");
   console.log(destVenue)
   const [dest, setDest] = useState(!destVenue.startsWith("E-Learn") && Object.keys(venues).includes(destVenue) ? destVenue : "");
@@ -110,7 +112,20 @@ export default function Map({ navigation, route }) {
         labelStyle: { fontSize: 18, color: 'black' },
     }
 ]), []);
-  
+
+useEffect(() => {
+  fetch(`https://nnextbus.nus.edu.sg/ShuttleService?busstopname=${querybusstopname}`, {
+    method: 'GET',
+    headers: {
+      'Accept': 'application/json',
+      'Authorization': 'Basic TlVTbmV4dGJ1czoxM2RMP3pZLDNmZVdSXiJU'
+    }
+  })
+  .then(response => response.json())
+  .then(data => setbustimings(data.ShuttleServiceResult.shuttles))
+  .catch(error => console.error(error));
+}, [querybusstopname]);
+
   useEffect(() => {
     const fetchData = async () => {
       const query = new URLSearchParams({
@@ -292,10 +307,24 @@ export default function Map({ navigation, route }) {
           } */}
           {showBusstops ? busstopData.map((busstop, index) => 
           (<Marker 
-            coordinate={{latitude: busstop.latitude, longitude: busstop.longitude}} >
+            coordinate={{latitude: busstop.latitude, longitude: busstop.longitude}}
+            onSelect={() => setQueryBusstopname(busstop.name)} >
               <Image 
                 source={require('../assets/bus-marker.png')} 
                 style={{width: 25, height: 25, top: -15, tintColor: '#004999'}} />
+              <Callout>
+                <View style={{padding: 5, width: 200, height: 200, flex: 1}}>
+                <Text style={{fontWeight: 'bold', fontSize: 20, textAlign: 'center', marginBottom: 10}}>{querybusstopname}</Text>
+                {bustimings == [] ? "no" :
+                bustimings.map(bus => 
+                  <View style={{marginBottom: 5, marginHorizontal: 10}}>
+                    <Text style={{fontSize: 20, textAlign: 'center'}}>
+                      {bus.name.startsWith("PUB:") ? bus.name.replace("PUB:", "") : bus.name}:   {bus.arrivalTime == "-" || bus.arrivalTime == "Arr" ? bus.arrivalTime : `${bus.arrivalTime} min`},   {bus.nextArrivalTime == "-" || bus.nextArrivalTime == "Arr" ? bus.nextArrivalTime : `${bus.nextArrivalTime} min`}
+                    </Text>
+                  </View>)
+                }
+                </View>
+              </Callout>
             </Marker>))
           : <Marker />}
           
