@@ -101,9 +101,11 @@ export default function Home({ navigation }) {
   useEffect(() => {
     const fetchTimetableData = async () => {
       try {
-        const storedData = await AsyncStorage.getItem('timetableData');
-        if (storedData) {
-          const timetable = JSON.parse(storedData).map(event => ({
+        const docRef = doc(FIRESTORE_DB, "timetables", user.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const timetableData = docSnap.data().timetableData;
+          const timetable = timetableData.map(event => ({
             ...event,
             startTime: new Date(event.startTime),
             endTime: new Date(event.endTime),
@@ -118,7 +120,6 @@ export default function Home({ navigation }) {
 
     fetchTimetableData();
   }, []);
-  
 
   const getNextTwoClasses = (timetable) => {
     const now = new Date();
@@ -133,9 +134,8 @@ export default function Home({ navigation }) {
       if (eventDay === 0 || eventDay === 6) {
         return false; // Omit Saturday and Sunday
       }
-
       if (eventDay !== nowDay) {
-        return false;
+         return false;
       }
       if (eventDay === nowDay && eventTime > nowTime) {
         return true;
@@ -144,7 +144,6 @@ export default function Home({ navigation }) {
       } else if (eventDay === nowDay && eventTime === nowTime) {
         return true;
       }
-
       return false;
     }).sort((a, b) => {
       const aDay = new Date(a.startTime).getDay();
