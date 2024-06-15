@@ -22,7 +22,7 @@ import AllReminders from "./screens/AllReminders";
 import AllClassesScreen from "./screens/AllClasses";
 import NewAllReminder from "./screens/newAllReminders";
 import CompletedReminders from "./screens/completedReminders";
-import TeleChannels from "./screens/teleChannels";
+import ChatScreen from "./screens/chatbot";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -47,7 +47,7 @@ function Profile() {
       <Tab.Screen name="Home" component={Reminders} options={{ tabBarIcon: ({color}) => <Feather name="home" size={24} color={color} />, headerShown: false }} />
       <Tab.Screen name="Timetable" component={RemindersTT} options={{ tabBarIcon: ({color}) => <MaterialCommunityIcons name="timetable" size={24} color={color} />, headerShown: false}} />
       <Tab.Screen name="Map" component={Map} initialParams={{ destVenue: "", currLoc: null }} options={{ tabBarIcon: ({color}) => <MaterialCommunityIcons name="map-marker" size={24} color={color} />}} />
-      <Tab.Screen name="Channels" component ={TeleChannels} options={{ tabBarIcon: ({color}) => <MaterialCommunityIcons name="bullhorn" size={24} color={color} />}} />
+      <Tab.Screen name="Chatbot" component ={ChatScreen} options={{ tabBarIcon: ({color}) => <MaterialCommunityIcons name="bullhorn" size={24} color={color} />}} />
       <Tab.Screen name="Account" component={Account} options={{ tabBarIcon: ({color}) => <MaterialCommunityIcons name="account" size={24} color={color} />}} />
     </Tab.Navigator>
   );

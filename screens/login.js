@@ -36,7 +36,7 @@ export default function Login({ navigation }) {
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
-      console.log("USER IS STILL LOGGED IN: " , user);
+      // console.log("USER IS STILL LOGGED IN: " , user);
       if (user) {
         setUser(user);
         navigation.navigate("Profile");

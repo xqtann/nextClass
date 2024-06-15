@@ -33,12 +33,12 @@ export default function Home({ navigation }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, (user) => {
       if (user) {
-        console.log('User logged in:', user);
+        //console.log('User logged in:', user);
         setUser(user);
         loadUserData(user);
         setupReminderListener(user.uid); // Set up real-time listener for reminders
       } else {
-        console.log('No user logged in');
+        //console.log('No user logged in');
         setUser(null);
         setUserName('Guest');
         setLoadingUser(false);
@@ -73,7 +73,7 @@ export default function Home({ navigation }) {
       const userDoc = await getDoc(userDocRef);
       if (userDoc.exists()) {
         const userData = userDoc.data();
-        console.log('User data:', userData);
+        //console.log('User data:', userData);
         setUserName(userData.username || 'Guest');
       } else {
         console.log('No such document!');
