@@ -12,6 +12,9 @@ import { ThemedButton } from "react-native-really-awesome-button";
 import { FontAwesome5, Feather } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import RadioGroup from 'react-native-radio-buttons-group';
+import { FIREBASE_AUTH, FIRESTORE_DB } from '../FirebaseConfig';
+import { onAuthStateChanged } from "firebase/auth";
+import { doc, getDoc } from 'firebase/firestore';
 
 
 
@@ -22,6 +25,7 @@ export default function Map({ navigation, route }) {
   const mapRef = useRef();
   let venues = require('../assets/venues.json');
   let busstops = require('../assets/busstops.json');
+  let carparks = require('../assets/nus-carparks.json');
   const [bustimings, setbustimings] = useState([]);
   const [querybusstopname, setQueryBusstopname] = useState("");
   const [origin, setOrigin] = useState("");
@@ -42,9 +46,16 @@ export default function Map({ navigation, route }) {
   const [totalDist, setTotalDist] = useState(0);
   const [openDirection, setOpenDirection] = useState(false);
   const [showBusstops, setShowBusstops] = useState(false);
+  const [showCarparks, setShowCarparks] = useState(false);
+  const [showMyClasses, setShowMyClasses] = useState(false);
+  const [user, setUser] = useState(null);
+  const [allClasses, setAllClasses] = useState([]);
+  const [loading, setLoading] = useState(true);
   let firstHeading = firstHeading == 0 ? 0 : firstHeading;
   let polylines =[];
-
+  let carparksData = [];
+  Object.values(carparks.carpark).map(cp => carparksData.push(cp));
+  // console.log(carparksData);
 
   // INITIAL_CAMERA position at NUS
   const INITIAL_CAMERA = {
@@ -86,16 +97,6 @@ export default function Map({ navigation, route }) {
 
   // console.log(busstopData);
 
-  // const lt17 = {
-  //   latitude: 1.2936062312700383,
-  //   longitude: 103.77401107931558
-  // }
-
-  // const as6 = {
-  //   latitude: 1.295361335555679,
-  //   longitude: 103.77326160572798
-  // }
-
   const radioButtons = useMemo(() => ([
     {
         id: '1', // acts as primary key, should be unique and non-empty string
@@ -112,6 +113,38 @@ export default function Map({ navigation, route }) {
         labelStyle: { fontSize: 18, color: 'black' },
     }
 ]), []);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, (user) => {
+      if (user) {
+        setUser(user);
+        fetchTimetableData(user.uid);
+      } else {
+        setUser(null);
+        setLoading(false);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const fetchTimetableData = async (uid) => {
+    try {
+      const docRef = doc(FIRESTORE_DB, "timetables", uid);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const timetableData = docSnap.data().timetableData.map(item => ({
+          title: item.title,
+          location: item.location,
+        }));
+        setAllClasses(timetableData);
+      }
+    } catch (error) {
+      console.error('Error loading timetable data from Firestore:', error);
+    } finally {
+      setLoading(false);
+    }
+  }
 
 useEffect(() => {
   fetch(`https://nnextbus.nus.edu.sg/ShuttleService?busstopname=${querybusstopname}`, {
@@ -235,9 +268,9 @@ useEffect(() => {
             selectedId={mode}
         />
             </View>
-            <View style={{flexDirection: 'row', marginTop: 10, alignSelf: 'left', marginLeft: 35}}>
+            <View style={{flexDirection: 'column', marginTop: 10, alignSelf: 'left', marginLeft: 35}}>
               <Text style={{fontSize: 18, marginTop: 2}}>Show: </Text>
-              <View style={{flexDirection: 'row', alignItems: 'center'}}>
+              <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 5}}>
               <CheckBox
               style={{marginLeft: 10}}
               disabled={false}
@@ -249,6 +282,31 @@ useEffect(() => {
                 style={{width: 25, height: 25, marginLeft: 10, tintColor: '#004999'}} />
             <Text style={{fontSize: 18, marginHorizontal: 10}}>Bus Stops</Text>
             </View>
+            <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 5}}>
+            <CheckBox
+              style={{marginLeft: 10}}
+              disabled={false}
+              value={showCarparks}
+              onValueChange={(newValue) => setShowCarparks(newValue)}
+            />
+            <Image 
+                source={require('../assets/car-park-flaticon.com.png')} 
+                style={{width: 25, height: 25, marginLeft: 10, tintColor: '#8b5b05'}} />
+            <Text style={{fontSize: 18, marginHorizontal: 10}}>Carparks</Text>
+            </View>
+            {loading ? "" :
+            <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 5}}>
+            <CheckBox
+              style={{marginLeft: 10}}
+              disabled={false}
+              value={showMyClasses}
+              onValueChange={(newValue) => setShowMyClasses(newValue)}
+            />
+            <Image 
+                source={require('../assets/book-variant.png')} 
+                style={{width: 25, height: 25, marginLeft: 10, tintColor: '#541675'}} />
+            <Text style={{fontSize: 18, marginHorizontal: 10}}>My Classes</Text>
+            </View>}
             </View>
             {/* <View style={{flexDirection: 'row', alignItems: 'center', marginLeft: 45, marginTop: 10}}>
               <CheckBox
@@ -327,7 +385,36 @@ useEffect(() => {
               </Callout>
             </Marker>))
           : <Marker />}
+
+          {showCarparks ? carparksData.map((cp, index) => 
+          (<Marker 
+            coordinate={{latitude: cp.latitude, longitude: cp.longitude}} >
+              <Image 
+                source={require('../assets/car-park-flaticon.com.png')} 
+                style={{width: 25, height: 25, top: -15, tintColor: '#8b5b05'}} />
+              <Callout>
+                <View>
+                  <Text>{cp.name}</Text>
+                </View>
+              </Callout>
+            </Marker>))
+          : <Marker />}
           
+          {showMyClasses && allClasses != [] ? allClasses.map((cl, index) => 
+          (<Marker 
+            coordinate={{latitude: venues[cl.location] && venues[cl.location].location ? venues[cl.location].location.y : "",
+              longitude: venues[cl.location] && venues[cl.location].location ? venues[cl.location].location.x : ""}} >
+              <Image 
+                source={require('../assets/book-variant.png')} 
+                style={{width: 25, height: 25, top: -15, tintColor: '#541675'}} />
+              <Callout>
+                <View>
+                  <Text>{cl.title}</Text>
+                </View>
+              </Callout>
+            </Marker>))
+          : <Marker />}
+
           {tempLat != 0 && tempLong != 0 ? <Marker 
           coordinate={{latitude: tempLat, longitude: tempLong}} 
           pinColor='gray'>
@@ -359,7 +446,7 @@ useEffect(() => {
           {polylinesLoaded && polylines.length > 0 && goPressed ? <Polyline 
           coordinates={polylines} 
           strokeWidth={4} 
-          strokeColor='#8F0000' /> : console.log("polylines not loaded")}
+          strokeColor='#8F0000' /> : ""}
           </MapView>
           <View style={styles.overlayContainer}>
               <SelectDropdown
