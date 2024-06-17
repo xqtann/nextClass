@@ -38,6 +38,7 @@ const ChatScreen = () => {
         user: {
           _id: 2,
           name: 'Bot',
+          avatar: require('../assets/robot-excited.png')
         },
       },
     ]);
@@ -59,6 +60,7 @@ const ChatScreen = () => {
       user: {
         _id: 2,
         name: 'Bot',
+        avatar: require('../assets/robot-excited.png')
       },
     };
 

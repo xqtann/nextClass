@@ -1,11 +1,14 @@
-import {Text, TouchableOpacity, View, StyleSheet} from 'react-native';
+import {Text, TouchableOpacity, View, StyleSheet, Image} from 'react-native';
 
 export default function SettingsButton(props) {
   return (
     <TouchableOpacity 
-    style={styles.btnContainer}
+    style={props.style || styles.btnContainer}
     onPress={props.onPress}>
-      <Text style={styles.btnText}>{props.title}</Text>
+      <View style={{flexDirection: "row", alignItems: "center"}}>
+        <Image source={props.icon} style={{width: 20, height: 20, marginRight: 10}} />
+        <Text style={props.textStyle || styles.btnText}>{props.title}</Text>
+      </View>
     </TouchableOpacity>
   );
 }
@@ -23,6 +26,7 @@ styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     elevation: 2,
+    marginBottom: 10
   },
   btnText: {
     fontSize: 17,

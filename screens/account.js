@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, StyleSheet, Button } from 'react-native';
+import { Text, View, StyleSheet, Button, Alert, TouchableWithoutFeedback, TouchableOpacity, Modal } from 'react-native';
+import TextInput from "react-native-text-input-interactive";
 import { ThemedButton } from 'react-native-really-awesome-button';
 import { FIREBASE_AUTH } from '../FirebaseConfig';
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getAuth, onAuthStateChanged, updatePassword, deleteUser, updateProfile } from "firebase/auth";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SettingsButton from '../components/SettingsButton';
 
@@ -11,6 +12,11 @@ export default function Account({ navigation }) {
   const auth = getAuth();
   const user = auth.currentUser;
   const [storedUser, setStoredUser] = useState('');
+  const [openModal, setModal] = useState(false);
+  const [mode, setMode] = useState(0);
+  const [newUsername, setNewUsername] = useState(null);
+  const [newPassword, setNewPassword] = useState(null);
+  const [feedback, setFeedback] = useState(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -28,14 +34,102 @@ export default function Account({ navigation }) {
     loadData();
   }, []);
 
+const confirmDeleteUser = () => {
+  Alert.alert(
+    `Delete ${user.displayName}`,
+    'Are you sure you want to \ndelete this user?\nThis action cannot be undone.',
+    [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Delete', style: 'destructive', onPress: () => { deleteUser(user).then(() => {navigation.navigate("Login"); AsyncStorage.removeItem("username");}).catch((error) => {console.error(error)})}}
+    ]
+  );
+};
+
+const newPasswordHandler = (newPassword) => {
+  updatePassword(user, newPassword).then(() => console.log("Password updated")).catch((error) => console.error(error))
+}
+const newUsernameHandler = (newUsername) => {
+  updateProfile(user, {displayName: newUsername}).then(() => console.log("Username updated")).catch((error) => console.error(error));
+  FIREBASE_AUTH.signOut();
+  navigation.navigate("Login"); 
+  AsyncStorage.removeItem("username");
+} 
+
+const feedbackHandler = (feedback) => {
+  
+}
+
+  const renderModal = () => {
+    return (
+        <Modal
+            visible={openModal}
+            transparent={true}
+            animationType="fade"
+            onRequestClose={() => setModal(false)}
+        >
+            <TouchableWithoutFeedback onPress={() => setModal(false)}>
+                <View style={styles.modalOverlay}>
+                        <View style={styles.modalContent}>
+                            <TouchableOpacity style={styles.closeButton} onPress={() => setModal(false)}>
+                                <Text style={styles.closeButtonText}>X</Text>
+                            </TouchableOpacity>
+                            {mode == 1 ? <Text style={{fontSize: 20, fontWeight: 'bold', marginBottom: 10}}>Change Username</Text> : 
+                            mode == 2 ? <Text style={{fontSize: 20, fontWeight: 'bold', marginBottom: 10}}>Change Password</Text> :
+                            mode == 3 ? <Text style={{fontSize: 20, fontWeight: 'bold', marginBottom: 10}}>Feedback and Suggestions</Text> : ""}
+
+                            {mode == 1 ? <Text style={styles.modalText}>Requires Re-Login</Text> : ""}
+                          <View>
+                            {mode == 1 ?
+                          <TextInput
+                            textInputStyle={styles.input}
+                            placeholder="New username"
+                            autoCapitalize="none"
+                            onChangeText={(text) => setNewUsername(text)}
+                            value={newUsername}
+                          />
+                          : mode == 2 ?
+                          <TextInput
+                            textInputStyle={styles.input}
+                            placeholder="New password"
+                            secureTextEntry={true}
+                            autoCapitalize="none"
+                            onChangeText={(text) => setNewPassword(text)}
+                            value={newPassword}
+                          />
+                          : 
+                          <TextInput
+                            textInputStyle={styles.input}
+                            placeholder="Suggestion"
+                            autoCapitalize="none"
+                            onChangeText={(text) => setFeedback(text)}
+                            value={feedback}
+                          />}
+                          </View>
+
+                            <View style={styles.buttonGroup}>
+                                <Button title="Cancel" onPress={() => {setModal(false)}} />
+                                <Button title="OK" onPress={() => {setModal(false); 
+                                                                    newPassword ? newPasswordHandler(newPassword) : "";
+                                                                    newUsername ? newUsernameHandler(newUsername) : "";
+                                                                    feedback ? feedbackHandler(feedback) : "";}} />
+                            </View>
+                        </View>
+                </View>
+            </TouchableWithoutFeedback>
+        </Modal>
+    )
+}
+
     return (
       <View style={styles.container}>
-        <Text style={styles.text}> Account Page for {user ? user.displayName : storedUser} </Text>
-        <SettingsButton title="Change Username" onPress={()=>console.log("presschangeusername")}/>
-        <SettingsButton title="Change Password" onPress={()=>console.log("presschange pw")}/>
-        <SettingsButton title="Delete Profile" onPress={()=>console.log("delete")}/>
-        <SettingsButton title="Feedback and Suggestions" onPress={()=>console.log("fb")}/>
-        {/* {!user ? <ThemedButton name="rick" type="primary" style={styles.button} onPress={() => navigation.navigate("Login")}>Login</ThemedButton> : ""} */}
+        <Text style={styles.text}>{user ? user.displayName : storedUser} </Text>
+        {renderModal()}
+        <View style={styles.settings}>
+        <SettingsButton icon={require('../assets/text-account.png')} title="Change Username" onPress={()=>{setMode(1); setModal(true)}}/>
+        <SettingsButton icon={require('../assets/key.png')} title="Change Password" onPress={()=>{setMode(2); setModal(true)}}/>
+        <SettingsButton icon={require('../assets/lightbulb.png')} title="Feedback and Suggestions" onPress={()=>{setMode(3); setModal(true)}}/>
+        <SettingsButton textStyle={styles.btnTextDanger} icon={require('../assets/trash-can.png')} title="Delete Profile" onPress={()=>confirmDeleteUser()}/>
+        </View>
         {user || storedUser != '' ? <ThemedButton name="rick" type="primary" style={styles.button} onPress={() => {
           FIREBASE_AUTH.signOut(); 
           navigation.navigate("Login"); 
@@ -54,11 +148,75 @@ const styles = StyleSheet.create({
       margin: 20,
   },
   text: {
-      fontSize: 20,
-      textAlign: "center"
+      fontSize: 30,
+      textAlign: "right",
+      fontFamily: "System",
+      fontWeight: 'bold',
   },
   button: {
-      margin: 10,
-      alignSelf: "center"
-  }
+      marginTop: 10,
+      alignSelf: "center",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)', // Slightly darker overlay
+    justifyContent: 'center',
+    alignItems: 'center',
+},
+modalContent: {
+    width: '85%', // Slightly wider modal
+    padding: 20,
+    backgroundColor: 'white',
+    borderRadius: 20, // More rounded corners
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+        width: 0,
+        height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+},
+  closeButton: {
+      position: 'absolute',
+      top: 10,
+      right: 10,
+      backgroundColor: '#ff5c5c', // Red close button
+      borderRadius: 20,
+      width: 30,
+      height: 30,
+      justifyContent: 'center',
+      alignItems: 'center',
+  },
+  closeButtonText: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: 'white',
+  },
+  buttonGroup: {
+      marginTop: 20,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      width: '100%',
+  },
+  modalText: {
+      fontSize: 16,
+      marginVertical: 10,
+      textAlign: 'center',
+      width: '60%'
+  },
+  input: {
+      width: 300
+  },
+  settings: {
+    marginTop: 20,
+    flex: 1,
+  },
+  btnTextDanger: {
+    fontSize: 17,
+    fontFamily: "System",
+    color: "#8b0000",
+    fontWeight: "400"
+  },
 })
