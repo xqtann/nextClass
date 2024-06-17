@@ -4,17 +4,32 @@ import { View, StyleSheet } from 'react-native';
 import { GiftedChat } from 'react-native-gifted-chat';
 import Constants from 'expo-constants';
 import { Dialogflow_V2 } from 'react-native-dialogflow';
+import axios from 'axios';
 
 const ChatScreen = () => {
   const [messages, setMessages] = useState([]);
 
+  const sendMessageToRasa = async (message) => {
+    try {
+      const response = await axios.post('https://e640-219-74-78-251.ngrok-free.app/webhooks/rest/webhook', {
+        sender: 'user',
+        message: message
+      });
+  
+      if (response.data && response.data.length) {
+        // The response from Rasa server is an array of messages
+        // You can customize the response as per your needs
+        console.log(response.data[0].text);
+        return response.data[0].text;
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  
+  // sendMessageToRasa('Hello');
+
   useEffect(() => {
-    const { extra } = Constants.expoConfig || {};
-
-    console.log('DIALOGFLOW_CLIENT_EMAIL:',extra?.DIALOGFLOW_CLIENT_EMAIL);
-    console.log('DIALOGFLOW_PRIVATE_KEY:',extra?.DIALOGFLOW_PRIVATE_KEY);
-    console.log('DIALOGFLOW_PROJECT_ID:',extra?.DIALOGFLOW_PROJECT_ID);
-
     setMessages([
       {
         _id: 1,
@@ -26,47 +41,14 @@ const ChatScreen = () => {
         },
       },
     ]);
-
-    if (extra?.DIALOGFLOW_CLIENT_EMAIL && extra?.DIALOGFLOW_PRIVATE_KEY && extra?.DIALOGFLOW_PROJECT_ID) {
-      // Initialize Dialogflow
-      Dialogflow_V2.setConfiguration(
-        extra.DIALOGFLOW_CLIENT_EMAIL,
-        extra.DIALOGFLOW_PRIVATE_KEY,  // Replace escaped newlines
-        Dialogflow_V2.LANG_ENGLISH,
-        extra.DIALOGFLOW_PROJECT_ID,
-        'dialogflow.googleapis.com'
-      );
-    } else {
-      console.error('One or more Dialogflow environment variables are missing.');
-    }
   }, []);
 
-  const onSend = (newMessages = []) => {
-    setMessages(previousMessages => GiftedChat.append(previousMessages, newMessages));
-
-    let message = newMessages[0].text;
-
-    console.log('Sending message to Dialogflow:', message); // Log the message being sent
-
-    Dialogflow_V2.requestQuery(
-      message,
-      result => {
-        console.log('Dialogflow response:', result); // Log the response from Dialogflow
-        if (result.queryResult) {
-          handleDialogflowResponse(result);
-        } else {
-          console.error('No queryResult in Dialogflow response');
-        }
-      },
-      error => {
-        console.error('Dialogflow error:', error); // Log any error from Dialogflow
-      }
-    );
-  };
-
-  const handleDialogflowResponse = (result) => {
-    let text = result.queryResult.fulfillmentText;
-    sendBotResponse(text);
+  const onSend = async (newMessage) => {
+    setMessages(previousMessages => GiftedChat.append(previousMessages, newMessage));
+  
+    console.log('Sending message to Rasa:', newMessage[0].text); // Log the message being sent
+    const responseText = await sendMessageToRasa(newMessage[0].text);
+    sendBotResponse(responseText);
   };
 
   const sendBotResponse = (text) => {
@@ -87,7 +69,7 @@ const ChatScreen = () => {
     <View style={styles.container}>
       <GiftedChat
         messages={messages}
-        onSend={messages => onSend(messages)}
+        onSend={message => onSend(message)}
         user={{ _id: 1 }}
       />
     </View>
