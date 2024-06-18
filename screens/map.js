@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef, useMemo } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, Modal, Alert, Image, TouchableWithoutFeedback } from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, Modal, Alert, Image } from 'react-native';
 import CheckBox from 'expo-checkbox';
 import MapView, { UrlTile, Marker, Polyline, Callout } from 'react-native-maps';
 import * as Location from 'expo-location';

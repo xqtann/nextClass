@@ -2,8 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { GiftedChat } from 'react-native-gifted-chat';
-import Constants from 'expo-constants';
-import { Dialogflow_V2 } from 'react-native-dialogflow';
 import axios from 'axios';
 
 const ChatScreen = () => {

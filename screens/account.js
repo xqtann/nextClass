@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Text, View, StyleSheet, Button, Alert, TouchableWithoutFeedback, TouchableOpacity, Modal } from 'react-native';
 import TextInput from "react-native-text-input-interactive";
 import { ThemedButton } from 'react-native-really-awesome-button';
-import { FIREBASE_AUTH } from '../FirebaseConfig';
-import { getAuth, onAuthStateChanged, updatePassword, deleteUser, updateProfile } from "firebase/auth";
+import { FIREBASE_AUTH, FIRESTORE_DB } from '../FirebaseConfig';
+import { getAuth, updatePassword, deleteUser, updateProfile } from "firebase/auth";
+import { addDoc, collection } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SettingsButton from '../components/SettingsButton';
+import Toast from 'react-native-toast-message';
 
 export default function Account({ navigation }) {
 
@@ -46,17 +48,39 @@ const confirmDeleteUser = () => {
 };
 
 const newPasswordHandler = (newPassword) => {
-  updatePassword(user, newPassword).then(() => console.log("Password updated")).catch((error) => console.error(error))
+  setNewPassword("");
+  updatePassword(user, newPassword).then(() => console.log("Password updated")).catch((error) => console.error(error));
+  showToast("Password updated!");
 }
 const newUsernameHandler = (newUsername) => {
+  setNewUsername("");
   updateProfile(user, {displayName: newUsername}).then(() => console.log("Username updated")).catch((error) => console.error(error));
   FIREBASE_AUTH.signOut();
   navigation.navigate("Login"); 
   AsyncStorage.removeItem("username");
 } 
 
-const feedbackHandler = (feedback) => {
-  
+
+const feedbackHandler = async (feedback) => {
+  setFeedback("");
+  try {
+    await addDoc(collection(FIRESTORE_DB, "feedbacks"), { 
+      userUid: user.uid,
+      datetime: new Date(),
+      feedback: feedback
+      });
+    console.log('Feedback successfully submitted!');
+    showToast("Feedback submitted!");
+  } catch (error) {
+      console.log('Error saving data to Firestore:', error);
+  }
+};
+
+const showToast = (info) => {
+  Toast.show({
+    type: 'success',
+    text1: `${info}`,
+  });
 }
 
   const renderModal = () => {
@@ -65,47 +89,46 @@ const feedbackHandler = (feedback) => {
             visible={openModal}
             transparent={true}
             animationType="fade"
-            onRequestClose={() => setModal(false)}
-        >
+            onRequestClose={() => setModal(false)} >
             <TouchableWithoutFeedback onPress={() => setModal(false)}>
                 <View style={styles.modalOverlay}>
                         <View style={styles.modalContent}>
                             <TouchableOpacity style={styles.closeButton} onPress={() => setModal(false)}>
                                 <Text style={styles.closeButtonText}>X</Text>
                             </TouchableOpacity>
-                            {mode == 1 ? <Text style={{fontSize: 20, fontWeight: 'bold', marginBottom: 10}}>Change Username</Text> : 
-                            mode == 2 ? <Text style={{fontSize: 20, fontWeight: 'bold', marginBottom: 10}}>Change Password</Text> :
-                            mode == 3 ? <Text style={{fontSize: 20, fontWeight: 'bold', marginBottom: 10}}>Feedback and Suggestions</Text> : ""}
-
-                            {mode == 1 ? <Text style={styles.modalText}>Requires Re-Login</Text> : ""}
-                          <View>
-                            {mode == 1 ?
-                          <TextInput
-                            textInputStyle={styles.input}
-                            placeholder="New username"
-                            autoCapitalize="none"
-                            onChangeText={(text) => setNewUsername(text)}
-                            value={newUsername}
-                          />
-                          : mode == 2 ?
-                          <TextInput
+                            { mode == 1 ? 
+                            (<>
+                            <Text style={{ fontSize: 20, fontWeight: 'bold', marginBottom: 10 }}>Change Username</Text>
+                            <Text style={styles.modalText}>Requires Re-Login</Text>
+                            <TextInput
+                              textInputStyle={styles.input}
+                              placeholder="New username"
+                              autoCapitalize="none"
+                              onChangeText={(text) => setNewUsername(text)}
+                              value={newUsername} />
+                            </>)
+                            : mode == 2 ? 
+                            (<>
+                            <Text style={{fontSize: 20, fontWeight: 'bold', marginBottom: 10}}>Change Password</Text>
+                            <TextInput
                             textInputStyle={styles.input}
                             placeholder="New password"
                             secureTextEntry={true}
                             autoCapitalize="none"
                             onChangeText={(text) => setNewPassword(text)}
-                            value={newPassword}
-                          />
-                          : 
-                          <TextInput
+                            value={newPassword} />
+                            </>)
+                            : mode == 3 ? 
+                            (<>
+                            <Text style={{fontSize: 20, fontWeight: 'bold', marginBottom: 10}}>Feedback and Suggestions</Text> 
+                            <TextInput
                             textInputStyle={styles.input}
                             placeholder="Suggestion"
                             autoCapitalize="none"
                             onChangeText={(text) => setFeedback(text)}
-                            value={feedback}
-                          />}
-                          </View>
-
+                            value={feedback} />
+                            </>)
+                            : "" }
                             <View style={styles.buttonGroup}>
                                 <Button title="Cancel" onPress={() => {setModal(false)}} />
                                 <Button title="OK" onPress={() => {setModal(false); 
@@ -117,7 +140,7 @@ const feedbackHandler = (feedback) => {
                 </View>
             </TouchableWithoutFeedback>
         </Modal>
-    )
+        )
 }
 
     return (
@@ -125,17 +148,23 @@ const feedbackHandler = (feedback) => {
         <Text style={styles.text}>{user ? user.displayName : storedUser} </Text>
         {renderModal()}
         <View style={styles.settings}>
-        <SettingsButton icon={require('../assets/text-account.png')} title="Change Username" onPress={()=>{setMode(1); setModal(true)}}/>
-        <SettingsButton icon={require('../assets/key.png')} title="Change Password" onPress={()=>{setMode(2); setModal(true)}}/>
-        <SettingsButton icon={require('../assets/lightbulb.png')} title="Feedback and Suggestions" onPress={()=>{setMode(3); setModal(true)}}/>
-        <SettingsButton textStyle={styles.btnTextDanger} icon={require('../assets/trash-can.png')} title="Delete Profile" onPress={()=>confirmDeleteUser()}/>
+          <SettingsButton icon={require('../assets/text-account.png')} title="Change Username" onPress={()=>{setMode(1); setModal(true)}}/>
+          <SettingsButton icon={require('../assets/key.png')} title="Change Password" onPress={()=>{setMode(2); setModal(true)}}/>
+          <SettingsButton icon={require('../assets/lightbulb.png')} title="Feedback and Suggestions" onPress={()=>{setMode(3); setModal(true)}}/>
+          <SettingsButton textStyle={styles.btnTextDanger} icon={require('../assets/trash-can.png')} title="Delete Profile" onPress={()=>confirmDeleteUser()}/>
         </View>
-        {user || storedUser != '' ? <ThemedButton name="rick" type="primary" style={styles.button} onPress={() => {
+        {user || storedUser != '' ? 
+        <ThemedButton name="rick" type="primary" style={styles.button} onPress={() => {
           FIREBASE_AUTH.signOut(); 
           navigation.navigate("Login"); 
           AsyncStorage.removeItem("username")
           }}>
-            LogOut</ThemedButton> : ""}
+            LogOut
+            </ThemedButton> : ""}
+            <Toast 
+            position='top'
+            topOffset={-20}
+            />
       </View>
     )
 }

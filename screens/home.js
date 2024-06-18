@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StatusBar } from "expo-status-bar";
-import { Text, View, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, Button } from 'react-native';
+import { Text, View, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../FirebaseConfig';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import AppOfTheDayCard from '../components/AppOfTheDayCard/AppOfTheDayCard.js';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { doc, getDoc, collection, query, orderBy, onSnapshot, where } from 'firebase/firestore';
 import CustomCard from '../components/CustomCard.js';
 import * as Location from 'expo-location';

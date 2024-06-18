@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StatusBar } from "expo-status-bar";
-import { Text, View, StyleSheet, Button, TextInput, Alert } from 'react-native';
+import { Text, View, StyleSheet, TextInput, Alert } from 'react-native';
 import { ThemedButton } from 'react-native-really-awesome-button';
 import { FIRESTORE_DB, FIREBASE_AUTH } from '../FirebaseConfig';
 import { doc, updateDoc, deleteDoc, Timestamp } from 'firebase/firestore';

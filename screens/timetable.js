@@ -6,7 +6,7 @@ import { ThemedButton } from "react-native-really-awesome-button";
 import * as Yup from 'yup';
 import { FIREBASE_AUTH, FIRESTORE_DB } from "../FirebaseConfig"; // import Firebase config
 import { onAuthStateChanged } from 'firebase/auth';
-import { setDoc, doc, getDoc, addDoc, collection, getDocsFromCache } from 'firebase/firestore';
+import { setDoc, doc, getDoc } from 'firebase/firestore';
 
 const apiUrl = `https://api.nusmods.com/v2`;
 const acadYear = '2023-2024';
