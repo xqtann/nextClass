@@ -89,3 +89,18 @@ nlu:
     - are you a human?
     - am I talking to a bot?
     - am I talking to a human?
+
+- intent: ask_toilet
+  examples: |
+    - where is the toilet?
+    - i need the toilet
+    - i want to use the washroom
+    - where is the nearest restroom?
+    - where is the bathroom?
+    - where is the loo?
+    - i need to pee
+    - i need to poop
+    - i need to use the washroom
+    - where is the nearest toilet?
+    - show me the nearest toilet
+    

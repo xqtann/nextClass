@@ -28,3 +28,10 @@ stories:
   - action: utter_did_that_help
   - intent: deny
   - action: utter_goodbye
+
+- story: ask for toilet
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - intent: ask_toilet
+  - action: utter_nearest_toilet

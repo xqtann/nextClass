@@ -11,3 +11,8 @@ rules:
   steps:
   - intent: bot_challenge
   - action: utter_iamabot
+
+- rule: Gives nearest toilet location when asked
+  steps:
+  - intent: ask_toilet
+  - action: utter_nearest_toilet
