@@ -9,7 +9,7 @@ const ChatScreen = () => {
 
   const sendMessageToRasa = async (message) => {
     try {
-      const response = await axios.post('https://e640-219-74-78-251.ngrok-free.app/webhooks/rest/webhook', {
+      const response = await axios.post('https://social-lights-make.loca.lt/webhooks/rest/webhook', {
         sender: 'user',
         message: message
       });
