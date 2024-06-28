@@ -34,17 +34,11 @@ export default function Home({ navigation }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, (user) => {
       if (user) {
-        //console.log('User logged in:', user);
         setUser(user);
         loadUserData(user);
         setupReminderListener(user.uid); // Set up real-time listener for reminders
-      } else {
-        //console.log('No user logged in');
-        setUser(null);
-        setUserName('Guest');
-        setLoadingUser(false);
-      }
-    });
+      } 
+    }, []);
 
     navigation.setOptions({
       headerLeft: () => (
@@ -102,6 +96,7 @@ export default function Home({ navigation }) {
   useEffect(() => {
     const fetchTimetableData = async () => {
       try {
+        console.log(user.uid)
         const docRef = doc(FIRESTORE_DB, "timetables", user.uid);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
@@ -120,7 +115,7 @@ export default function Home({ navigation }) {
     };
 
     fetchTimetableData();
-  }, []);
+  }, [user]);
 
   const getNextTwoClasses = (timetable) => {
     const now = new Date();
