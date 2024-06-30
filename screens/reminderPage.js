@@ -26,11 +26,11 @@ export default function ReminderPage({ navigation, route }) {
         <View style={styles.dateContainer}>
           <View style={styles.dateItem}>
             <Text style={styles.label}>Due Date</Text>
-            <Text style={styles.dateText}>{new Date(reminder.dueDate.seconds * 1000).toLocaleString()}</Text>
+            <Text style={styles.dateText}>{new Date(reminder.dueDate.seconds * 1000).toLocaleString([], { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' })}</Text>
           </View>
           <View style={styles.dateItem}>
             <Text style={styles.label}>Remind Me</Text>
-            <Text style={styles.dateText}>{new Date(reminder.remind.seconds * 1000).toLocaleString()}</Text>
+            <Text style={styles.dateText}>{new Date(reminder.remind.seconds * 1000).toLocaleString([], { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' })}</Text>
           </View>
         </View>
       </View>
@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
   },
   dateItem: {
     flex: 1,
-    marginRight: 10,
+    marginRight: 13,
   },
   dateText: {
     fontSize: 16,

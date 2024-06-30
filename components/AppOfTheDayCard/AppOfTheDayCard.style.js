@@ -20,7 +20,7 @@ export default StyleSheet.create({
     },
     innerContainer: {
         left: 16,
-        bottom: 16,
+        top: 16,
         position: 'absolute',
         width: ScreenWidth * 0.9 - 32,
     },
@@ -31,10 +31,9 @@ export default StyleSheet.create({
         fontWeight: '900',
         fontFamily: 'System',
         textAlign: 'justify',
-        width: ScreenWidth * 0.9,
+        width: ScreenWidth * 0.8,
     },
     bottomBarStyle: {
-        top: 16,
         right: 16,
         height: 75,
         width: ScreenWidth * 0.9,
@@ -42,7 +41,8 @@ export default StyleSheet.create({
         borderBottomStartRadius: 8,
     },
     innerBottomBarStyle: {
-        margin: 16,
+        marginHorizontal: 16,
+        marginTop: 10,
         flexDirection: 'row',
     },
     iconStyle: {
@@ -51,13 +51,13 @@ export default StyleSheet.create({
         width: 200,
     },
     titleTextStyle: {
-        fontSize: 24,
+        fontSize: 23,
         color: 'white',
         fontWeight: '700',
         fontFamily: 'System',
     },
     subtitleTextStyle: {
-        marginTop: 5,
+        marginTop: 3,
         fontSize: 20,
         color: 'white',
         fontWeight: '600',

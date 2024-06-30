@@ -36,6 +36,3 @@ yarn-error.*
 
 #virtual environment
 venv/
-
-#rasa
-.rasa/

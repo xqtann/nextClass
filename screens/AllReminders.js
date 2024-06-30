@@ -88,8 +88,8 @@ export default function AllReminders({ navigation }) {
                 <Text style={styles.reminderTitle}>{item.title}</Text>
               </View>
               <Text style={styles.description} numberOfLines={2} ellipsizeMode="tail">{item.description}</Text>
-              <Text>On: {new Date(item.dueDate.seconds * 1000).toLocaleString()}</Text>
-              <Text>Remind Me: {new Date(item.remind.seconds * 1000).toLocaleString()}</Text>
+              <Text>Due On: {new Date(item.dueDate.seconds * 1000).toLocaleString([], { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' })}</Text>
+              <Text>Remind Me: {new Date(item.remind.seconds * 1000).toLocaleString([], { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' })}</Text>
               <Text style={styles.reminderModule}>Module: {item.moduleCode}</Text>
               <TouchableOpacity style={styles.completeButton} onPress={() => completeReminder(item.id)}>
               <Image source={require('../assets/sticker-check-outline.png')} style={{height: 35, width: 35, tintColor:'#185A37'}}></Image>

@@ -158,7 +158,7 @@ export default function Home({ navigation }) {
       <View style={styles.reminderItem}>
         <Text style={styles.reminderTitle}>{item.title}</Text>
         <Text style={styles.reminderDate}>
-          {new Date(item.dueDate.seconds * 1000).toLocaleString()}
+        <Text>Due On: {new Date(item.dueDate.seconds * 1000).toLocaleString([], { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' })}</Text>
         </Text>
         <Text style={styles.reminderModule}>Module: {item.moduleCode}</Text>
       </View>
@@ -186,7 +186,8 @@ export default function Home({ navigation }) {
               title={`${new Date(event.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${new Date(event.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
               subtitle={event.location}
               buttonText={"ROUTE"}
-              backgroundSource={require("../assets/nextclass_logo.png")}
+              backgroundColor={"#003D7C"}
+              backgroundSource={require("../assets/background-pattern.png")}
               onPress={() => {navigation.navigate("Reminder", { moduleCode: event.title })}}
               onButtonPress={() => {navigation.navigate("Map", { destVenue: event.location, currLoc: location })}}
             />
@@ -202,7 +203,7 @@ export default function Home({ navigation }) {
         title="Reminders"
         style={styles.reminderContainer}
         onPress={() => navigation.navigate("AllReminders")}
-        backgroundSource={require("../assets/nextclass_logo.png")}
+        backgroundSource={require("../assets/background-pattern.png")}
       >
         {reminders.length > 0 ? (
           <FlatList
@@ -233,7 +234,7 @@ const styles = StyleSheet.create({
   },
   mainCardContainer: {
     marginVertical: 10,
-    height: 140,
+    height: 130,
   },
   card: {
     borderRadius: 25,
@@ -261,7 +262,7 @@ const styles = StyleSheet.create({
   reminderItem: {
     marginVertical: 10,
     padding: 10,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#fee8d6',
     borderRadius: 10,
   },
   reminderTitle: {

@@ -66,7 +66,8 @@ export default function AllClassesScreen({ navigation }) {
         title={`${item.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${item.endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
         subtitle={item.location}
         buttonText={"ROUTE"}
-        backgroundSource={require("../assets/nextclass_logo.png")}
+        backgroundColor={"#003D7C"}
+        backgroundSource={require("../assets/background-pattern.png")}
         onPress={() => navigation.navigate("Reminder", { moduleCode: item.title })}
         onButtonPress={() => {navigation.navigate("Profile", {screen: "Map", params: {destVenue: item.location} } )}}
       />
@@ -113,7 +114,7 @@ const styles = StyleSheet.create({
   },
   mainCardContainer: {
     marginVertical: 10,
-    height: 140,
+    height: 130,
   },
   card: {
     borderRadius: 25,

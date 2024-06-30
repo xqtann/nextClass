@@ -23,23 +23,27 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     marginBottom: 20,
     flex: 1,
-    backgroundColor: '#fff', // Ensure card background color matches image background
+    backgroundColor: '#fab972', // Ensure card background color matches image background
   },
   imageBackground: {
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
   },
   imageStyle: {
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
   },
   title: {
-    fontSize: 20,
+
+    fontSize: 25,
     fontWeight: 'bold',
-    color: '#fff', // Adjust based on your image for readability
+    color: 'black', // Adjust based on your image for readability
   },
   content: {
     flex: 1,
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingTop: 5,
+    paddingBottom: 10,
   },
 });
 
