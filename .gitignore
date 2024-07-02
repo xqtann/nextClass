@@ -36,3 +36,8 @@ yarn-error.*
 
 #virtual environment
 venv/
+
+#rasa
+cache/
+results/
+__pycache__/

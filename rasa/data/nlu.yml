@@ -103,4 +103,11 @@ nlu:
     - i need to use the washroom
     - where is the nearest toilet?
     - show me the nearest toilet
-    
+
+- intent: ask_time
+  examples: |
+    - what is the time now?
+    - what is the current time?
+    - what time is it?
+    - can you tell me the time?
+    - what day is it today?

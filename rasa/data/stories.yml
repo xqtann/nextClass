@@ -31,7 +31,10 @@ stories:
 
 - story: ask for toilet
   steps:
-  - intent: greet
-  - action: utter_greet
   - intent: ask_toilet
-  - action: utter_nearest_toilet
+  - action: action_find_nearest_toilet
+
+- story: ask for time
+  steps:
+  - intent: ask_time
+  - action: action_time_now

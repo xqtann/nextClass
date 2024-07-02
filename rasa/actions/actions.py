@@ -25,3 +25,60 @@
 #         dispatcher.utter_message(text="Hello World!")
 #
 #         return []
+
+import requests
+import geocoder
+import datetime as dt
+from typing import Any, Text, Dict, List
+from rasa_sdk import Action, Tracker
+from rasa_sdk.executor import CollectingDispatcher
+from rasa_sdk.types import DomainDict
+
+class ActionTimeNow(Action):
+
+    def name(self) -> Text:
+        return "action_time_now"
+
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+
+        dispatcher.utter_message(text=f"It is {dt.datetime.now()}.")
+
+        return []
+    
+class ActionFindNearestToilet(Action):
+
+    def name(self) -> Text:
+        return "action_find_nearest_toilet"
+
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        g = geocoder.ip('me')
+        my_lat = g.latlng[0]
+        my_long = g.latlng[1]
+
+        if my_lat and my_long:
+            query = f"""
+            [out:json];
+            (
+              node["amenity"="toilets"](around:1000,{my_lat},{my_long});
+            );
+            out body;
+            """
+            response = requests.post('http://overpass-api.de/api/interpreter', data={'data': query})
+            data = response.json()
+
+            if 'elements' in data and data['elements']:
+                nearest_toilet = data['elements'][0]
+                toilet_location = nearest_toilet['lat'], nearest_toilet['lon']
+                message = f"The nearest toilet is located at latitude: {toilet_location[0]}, longitude: {toilet_location[1]}"
+            else:
+                message = "Sorry, I couldn't find any toilets nearby."
+
+        else:
+            message = "I couldn't determine your location. Please provide your latitude and longitude."
+
+        dispatcher.utter_message(text=message)
+        return []
