@@ -38,3 +38,8 @@ stories:
   steps:
   - intent: ask_time
   - action: action_time_now
+
+- story: ask for example questions
+  steps:
+  - intent: ask_questions
+  - action: utter_capabilities

@@ -33,6 +33,7 @@ from typing import Any, Text, Dict, List
 from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.types import DomainDict
+import pytz
 
 class ActionTimeNow(Action):
 
@@ -43,7 +44,9 @@ class ActionTimeNow(Action):
             tracker: Tracker,
             domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
 
-        dispatcher.utter_message(text=f"It is {dt.datetime.now()}.")
+        singapore_timezone = pytz.timezone('Asia/Singapore')
+        current_time = dt.datetime.now(singapore_timezone).strftime('%Y-%m-%d, %H:%M:%S')
+        dispatcher.utter_message(text=f"It is {current_time}.")
 
         return []
     
@@ -78,7 +81,7 @@ class ActionFindNearestToilet(Action):
                 message = "Sorry, I couldn't find any toilets nearby."
 
         else:
-            message = "I couldn't determine your location. Please provide your latitude and longitude."
+            message = "I couldn't determine your location. Please try again later."
 
         dispatcher.utter_message(text=message)
         return []

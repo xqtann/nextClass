@@ -593,7 +593,12 @@ useEffect(() => {
                           Total Distance: {totalDist >= 1000 ? `${Math.trunc(totalDist/1000)} km` : `${Math.trunc(totalDist)} m`}
                           {`\n`}
                           Total Time: {totalTime >= 3600000 ? `${Math.trunc(totalTime/3600000)} hr` : `${Math.trunc(totalTime/60000)} min`}
-                        </Text> : <Text></Text>}
+                        </Text> 
+                        : index == instructions.length - 1 && venues[dest] ?
+                        <Text style={styles.extraInstruction}>
+                          Your destination is {`\n`} on level {venues[dest].floor}
+                        </Text> 
+                        : <Text></Text>}
                         
                     </View> 
                         <Text style={styles.subtitle}>SWIPE FOR NEXT STEP</Text>

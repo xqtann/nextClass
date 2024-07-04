@@ -1,11 +1,13 @@
 // ChatScreen.js
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { GiftedChat } from 'react-native-gifted-chat';
+import { GiftedChat, Bubble } from 'react-native-gifted-chat';
 import axios from 'axios';
 
 const ChatScreen = () => {
   const [messages, setMessages] = useState([]);
+  const [currentQueryType, setCurrentQueryType] = useState(''); 
+  const [currentQuery, setCurrentQuery] = useState('');
 
   const sendMessageToRasa = async (message) => {
     try {
@@ -15,8 +17,6 @@ const ChatScreen = () => {
       });
   
       if (response.data && response.data.length) {
-        // The response from Rasa server is an array of messages
-        // You can customize the response as per your needs
         console.log(response.data[0].text);
         return response.data[0].text;
       }
@@ -50,6 +50,16 @@ const ChatScreen = () => {
     sendBotResponse(responseText);
   };
 
+  const renderBubble = (props) => {
+    return (
+      <Bubble
+        {...props}
+        onPress={() => props.currentMessage.text.includes('Click on this message to navigate there.') ? 
+          (setCurrentQueryType('navigate'), setCurrentQuery(`${props.currentMessage.text.split(' ')[6]}`), console.log(props.currentMessage.text.split(' ')[6])) : null}
+      />
+    );
+  };
+
   const sendBotResponse = (text) => {
     let msg = {
       _id: messages.length + 1,
@@ -70,6 +80,7 @@ const ChatScreen = () => {
       <GiftedChat
         messages={messages}
         onSend={message => onSend(message)}
+        renderBubble={renderBubble}
         user={{ _id: 1 }}
       />
     </View>

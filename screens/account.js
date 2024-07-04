@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, StyleSheet, Button, Alert, TouchableWithoutFeedback, TouchableOpacity, Modal } from 'react-native';
+import { Text, View, StyleSheet, Button, Alert, TouchableWithoutFeedback, TouchableOpacity, Modal, Switch } from 'react-native';
 import TextInput from "react-native-text-input-interactive";
 import { ThemedButton } from 'react-native-really-awesome-button';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../FirebaseConfig';
@@ -18,7 +18,8 @@ export default function Account({ navigation }) {
   const [mode, setMode] = useState(0);
   const [newUsername, setNewUsername] = useState(null);
   const [newPassword, setNewPassword] = useState(null);
-  const [feedback, setFeedback] = useState(null);
+  const [feedback, setFeedback] = useState(null); 
+  const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -144,10 +145,11 @@ const showToast = (info) => {
 }
 
     return (
-      <View style={styles.container}>
-        <Text style={styles.text}>{user ? user.displayName : storedUser} </Text>
+      <View style={!darkMode ? styles.container : stylesDark.container}>
+        <Text style={!darkMode ? styles.text : stylesDark.text}>{user ? user.displayName : storedUser} </Text>
         {renderModal()}
         <View style={styles.settings}>
+          <SettingsButton icon={require('../assets/compare.png')} title="Light/Dark Mode" onPress={()=>setDarkMode(!darkMode)}/>
           <SettingsButton icon={require('../assets/text-account.png')} title="Change Username" onPress={()=>{setMode(1); setModal(true)}}/>
           <SettingsButton icon={require('../assets/key.png')} title="Change Password" onPress={()=>{setMode(2); setModal(true)}}/>
           <SettingsButton icon={require('../assets/lightbulb.png')} title="Feedback and Suggestions" onPress={()=>{setMode(3); setModal(true)}}/>
@@ -249,3 +251,86 @@ modalContent: {
     fontWeight: "400"
   },
 })
+
+
+const stylesDark = StyleSheet.create({
+  container: {
+      flex: 1,
+      margin: 20,
+      backgroundColor: "#222222"
+  },
+  text: {
+      fontSize: 30,
+      textAlign: "right",
+      fontFamily: "System",
+      fontWeight: 'bold',
+      color: "white"
+  },
+  button: {
+      marginTop: 10,
+      alignSelf: "center",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)', // Slightly darker overlay
+    justifyContent: 'center',
+    alignItems: 'center',
+},
+modalContent: {
+    width: '85%', // Slightly wider modal
+    padding: 20,
+    backgroundColor: 'white',
+    borderRadius: 20, // More rounded corners
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+        width: 0,
+        height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+},
+  closeButton: {
+      position: 'absolute',
+      top: 10,
+      right: 10,
+      backgroundColor: '#ff5c5c', // Red close button
+      borderRadius: 20,
+      width: 30,
+      height: 30,
+      justifyContent: 'center',
+      alignItems: 'center',
+  },
+  closeButtonText: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: 'white',
+  },
+  buttonGroup: {
+      marginTop: 20,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      width: '100%',
+  },
+  modalText: {
+      fontSize: 16,
+      marginVertical: 10,
+      textAlign: 'center',
+      width: '60%'
+  },
+  input: {
+      width: 300
+  },
+  settings: {
+    marginTop: 20,
+    flex: 1,
+  },
+  btnTextDanger: {
+    fontSize: 17,
+    fontFamily: "System",
+    color: "#8b0000",
+    fontWeight: "400"
+  },
+})
+

@@ -1,4 +1,4 @@
-import {Text, TouchableOpacity, View, StyleSheet, Image} from 'react-native';
+import {Text, TouchableOpacity, View, StyleSheet, Image } from 'react-native';
 
 export default function SettingsButton(props) {
   return (

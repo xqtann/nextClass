@@ -111,3 +111,13 @@ nlu:
     - what time is it?
     - can you tell me the time?
     - what day is it today?
+
+- intent: ask_questions
+  examples: |
+    - what can i ask?
+    - how can you help me?
+    - what can you do?
+    - what are the questions i can ask?
+    - what are the things you can do?
+    - what are the things you can help me with?
+    - what are the things you can assist me with?
