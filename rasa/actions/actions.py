@@ -76,7 +76,7 @@ class ActionFindNearestToilet(Action):
             if 'elements' in data and data['elements']:
                 nearest_toilet = data['elements'][0]
                 toilet_location = nearest_toilet['lat'], nearest_toilet['lon']
-                message = f"The nearest toilet is located at latitude: {toilet_location[0]}, longitude: {toilet_location[1]}"
+                message = f"The nearest toilet is located at {toilet_location[0]},{toilet_location[1]}. Click on this message to navigate there."
             else:
                 message = "Sorry, I couldn't find any toilets nearby."
 
@@ -85,3 +85,56 @@ class ActionFindNearestToilet(Action):
 
         dispatcher.utter_message(text=message)
         return []
+    
+    class ActionFetchBusTimings(Action):
+        def name(self) -> Text:
+            return "action_fetch_bus_timings"
+
+        def run(self, dispatcher: CollectingDispatcher,
+                tracker: Tracker,
+                domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+
+            bus_stop_query = next(tracker.get_latest_entity_values("bus_stop_name"), None)
+
+            if bus_stop_query:
+                url = "https://nnextbus.nus.edu.sg/ShuttleService"
+                params = {"busstopname": bus_stop_query}
+                headers = {
+                    "accept": "application/json",
+                    "Authorization": "Basic TlVTbmV4dGJ1czoxM2RMP3pZLDNmZVdSXiJU"
+                }
+
+                # Make the GET request
+                response = requests.get(url, headers=headers, params=params)
+                bus_timings = response.json()['ShuttleServiceResult']['shuttles']
+
+                if bus_timings:
+                    messages = []
+                    for bus in bus_timings:
+                        bus_name = bus['name']
+                        arrival_time = bus['arrivalTime']
+                        messages.append(f"Bus {bus_name} will arrive in {arrival_time} minutes.\n")
+
+                    message = " ".join(messages)
+                else:
+                    message = "Sorry, I couldn't find the bus timings for your stop."
+            else:
+                message = "Please provide a valid NUS bus stop to get timings."
+
+            dispatcher.utter_message(text=message)
+            return []
+        
+        # def test():
+        #     url = "https://nnextbus.nus.edu.sg/ShuttleService"
+        #     params = {"busstopname": "COM3"}
+        #     headers = {
+        #         "accept": "application/json",
+        #         "Authorization": "Basic TlVTbmV4dGJ1czoxM2RMP3pZLDNmZVdSXiJU"
+        #     }
+
+        #     # Make the GET request
+        #     response = requests.get(url, headers=headers, params=params)
+        #     bus_timings = response.json()['ShuttleServiceResult']['shuttles'][0]['arrivalTime']
+        #     print(bus_timings)
+        # test()
+        

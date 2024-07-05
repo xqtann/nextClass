@@ -121,3 +121,46 @@ nlu:
     - what are the things you can do?
     - what are the things you can help me with?
     - what are the things you can assist me with?
+
+- lookup: bus_stop_name
+  examples: |
+    - KRB
+    - LT13
+    - AS5
+    - BIZ2
+    - TCOMS-OPP
+    - PGP
+    - KR-MRT
+    - LT27
+    - UHALL
+    - UHC-OPP
+    - YIH
+    - CLB
+    - COM3
+    - MUSEUM
+    - UTOWN
+    - UHC
+    - UHALL-OPP
+    - S17
+    - KR-MRT-OPP
+    - PGPR
+    - TCOMS
+    - HSSML-OPP
+    - NUSS-OPP
+    - LT13-OPP
+    - IT
+    - YIH-OPP
+    - SDE3-OPP
+    - JP-SCH-16151
+    - KV
+    - OTH
+    - BG-MRT
+    - RAFFLES
+    - CG
+
+- intent: ask_bus_timings
+  examples: |
+    - what is the bus timing for [COM3](bus_stop_name) bus stop?
+    - When is the next bus timing at [BIZ2](bus_stop_name)?
+    - Can you tell me the bus timings for [CLB](bus_stop_name)?
+    - Bus timings for [KRB](bus_stop_name) please.

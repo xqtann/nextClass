@@ -43,3 +43,10 @@ stories:
   steps:
   - intent: ask_questions
   - action: utter_capabilities
+
+- story: get bus timings
+  steps:
+  - intent: ask_bus_timings
+  - entities:
+    - bus_stop_name: COM3
+  - action: action_fetch_bus_timings

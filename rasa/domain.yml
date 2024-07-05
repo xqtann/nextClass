@@ -10,6 +10,8 @@ intents:
   - bot_challenge
   - ask_toilet
   - ask_time
+  - ask_questions
+  - ask_bus_timings
 
 responses:
   utter_greet:
@@ -31,9 +33,24 @@ responses:
   utter_iamabot:
   - text: "I am a bot, powered by Rasa."
 
+  utter_capabilities:
+  - text: "I can help you find the nearest toilet and tell you the current time."
+
 actions:
   - action_time_now
   - action_find_nearest_toilet
+  - action_fetch_bus_timings
+
+entities:
+  - bus_stop_name
+
+slots:
+  bus_stop_name:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: bus_stop_name
 
 session_config:
   session_expiration_time: 60

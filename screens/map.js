@@ -393,8 +393,8 @@ useEffect(() => {
                 source={require('../assets/car-park-flaticon.com.png')} 
                 style={{width: 25, height: 25, top: -15, tintColor: '#8b5b05'}} />
               <Callout>
-                <View>
-                  <Text>{cp.name}</Text>
+                <View style={{width: 50}}>
+                  <Text style={{fontSize: 15, textAlign: 'center'}}>{cp.name}</Text>
                 </View>
               </Callout>
             </Marker>))
@@ -408,8 +408,8 @@ useEffect(() => {
                 source={require('../assets/book-variant.png')} 
                 style={{width: 25, height: 25, top: -15, tintColor: '#541675'}} />
               <Callout>
-                <View>
-                  <Text>{cl.title}</Text>
+                <View style={{width: 60}}>
+                  <Text style={{fontSize: 15, textAlign: 'center'}}>{cl.title}</Text>
                 </View>
               </Callout>
             </Marker>))
