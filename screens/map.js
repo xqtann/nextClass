@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef, useMemo } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, Modal, Alert, Image } from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, Modal, Alert, Image, ActivityIndicator } from 'react-native';
 import CheckBox from 'expo-checkbox';
 import MapView, { UrlTile, Marker, Polyline, Callout } from 'react-native-maps';
 import * as Location from 'expo-location';
@@ -22,6 +22,7 @@ export default function Map({ navigation, route }) {
   const { destVenue } = route.params;
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
+  const [isMapLoaded, setIsMapLoaded] = useState(false);
   const mapRef = useRef();
   let venues = require('../assets/venues.json');
   let busstops = require('../assets/busstops.json');
@@ -156,7 +157,7 @@ useEffect(() => {
   })
   .then(response => response.json())
   .then(data => setbustimings(data.ShuttleServiceResult.shuttles))
-  .catch(error => console.error(error));
+  .catch(error => console.log(error));
 }, [querybusstopname]);
 
   useEffect(() => {
@@ -308,21 +309,8 @@ useEffect(() => {
             <Text style={{fontSize: 18, marginHorizontal: 10}}>My Classes</Text>
             </View>}
             </View>
-            {/* <View style={{flexDirection: 'row', alignItems: 'center', marginLeft: 45, marginTop: 10}}>
-              <CheckBox
-              style={{marginLeft: 10}}
-              disabled={false}
-              value={showBusstops}
-              onValueChange={(newValue) => setShowBusstops(newValue)}
-            />
-            <Image 
-                source={require('../assets/bus-marker.png')} 
-                style={{width: 25, height: 25, marginLeft: 10, tintColor: '#004999'}} />
-            <Text style={{fontSize: 18, marginHorizontal: 10}}>Bus Stops</Text>
-            </View> */}
           </View>
         </View>
-      {/* </TouchableWithoutFeedback> */}
       </Modal>
       )
     };
@@ -330,6 +318,11 @@ useEffect(() => {
   
     return (
       <View style={styles.container}>
+        {!isMapLoaded && (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#0000ff" />
+          </View>
+        )}
         <MapView 
           style={styles.map}
           initialCamera={INITIAL_CAMERA}
@@ -340,7 +333,7 @@ useEffect(() => {
           zoomEnabled={true}
           pitchEnabled={true}
           rotateEnabled={true}
-          loadingEnabled={true}
+          onMapReady={() => setIsMapLoaded(true)}
           cameraZoomRange={{
             minCenterCoordinateDistance: 300,
             maxCenterCoordinateDistance: 15000,
@@ -354,15 +347,6 @@ useEffect(() => {
             flipY={false}
             offlineMode={true}
             />
-
-          {/* all venue markers */}
-          {/* {
-          Object.keys(venues).map((venue,index) => (
-            venues[venue].location != undefined ? 
-            <Marker coordinate={{latitude: venues[venue].location.y, longitude: venues[venue].location.x}} />
-            : <Marker />
-          ))
-          } */}
           {showBusstops ? busstopData.map((busstop, index) => 
           (<Marker 
             coordinate={{latitude: busstop.latitude, longitude: busstop.longitude}}
@@ -614,12 +598,20 @@ useEffect(() => {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        alignItems: "center",
+      flex: 1,
+      alignItems: "center",
+    },
+    loadingContainer: {
+      flex: 1,
+      position: 'absolute',
+      top: ScreenHeight * 0.4,
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: 10,
     },
     text: {
-        fontSize: 20,
-        margin: 10
+      fontSize: 20,
+      margin: 10
     },
     map: {
       borderRadius: 15,

@@ -109,13 +109,13 @@ class ActionFindNearestToilet(Action):
                 bus_timings = response.json()['ShuttleServiceResult']['shuttles']
 
                 if bus_timings:
-                    messages = []
+                    messages = [f"Bus timings for {bus_stop_query}:\n"]
                     for bus in bus_timings:
                         bus_name = bus['name']
                         arrival_time = bus['arrivalTime']
                         messages.append(f"Bus {bus_name} will arrive in {arrival_time} minutes.\n")
 
-                    message = " ".join(messages)
+                    message = "".join(messages)
                 else:
                     message = "Sorry, I couldn't find the bus timings for your stop."
             else:
