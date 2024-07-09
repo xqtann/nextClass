@@ -76,7 +76,7 @@ class ActionFindNearestToilet(Action):
             if 'elements' in data and data['elements']:
                 nearest_toilet = data['elements'][0]
                 toilet_location = nearest_toilet['lat'], nearest_toilet['lon']
-                message = f"The nearest toilet is located at {toilet_location[0]},{toilet_location[1]}. Click on this message to navigate there."
+                message = f"The nearest toilet is located at {toilet_location[0]},{toilet_location[1]} . \nClick on this message to navigate there."
             else:
                 message = "Sorry, I couldn't find any toilets nearby."
 

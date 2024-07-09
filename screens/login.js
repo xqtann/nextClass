@@ -8,6 +8,7 @@ import {
   View,
   Text,
   TouchableOpacity,
+  Image,
 } from "react-native";
 import { ThemedButton } from "react-native-really-awesome-button";
 import TextInput from "react-native-text-input-interactive";
@@ -64,6 +65,10 @@ export default function Login({ navigation }) {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <SafeAreaView style={styles.outContainer}>
         <View style={styles.container}>
+          <Image 
+            style={{width: 115, height: 70, marginBottom: 20}}
+            source={require("../assets/nextclass-logo-transparent.png")}
+            />
           <TextInput
             style={styles.input}
             placeholder="Enter your email"

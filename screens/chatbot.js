@@ -4,7 +4,7 @@ import { View, StyleSheet } from 'react-native';
 import { GiftedChat, Bubble } from 'react-native-gifted-chat';
 import axios from 'axios';
 
-const ChatScreen = () => {
+const ChatScreen = ( { navigation } ) => {
   const [messages, setMessages] = useState([]);
   const [currentQueryType, setCurrentQueryType] = useState(''); 
   const [currentQuery, setCurrentQuery] = useState('');
@@ -55,7 +55,10 @@ const ChatScreen = () => {
       <Bubble
         {...props}
         onPress={() => props.currentMessage.text.includes('Click on this message to navigate there.') ? 
-          (setCurrentQueryType('navigate'), setCurrentQuery(`${props.currentMessage.text.split(' ')[6]}`), console.log(props.currentMessage.text.split(' ')[6])) : null}
+          (setCurrentQueryType('navigate'),
+           setCurrentQuery(`${props.currentMessage.text.split(' ')[6]}`), 
+           console.log(props.currentMessage.text.split(' ')[6]), 
+           navigation.navigate('Profile', {screen: 'Map', params: {destVenue: props.currentMessage.text.split(' ')[6] }})) : null}
       />
     );
   };

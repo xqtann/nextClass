@@ -115,7 +115,7 @@ export default function App() {
       <Stack.Navigator screenOptions={({route}) => ({gestureEnabled: route.name !== 'Profile'})}>
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="Profile" component={Profile} options={{ headerShown: false }} />
-        <Stack.Screen name="Register" component={Register} />
+        <Stack.Screen name="Register" component={Register} options={{title: 'Create Account'}} />
       </Stack.Navigator>
     </NavigationContainer>
   );

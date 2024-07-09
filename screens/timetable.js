@@ -7,6 +7,7 @@ import * as Yup from 'yup';
 import { FIREBASE_AUTH, FIRESTORE_DB } from "../FirebaseConfig"; // import Firebase config
 import { onAuthStateChanged } from 'firebase/auth';
 import { setDoc, doc, getDoc } from 'firebase/firestore';
+import Toast from 'react-native-toast-message';
 
 const apiUrl = `https://api.nusmods.com/v2`;
 const acadYear = '2023-2024';
@@ -110,6 +111,7 @@ export default function Timetable({ navigation }) {
                 }));
                 await setDoc(doc(FIRESTORE_DB, "timetables", user.uid), { timetableData: formattedData });
                 console.log('Document successfully written!');
+                showToast('Timetable imported successfully!');
             } else {
                 console.log('No user found, cannot save data');
             }
@@ -117,6 +119,13 @@ export default function Timetable({ navigation }) {
             console.log('Error saving data to Firestore:', error);
         }
     };
+
+    const showToast = (info) => {
+        Toast.show({
+          type: 'success',
+          text1: `${info}`,
+        });
+      }
 
     useEffect(() => {
         if (actualData.length > 0) {
@@ -332,6 +341,10 @@ export default function Timetable({ navigation }) {
                     />
                     {renderModal()}
                 </View>
+                <Toast 
+                position='top'
+                topOffset={-20}
+                />
             </SafeAreaView>
         </TouchableWithoutFeedback>
     ) :

@@ -30,10 +30,11 @@ export default function Map({ navigation, route }) {
   const [bustimings, setbustimings] = useState([]);
   const [querybusstopname, setQueryBusstopname] = useState("");
   const [origin, setOrigin] = useState("");
-  console.log(destVenue)
-  const [dest, setDest] = useState(!destVenue.startsWith("E-Learn") && Object.keys(venues).includes(destVenue) ? destVenue : "");
+  const [searchByCoord, setSearchByCoord] = useState(destVenue.startsWith("1.") ? true : false);
+  const [dest, setDest] = useState(!destVenue.startsWith("E-Learn") && Object.keys(venues).includes(destVenue) ? destVenue : destVenue.startsWith("1.") ? destVenue : "");
   useEffect(() => {
-    setDest(!destVenue.startsWith("E-Learn") && Object.keys(venues).includes(destVenue) ? destVenue : "");
+    setDest(!destVenue.startsWith("E-Learn") && Object.keys(venues).includes(destVenue) ? destVenue : destVenue.startsWith("1.") ? destVenue : "");
+    setSearchByCoord(destVenue.startsWith("1.") ? true : false);
   }, [destVenue]);
   const [mode, setMode] = useState('1');
   const [polylinesLoaded, setPolylinesLoaded] = useState(false);
@@ -86,13 +87,24 @@ export default function Map({ navigation, route }) {
         y: 1.2968034900222334
       }
     }
-  })
+  });
+
+  searchByCoord ? 
+  (venues = {
+    ...venues,
+    [dest]: {
+      location: {
+        x: parseFloat(dest.split(",")[1]),
+        y: parseFloat(dest.split(",")[0])
+      },
+    }
+  }) : console.log("not inserting query");
+
   let data = [];
   location != null ? data.push({venue: "Current Location"}) : data.push({venue: "Getting Current Location..."});
   Object.keys(venues).filter(venue => venues[venue].location != undefined && venue != "Current Location")
                     .sort()
                     .map(venue => data.push({venue: venue}));
-  // console.log(data);
 
   let busstopData = busstops.BusStopsResult.busstops;
 
