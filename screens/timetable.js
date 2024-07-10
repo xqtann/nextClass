@@ -318,7 +318,7 @@ export default function Timetable({ navigation }) {
 
     if (loading) {
         return (
-          <View style={styles.loadingContainer}>
+          <View style={styles.loadingContainer} testID="loading-indicator">
             <ActivityIndicator size="large" color="#0000ff" />
           </View>
         );
