@@ -12,6 +12,7 @@ intents:
   - ask_time
   - ask_questions
   - ask_bus_timings
+  - ask_exam_date
 
 responses:
   utter_greet:
@@ -40,9 +41,11 @@ actions:
   - action_time_now
   - action_find_nearest_toilet
   - action_fetch_bus_timings
+  - action_fetch_exam_date
 
 entities:
   - bus_stop_name
+  - module_code
 
 session_config:
   session_expiration_time: 60
