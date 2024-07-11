@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { StatusBar } from "expo-status-bar";
 import {
   StyleSheet,
@@ -14,12 +14,15 @@ import TextInput from "react-native-text-input-interactive";
 import { FIREBASE_AUTH, FIRESTORE_DB } from "../FirebaseConfig";
 import { setDoc, doc, addDoc, collection } from "firebase/firestore";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { DarkModeContext } from "../DarkModeContext";
 
 export default function Register({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
+  const { darkMode, toggleDarkMode } = useContext(DarkModeContext); 
+
 
   const emailHandler = (text) => {
     setEmail(text);

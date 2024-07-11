@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { StatusBar } from "expo-status-bar";
 import {
   StyleSheet,
@@ -14,13 +14,14 @@ import { ThemedButton } from "react-native-really-awesome-button";
 import TextInput from "react-native-text-input-interactive";
 import { FIREBASE_AUTH } from "../FirebaseConfig";
 import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+import { DarkModeContext } from "../DarkModeContext";
 
 export default function Login({ navigation }) {
   const [user, setUser] = useState(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const auth = FIREBASE_AUTH;
-
+  const { darkMode, toggleDarkMode } = useContext(DarkModeContext); 
 
   const emailHandler = (text) => {
     setEmail(text);

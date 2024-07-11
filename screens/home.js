@@ -310,6 +310,7 @@ const stylesDark = StyleSheet.create({
     margin: 0,
     backgroundColor: '#192734'
   },
+  
   heading: {
     fontSize: 27,
     fontWeight: "bold",
