@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import { StatusBar } from "expo-status-bar";
 import { Text, View, StyleSheet, TextInput, Keyboard, TouchableWithoutFeedback, Alert, TouchableOpacity } from 'react-native';
 import { ThemedButton } from 'react-native-really-awesome-button';
@@ -9,6 +9,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import Constants from 'expo-constants';
+import { DarkModeContext } from '../DarkModeContext';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -29,6 +30,8 @@ export default function NewReminder({ navigation, route }) {
   const [notification, setNotification] = useState(undefined);
   const notificationListener = useRef();
   const responseListener = useRef();
+  const { darkMode, toggleDarkMode } = useContext(DarkModeContext); 
+
 
   useEffect(() => {
     registerForPushNotificationsAsync().then(token => token && setExpoPushToken(token));
@@ -158,7 +161,7 @@ export default function NewReminder({ navigation, route }) {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={styles.container}>
+      <View style={darkMode ? stylesDark.container : styles.container}>
         <TextInput
           style={styles.input}
           placeholder="Reminder Title"
@@ -267,3 +270,62 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+const stylesDark = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20,
+    color: '#192734',
+    backgroundColor: '#192734',
+  },
+  input: {
+    width: '100%',
+    height: 50,
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 15,
+    backgroundColor: '#FFF',
+    borderColor: '#DDD',
+    marginBottom: 20,
+    fontSize: 18,
+  },
+  descriptionInput: {
+    height: 100,
+    textAlignVertical: 'top',
+  },
+  datetimeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  label: {
+    fontSize: 18,
+    color: '#333',
+  },
+  datetime: {
+    flex: 1,
+    marginLeft: 10,
+  },
+  button: {
+    alignSelf: 'center',
+    marginTop: 10,
+    paddingVertical: 10,
+    paddingBottom: 50,
+  },
+  buttonText: {
+    fontSize: 18,
+    textAlign: 'center',
+  },
+  headerRightButton: {
+    marginLeft: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: '#FFB052',
+    borderRadius: 20,
+  },
+  headerRightButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+});
+

@@ -1,13 +1,15 @@
 // ChatScreen.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { GiftedChat, Bubble } from 'react-native-gifted-chat';
+import { GiftedChat, Bubble, InputToolbar, Composer } from 'react-native-gifted-chat';
 import axios from 'axios';
+import { DarkModeContext } from '../DarkModeContext';
 
 const ChatScreen = ( { navigation } ) => {
   const [messages, setMessages] = useState([]);
   const [currentQueryType, setCurrentQueryType] = useState(''); 
   const [currentQuery, setCurrentQuery] = useState('');
+  const { darkMode, toggleDarkMode } = useContext(DarkModeContext); 
 
   const sendMessageToRasa = async (message) => {
     try {
@@ -54,11 +56,60 @@ const ChatScreen = ( { navigation } ) => {
     return (
       <Bubble
         {...props}
+        {...props}
+        textStyle={{
+          left: {
+            color: darkMode ? '#ffffff' : '#000000',
+          },
+          right: {
+            color: darkMode ? '#000000' : '#ffffff',
+          },
+        }}
+        wrapperStyle={{
+          left: {
+            backgroundColor: darkMode ? '#4a4a4a' : '#f0f0f0',
+          },
+          right: {
+            backgroundColor: darkMode ? '#a1a1a1' : '#007aff',
+          },
+        }}
         onPress={() => props.currentMessage.text.includes('Click on this message to navigate there.') ? 
           (setCurrentQueryType('navigate'),
            setCurrentQuery(`${props.currentMessage.text.split(' ')[6]}`), 
            console.log(props.currentMessage.text.split(' ')[6]), 
            navigation.navigate('Profile', {screen: 'Map', params: {destVenue: props.currentMessage.text.split(' ')[6] }})) : null}
+      />
+    );
+  };
+
+  const customtInputToolbar = props => {
+    return (
+      <InputToolbar
+        {...props}
+        containerStyle={darkMode ? {
+          backgroundColor: "#282828",
+          borderTopColor: "#121212",
+          borderTopWidth: 1,
+          padding: 1,
+          borderRadius: 8
+        } : {
+          borderTopColor: 'white',
+          borderTopWidth: 1,
+          padding: 2,
+          borderRadius: 8
+        }}
+        renderComposer={(composerProps) => customComposer(composerProps)}
+      />
+    );
+  };
+
+  const customComposer = props => {
+    return (
+      <Composer
+        {...props}
+        textInputStyle={{
+          color: darkMode ? '#e0e0e0' : '#000000',
+        }}
       />
     );
   };
@@ -79,12 +130,13 @@ const ChatScreen = ( { navigation } ) => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={darkMode ? stylesDark.container : styles.container}>
       <GiftedChat
         messages={messages}
         onSend={message => onSend(message)}
         renderBubble={renderBubble}
         user={{ _id: 1 }}
+        renderInputToolbar={props => customtInputToolbar(props)}
       />
     </View>
   );
@@ -94,6 +146,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+});
+
+const stylesDark = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#192734',
   },
 });
 

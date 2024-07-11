@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import { StatusBar } from "expo-status-bar";
 import { Text, View, StyleSheet, TextInput, Keyboard, TouchableWithoutFeedback, Alert } from 'react-native';
 import { ThemedButton } from 'react-native-really-awesome-button';
@@ -10,6 +10,7 @@ import SelectDropdown from 'react-native-select-dropdown';
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import Constants from 'expo-constants';
+import { DarkModeContext } from '../DarkModeContext';
 
 export default function NewAllReminder({ navigation }) {
   const [title, setTitle] = useState("");
@@ -23,6 +24,8 @@ export default function NewAllReminder({ navigation }) {
   const [notification, setNotification] = useState(undefined);
   const notificationListener = useRef();
   const responseListener = useRef();
+  const { darkMode, toggleDarkMode } = useContext(DarkModeContext); 
+
 
   useEffect(() => {
     registerForPushNotificationsAsync().then(token => token && setExpoPushToken(token));
@@ -160,16 +163,16 @@ export default function NewAllReminder({ navigation }) {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={styles.container}>
+      <View style={darkMode ? stylesDark.container : styles.container}>
         <TextInput
-          style={styles.input}
+          style={darkMode ? stylesDark.input : styles.input}
           placeholder="Reminder Title"
           placeholderTextColor="#9E9E9E"
           onChangeText={(val) => setTitle(val)}
           value={title}
         />
         <TextInput
-          style={[styles.input, styles.descriptionInput]}
+          style={darkMode ? [stylesDark.input, stylesDark.descriptionInput] : [styles.input, styles.descriptionInput]}
           placeholder="Description"
           placeholderTextColor="#9E9E9E"
           onChangeText={(val) => setDescription(val)}
@@ -177,8 +180,8 @@ export default function NewAllReminder({ navigation }) {
           multiline={true}
           numberOfLines={4}
         />
-        <View style={styles.datetimeContainer}>
-          <Text style={styles.label}> Due Date: </Text>
+        <View style={darkMode ? stylesDark.datetimeContainer : styles.datetimeContainer}>
+          <Text style={darkMode ? stylesDark.label : styles.label}> Due Date: </Text>
           <DateTimePicker
             style={styles.datetime}
             testID="dateTimePickerDue"
@@ -189,8 +192,8 @@ export default function NewAllReminder({ navigation }) {
             minimumDate={new Date()}
           />
         </View>
-        <View style={styles.datetimeContainer}>
-          <Text style={styles.label}> Remind Me: </Text>
+        <View style={darkMode ? stylesDark.datetimeContainer : styles.datetimeContainer}>
+          <Text style={darkMode ? stylesDark.label : styles.label}> Remind Me: </Text>
           <DateTimePicker
             style={styles.datetime}
             testID="dateTimePickerRemind"
@@ -201,8 +204,8 @@ export default function NewAllReminder({ navigation }) {
             minimumDate={new Date()}
           />
         </View>
-        <View style={styles.dropdownContainer}>
-          <Text style={styles.moduleLabel}> Module Code: </Text>
+        <View style={darkMode ? stylesDark.dropdownContainer : styles.dropdownContainer}>
+          <Text style={darkMode ? stylesDark.moduleLabel : styles.moduleLabel}> Module Code: </Text>
           <SelectDropdown
               data={moduleCodes}
               onSelect={(selectedItem, index) => {
@@ -210,8 +213,8 @@ export default function NewAllReminder({ navigation }) {
               }}
               renderButton={(selectedItem, isOpened) => {
                 return (
-                  <View style={styles.dropdownButtonStyle}>
-                    <Text style={styles.dropdownButtonTxtStyle}>
+                  <View style={darkMode ? stylesDark.dropdownButtonStyle : styles.dropdownButtonStyle}>
+                    <Text style={darkMode ? stylesDark.dropdownButtonTxtStyle : styles.dropdownButtonTxtStyle}>
                       {selectedItem || 'Select A Module'}
                     </Text> 
                   </View>
@@ -220,17 +223,17 @@ export default function NewAllReminder({ navigation }) {
               renderItem={(item, index, isSelected) => {
                 return (
                   <View style={{...styles.dropdownItemStyle, ...(isSelected && {backgroundColor: '#D2D9DF'})}}>
-                    <Text style={styles.dropdownItemTxtStyle}>{item}</Text>
+                    <Text style={darkMode ? stylesDark.dropdownItemTxtStyle : styles.dropdownItemTxtStyle}>{item}</Text>
                   </View>
                 );
               }}
               showsVerticalScrollIndicator={false}
-              dropdownStyle={styles.dropdownMenuStyle}
+              dropdownStyle={darkMode ? stylesDark.dropdownMenuStyle : styles.dropdownMenuStyle}
             />
         </View>
         <View style={{ padding: 5, paddingRight: 30, paddingLeft: 30 }}>
-          <ThemedButton name='rick' type='secondary' raiseLevel={1} style={styles.button} onPress={submitHandler}>
-            <Text style={styles.buttonText}>Create</Text>
+          <ThemedButton name={darkMode ? 'bruce' : 'rick'} type='primary' raiseLevel={1} style={styles.button} onPress={submitHandler}>
+            <Text style={darkMode ? stylesDark.buttonText : styles.buttonText}>Create Reminder</Text>
           </ThemedButton>
           <StatusBar style="light" />
         </View>
@@ -343,3 +346,111 @@ const styles = StyleSheet.create({
     color: '#151E26',
   },
 });
+
+const stylesDark = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: '#192734',
+  },
+  input: {
+    width: '100%',
+    height: 50,
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 15,
+    backgroundColor: '#282828',
+    borderColor: '#181818',
+    marginBottom: 20,
+    fontSize: 18,
+    color: '#b3b3b3'
+  },
+  descriptionInput: {
+    height: 100,
+    textAlignVertical: 'top',
+  },
+  datetimeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  label: {
+    fontSize: 18,
+    color: '#b3b3b3',
+  },
+  moduleLabel: {
+    width: 150,
+    fontSize: 18,
+    color: '#b3b3b3',
+    marginTop: 10,
+  },
+  datetime: {
+    flex: 1,
+    marginLeft: 10,
+  },
+  dropdownContainer: {
+      height: 50,
+      width: 100,
+      flexDirection: "row"
+  },
+  dropdown: {
+    width: '100%',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#DDD',
+    backgroundColor: '#282828',
+  },
+  dropdownText: {
+    textAlign: 'left',
+    color: '#333',
+    fontSize: 16,
+  },
+  button: {
+    alignSelf: 'center',
+    marginTop: 20,
+    paddingVertical: 10,
+    paddingBottom: 50,
+  },
+  buttonText: {
+    fontSize: 18,
+    textAlign: 'center',
+    color: '#b3b3b3'
+  },
+  dropdownButtonStyle: {
+    left: 15,
+    width: 190,
+    height: 35,
+    backgroundColor: '#282828',
+    borderRadius: 10,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+  },
+  dropdownButtonTxtStyle: {
+    flex: 1,
+    fontSize: 17,
+    color: '#b3b3b3',
+  },
+  dropdownMenuStyle: {
+    backgroundColor: '#282828',
+    borderRadius: 8,
+    borderColor: "black",
+    borderWidth: 1
+  },
+  dropdownItemStyle: {
+    width: '100%',
+    flexDirection: 'row',
+    paddingHorizontal: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+  dropdownItemTxtStyle: {
+    flex: 1,
+    fontSize: 18,
+    fontWeight: '500',
+    color: '#b3b3b3',
+  },
+});
+

@@ -1,15 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { StatusBar } from "expo-status-bar";
 import { Text, View, StyleSheet, Button, FlatList, TouchableOpacity, Image } from 'react-native';
 import { collection, onSnapshot, query, where, doc, updateDoc, deleteDoc } from '@firebase/firestore';
 import { FIRESTORE_DB, FIREBASE_AUTH } from '../FirebaseConfig';
 import { onAuthStateChanged } from 'firebase/auth';
+import { DarkModeContext } from '../DarkModeContext';
 
 export default function Reminder({ navigation, route }) {
   const { moduleCode } = route.params;
   const [allReminders, setReminders] = useState([]);
   const [user, setUser] = useState(null);
   const [reminderID, setReminderID] = useState("");
+  const { darkMode, toggleDarkMode } = useContext(DarkModeContext); 
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(FIREBASE_AUTH, (user) => {
@@ -57,7 +59,7 @@ export default function Reminder({ navigation, route }) {
     headerRight: () => (
       <TouchableOpacity
         onPress={() => navigation.navigate('NewReminder', { moduleCode: moduleCode })}
-        style={styles.headerRightButton}
+        style={darkMode ? stylesDark.headerRightButton : styles.headerRightButton}
       >
         <Text style={styles.headerRightButtonText}>Add</Text>
       </TouchableOpacity>
@@ -79,14 +81,15 @@ export default function Reminder({ navigation, route }) {
   }
 
   return (allReminders.length > 0) ? (
-    <View style={styles.container}>
+    <View style={darkMode ? stylesDark.container : styles.container}>
       <StatusBar style="auto" />
       <FlatList
         data={allReminders}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <TouchableOpacity onPress={() => {navigation.navigate("ReminderPage", { reminder: item, reminderID: item.id })}}>
-            <View style={item.dueDate.seconds > Math.trunc(new Date().valueOf()/1000) ? styles.reminderItem : styles.dueItem}>
+            <View style={item.dueDate.seconds > Math.trunc(new Date().valueOf()/1000) ? (darkMode ? stylesDark.reminderItem : styles.reminderItem) : 
+                  (darkMode ? stylesDark.dueItem : styles.dueItem)}>
               <View style={styles.reminderHeader}>
                 <Text style={styles.reminderTitle}>{item.title}</Text>
               </View>
@@ -105,7 +108,7 @@ export default function Reminder({ navigation, route }) {
       />
     </View>
   ) : (
-    <View style={styles.container}>
+    <View style={darkMode ? stylesDark.container : styles.container}>
       <StatusBar style="auto" />
       <Text style={styles.noreminders}>No new reminders! 😊</Text>
     </View>
@@ -115,7 +118,7 @@ export default function Reminder({ navigation, route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    margin: 10,
+    padding: 15,
   },
   heading: {
     fontSize: 30,
@@ -181,7 +184,100 @@ const styles = StyleSheet.create({
   },
   headerRightButtonText: {
     color: '#fff',
+    fontSize: 13,
+    fontWeight: 'bold',
+  },
+  completeButton: {
+    position: 'absolute',
+    right: 20,
+    top: '10%',
+    height: 35,
+    width: 35,
+  },
+  deleteButton : {
+    position: 'absolute',
+    right: 20,
+    top: '70%',
+    height: 35,
+    width: 35,
+  }
+});
+
+const stylesDark = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 15,
+    backgroundColor: '#192734'
+  },
+  heading: {
+    fontSize: 30,
+    paddingLeft: 5,
+    fontWeight: "bold",
+    textAlign: "left"
+  },
+  text: {
+    fontSize: 20,
+    textAlign: "center"
+  },
+  button: {
+    margin: 10,
+    alignSelf: "center"
+  },
+  reminderItem: {
+    padding: 15,
+    borderBottomWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 20,
+    backgroundColor: "#b3b3b3",
+    marginBottom: 5
+  },
+  dueItem: {
+    padding: 15,
+    borderBottomWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 20,
+    backgroundColor: "#E0BFB8",
+    marginBottom: 5
+  },
+  reminderHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  reminderTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  description: {
     fontSize: 16,
+    color: '#666',
+    marginTop: 5,
+  },
+  noreminders: {
+    fontSize: 18,
+    color: '#999',
+    textAlign: 'center',
+    marginTop: 20,
+  },
+  optionsButton: {
+    backgroundColor: '#ddd',
+    padding: 5,
+    borderRadius: 5,
+  },
+  optionsButtonText: {
+    fontSize: 14,
+    color: '#333',
+  },
+  headerRightButton: {
+    marginLeft: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: '#804600',
+    borderRadius: 20,
+  },
+  headerRightButtonText: {
+    color: '#fff',
+    fontSize: 13,
     fontWeight: 'bold',
   },
   completeButton: {
