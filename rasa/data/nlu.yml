@@ -164,3 +164,13 @@ nlu:
     - When is the next bus timing at [BIZ2](bus_stop_name)?
     - Can you tell me the bus timings for [CLB](bus_stop_name)?
     - Bus timings for [KRB](bus_stop_name) please.
+    - When is the bus arrving at [PGP](bus_stop_name)?
+    - What is the bus timing for [LT13](bus_stop_name)?
+
+- intent: ask_exam_date
+  examples: |
+    - when is my exam date for [ST2334](module_code)?
+    - what is the exam date for [CS2103T](module_code)?
+    - when is the exam for [MA1101R](module_code)?
+    - what is the exam date for [MA1101R](module_code)?
+    - when is the exam for [CS2103T](module_code)?

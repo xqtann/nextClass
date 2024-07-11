@@ -50,3 +50,10 @@ stories:
     entities:
     - bus_stop_name: "COM3"
   - action: action_fetch_bus_timings
+
+- story: get exam dates
+  steps:
+  - intent: ask_exam_date
+    entities:
+    - module_code: "ST2334"
+  - action: action_fetch_exam_date
