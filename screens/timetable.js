@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { SafeAreaView, StyleSheet, View, Alert, Dimensions, ImageBackground, TextInput, Text, Button, TouchableOpacity, Modal, TouchableWithoutFeedback, ActivityIndicator } from 'react-native';
 import TimeTableView, { genTimeBlock } from 'react-native-timetable';
 import { BlurView } from 'expo-blur';
@@ -8,9 +8,10 @@ import { FIREBASE_AUTH, FIRESTORE_DB } from "../FirebaseConfig"; // import Fireb
 import { onAuthStateChanged } from 'firebase/auth';
 import { setDoc, doc, getDoc } from 'firebase/firestore';
 import Toast from 'react-native-toast-message';
+import { DarkModeContext } from '../DarkModeContext';
 
 const apiUrl = `https://api.nusmods.com/v2`;
-const acadYear = '2023-2024';
+const acadYear = '2024-2025';
 
 const validationSchema = Yup.object().shape({
     timetableUrl: Yup.string()
@@ -28,6 +29,7 @@ export default function Timetable({ navigation }) {
     const [user, setUser] = useState(null); // State to store the current user
     const [actualData, setActualData] = useState([]); // Change to state
     const [loading, setLoading] = useState(true);
+    const { darkMode, toggleDarkMode } = useContext(DarkModeContext); 
 
     useEffect(() => {
         if (actualData.length > 0) {
@@ -133,7 +135,7 @@ export default function Timetable({ navigation }) {
                 headerLeft: () => (
                   <TouchableOpacity
                     onPress={confirmImportNew}
-                    style={styles.headerLeftButton}
+                    style={darkMode ? stylesDark.headerLeftButton : styles.headerLeftButton}
                   >
                     <Text style={styles.headerLeftButtonText}>Import New</Text>
                   </TouchableOpacity>
@@ -144,7 +146,7 @@ export default function Timetable({ navigation }) {
                 headerLeft: null,
             });
         }
-    }, [actualData]);
+    }, [actualData, darkMode]);
 
     const numOfDays = 5;
     const pivotDate = genTimeBlock('mon');
@@ -281,13 +283,13 @@ export default function Timetable({ navigation }) {
                 onRequestClose={() => setModal(false)}
             >
                 <TouchableWithoutFeedback onPress={() => setModal(false)}>
-                    <View style={styles.modalOverlay}>
+                    <View style={darkMode ? stylesDark.modalOverlay : styles.modalOverlay}>
                         <TouchableWithoutFeedback onPress={() => {}}>
-                            <View style={styles.modalContent}>
-                                <TouchableOpacity style={styles.closeButton} onPress={() => setModal(false)}>
+                            <View style={darkMode ? stylesDark.modalContent : styles.modalContent}>
+                                <TouchableOpacity style={darkMode ? stylesDark.closeButton : styles.closeButton} onPress={() => setModal(false)}>
                                     <Text style={styles.closeButtonText}>X</Text>
                                 </TouchableOpacity>
-                                <Text style={styles.modalText}>
+                                <Text style={darkMode ? stylesDark.modalText : styles.modalText}>
                                     {`Module: ${currentEvt.title}\n 
                                             ${currentEvt.extra_descriptions.join(" ")}\n
                                             Time: ${startHour}:${startMin} - ${endHour}:${endMin}\n
@@ -327,7 +329,7 @@ export default function Timetable({ navigation }) {
     return actualData.length > 0 ? (
         <TouchableWithoutFeedback onPress={() => setModal(false)}>
             <SafeAreaView style={{ flex: 1 }}>
-                <View style={styles.container}>
+                <View style={darkMode ? stylesDark.container : styles.container}>
                     <TimeTableView
                         events={actualData}
                         pivotTime={8}
@@ -335,7 +337,7 @@ export default function Timetable({ navigation }) {
                         pivotDate={pivotDate}
                         nDays={numOfDays}
                         onEventPress={onEventPress}
-                        headerStyle={styles.headerStyle}
+                        headerStyle={darkMode ? stylesDark.headerStyle : styles.headerStyle}
                         formatDateHeader="dddd"
                         locale="en"
                     />
@@ -348,18 +350,18 @@ export default function Timetable({ navigation }) {
             </SafeAreaView>
         </TouchableWithoutFeedback>
     ) :
-        (<SafeAreaView style={styles.blurContainer}>
-            <ImageBackground style={styles.image} resizeMode="contain" source={require('../assets/temptimetable1.jpg')} />
+        (<SafeAreaView style={darkMode ? stylesDark.blurContainer : styles.blurContainer}>
+            <ImageBackground style={styles.image} resizeMode="contain" source={darkMode ? require('../assets/temptimetable2.jpg') : require('../assets/temptimetable1.jpg')} />
             <BlurView
                 style={styles.absolute}
                 blurType="xlight"
                 blurAmount={1}
             />
-            <Text style={styles.text}>
+            <Text style={darkMode ? stylesDark.text : styles.text}>
                 Paste your NUSMods timetable link!
             </Text>
             <TextInput
-                style={styles.input}
+                style={darkMode ? stylesDark.input : styles.input}
                 placeholder="https://nusmods.com/timetable/sem-....."
                 placeholderTextColor="#9E9E9E"
                 onChangeText={handleChange}
@@ -368,8 +370,8 @@ export default function Timetable({ navigation }) {
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
             <View style={styles.importButton}>
                 <ThemedButton
-                    name="rick"
-                    type="secondary"
+                    name={darkMode ? 'bruce' : 'rick' }
+                    type="primary"
                     raiseLevel={2}
                     onPress={handleSubmit}
                 >Import</ThemedButton>
@@ -434,35 +436,6 @@ const styles = StyleSheet.create({
     button: {
         fontSize: 10,
     },
-    // modalOverlay: {
-    //     flex: 1,
-    //     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    //     justifyContent: 'center',
-    //     alignItems: 'center',
-    // },
-    // modalContent: {
-    //     width: '80%',
-    //     padding: 20,
-    //     backgroundColor: 'white',
-    //     borderRadius: 10,
-    //     alignItems: 'center',
-    // },
-    // closeButton: {
-    //     position: 'absolute',
-    //     top: 10,
-    //     right: 10,
-    // },
-    // closeButtonText: {
-    //     fontSize: 18,
-    //     fontWeight: 'bold',
-    //     color: 'black',
-    // },
-    // buttonGroup: {
-    //     marginTop: 20,
-    //     flexDirection: 'row',
-    //     justifyContent: 'space-between',
-    //     width: '100%',
-    // },
     modalOverlay: {
         flex: 1,
         backgroundColor: 'rgba(0, 0, 0, 0.7)', // Slightly darker overlay
@@ -525,7 +498,129 @@ const styles = StyleSheet.create({
     },
     headerLeftButtonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 13,
     fontWeight: 'bold',
     },
+});
+
+const stylesDark = StyleSheet.create({
+    headerStyle: {
+        backgroundColor: '#BF6900'
+    },
+    container: {
+        flex: 1,
+        backgroundColor: '#455A64',
+    },
+    blurContainer: {
+        flex: 1,
+        backgroundColor: '#192734',
+        alignItems: 'center'
+    },
+    image: {
+        marginTop: -85,
+        width: Dimensions.get('window').width,
+        height: Dimensions.get('window').height,
+    },
+    absolute: {
+        position: "absolute",
+        top: 0,
+        left: 0,
+        bottom: 0,
+        right: 0
+    },
+    text: {
+        top: '37%',
+        height: 20,
+        position: 'absolute',
+        color: '121212',
+        fontWeight: 'bold'
+    },
+    input: {
+        width: '80%',
+        height: 40,
+        borderWidth: 2,
+        borderRadius: 10,
+        paddingHorizontal: 10,
+        backgroundColor: '#404040',
+        position: 'absolute',
+        top: '40%',
+    },
+    importButton: {
+        top: '50%',
+        position: 'absolute'
+    },
+    errorText: {
+        color: 'red',
+        marginBottom: 10,
+        position: 'absolute',
+        top: '47%',
+    },
+    buttonText: {
+        color: '#fff',
+        fontSize: 16,
+    },
+    button: {
+        fontSize: 10,
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.85)', // Slightly darker overlay
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    modalContent: {
+        width: '85%', // Slightly wider modal
+        padding: 20,
+        backgroundColor: '#121212',
+        borderRadius: 20, // More rounded corners
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+    },
+    closeButton: {
+        position: 'absolute',
+        top: 10,
+        right: 10,
+        backgroundColor: '#bb86fc', // Red close button
+        borderRadius: 20,
+        width: 30,
+        height: 30,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    closeButtonText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: 'white',
+    },
+    buttonGroup: {
+        marginTop: 20,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: '100%',
+    },
+    modalText: {
+        fontSize: 16,
+        marginVertical: 10,
+        textAlign: 'center',
+        width: '60%',
+        color: '#B3B3B3'
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    headerLeftButton: {
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        backgroundColor: '#804600',
+        borderRadius: 20,
+        },
 });
