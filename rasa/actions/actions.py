@@ -124,17 +124,43 @@ class ActionFindNearestToilet(Action):
             dispatcher.utter_message(text=message)
             return []
         
-        # def test():
-        #     url = "https://nnextbus.nus.edu.sg/ShuttleService"
-        #     params = {"busstopname": "COM3"}
-        #     headers = {
-        #         "accept": "application/json",
-        #         "Authorization": "Basic TlVTbmV4dGJ1czoxM2RMP3pZLDNmZVdSXiJU"
-        #     }
+class ActionFetchExamDate(Action):
 
-        #     # Make the GET request
-        #     response = requests.get(url, headers=headers, params=params)
-        #     bus_timings = response.json()['ShuttleServiceResult']['shuttles'][0]['arrivalTime']
-        #     print(bus_timings)
-        # test()
+    def name(self) -> Text:
+        return "action_fetch_exam_date"
+
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
         
+        academic_year = "2024-2025"
+
+        module_code_query = next(tracker.get_latest_entity_values("module_code"), None)
+
+        if module_code_query:
+            url = f"https://api.nusmods.com/v2/{academic_year}/modules/{module_code_query.upper()}.json"
+        
+            response = requests.get(url)
+            data = response.json()
+
+            exam_date = data.get('semesterData', [])[0].get('examDate', None).split("T")[0] if data.get('semesterData', []) else None
+            
+            if exam_date:
+                message = f"The exam for {module_code_query} is on {exam_date}."
+            else:
+                message = f"Sorry, I couldn't find the exam date for {module_code_query}."
+        else:
+            message = "Please provide a valid NUS module code."
+
+        dispatcher.utter_message(text=message)
+        return []
+    
+    # def test():
+    #     academic_year = "2024-2025"
+    #     url = f"https://api.nusmods.com/v2/{academic_year}/modules/ST2334.json"
+    #     response = requests.get(url)
+    #     data = response.json()
+    #     print(data)
+    #     exam_date = data.get('semesterData', [])[0].get('examDate', None)
+    #     print(exam_date.split("T")[0])
+    # test()
