@@ -148,12 +148,14 @@ class ActionFetchExamDate(Action):
             data = response.json()
 
             exam_date = data.get('semesterData', [])[0].get('examDate', None)
+            exam_duration = data.get('semesterData', [])[0].get('examDuration', None)
             if exam_date:
                 exam_date_utc = dt.datetime.strptime(exam_date, '%Y-%m-%dT%H:%M:%S.%fZ')
                 sgt = pytz.timezone('Asia/Singapore')
                 exam_date_sgt = exam_date_utc.replace(tzinfo=pytz.utc).astimezone(sgt)
                 exam_date_output = exam_date_sgt.strftime('%Y-%m-%d, %H:%M:%S')
                 message = f"The exam for {module_code_query} is on {exam_date_output}."
+                message += f"\nDuration: {exam_duration} minutes."
             else:
                 message = f"There is no exam for {module_code_query}!"
         else:
@@ -200,13 +202,85 @@ class ActionFetchModuleInfo(Action):
         dispatcher.utter_message(text=message)
         return []
     
-    def test():
+    # def test():
+    #     academic_year = "2024-2025"
+    #     url = f"https://api.nusmods.com/v2/{academic_year}/modules/CS1101S.json"
+    #     response = requests.get(url)
+    #     data = response.json()
+    #     can_su = data.get('attributes', {}).get('su')
+    #     can_su_message = "Yes" if can_su else "No"
+    #     print(can_su_message)
+    # test()
+
+class ActionFetchAvailableVenue(Action):
+
+    def name(self) -> Text:
+        return "action_fetch_available_venue"
+
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        
         academic_year = "2024-2025"
-        url = f"https://api.nusmods.com/v2/{academic_year}/modules/CS1101S.json"
+        semester = "1"
+
+        singapore_timezone = pytz.timezone('Asia/Singapore')
+        current_time = dt.datetime.now(singapore_timezone).strftime('%A,%H%M')
+        current_day = current_time.split(",")[0]
+        current_hour = current_time.split(",")[1][:2]
+        current_minute = current_time.split(",")[1][2:]
+        current_minute = "00" if int(current_minute) >= 30 else "30"
+        current_hour = str(int(current_hour) + 1) if int(current_minute) >= 30 else current_hour
+        current_timeblock = f"{current_hour}{current_minute}"
+
+        url = f"https://api.nusmods.com/v2/{academic_year}/semesters/{semester}/venueInformation.json"
+    
         response = requests.get(url)
         data = response.json()
-        can_su = data.get('attributes', {}).get('su')
-        can_su_message = "Yes" if can_su else "No"
-        print(can_su_message)
-    test()
+        message = ""
 
+        for ven, dets in data.items():
+            for det in dets:
+                if det['day'] == current_day:          
+                    if current_timeblock not in list(det['availability'].keys()):
+                        for block in list(det['availability'].keys()):
+                            if int(block) > int(current_timeblock):
+                                available_until = block
+                                break
+                            available_until = ""
+                        if available_until:
+                            message += f"{ven} is available until {available_until}.\n"
+                        else:
+                            message += f"{ven} is available for the whole day!\n"
+
+        if message == "":
+            message = "There are no available venues at the moment."
+        
+        dispatcher.utter_message(text=message)
+        return []
+
+    # def test():
+    #     academic_year = "2024-2025"
+    #     url = f"https://api.nusmods.com/v2/{academic_year}/semesters/1/venueInformation.json"
+
+    #     singapore_timezone = pytz.timezone('Asia/Singapore')
+    #     current_time = dt.datetime.now(singapore_timezone).strftime('%A,%H%M')
+    #     current_day = current_time.split(",")[0]
+    #     current_hour = current_time.split(",")[1][:2]
+    #     current_minute = current_time.split(",")[1][2:]
+    #     current_minute = "00" if int(current_minute) > 30 else "30"
+    #     current_hour = str(int(current_hour) + 1) if int(current_minute) > 30 else current_hour
+    #     current_timeblock = f"{current_hour}{current_minute}"
+    
+    #     response = requests.get(url)
+    #     data = response.json()
+
+    #     for ven, dets in data.items():
+    #         print(ven)
+    #         for day in dets:
+    #             print(day['day'])
+            
+                
+
+    #     # print(data.items())
+    # test()

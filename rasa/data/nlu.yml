@@ -183,3 +183,12 @@ nlu:
     - what is the content of [CS1101S](module_code)?
     - is there more information about [CS1231S](module_code)?
   
+- intent: ask_available_venue
+  examples: |
+    - is there any empty venues now?
+    - are there any venues available now?
+    - i need a place to study now.
+    - where can i study now?
+    - where can i find a place to study now?
+    - where can i find a venue to study now?
+    - is there any available venues for studying now?

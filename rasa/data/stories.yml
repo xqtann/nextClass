@@ -64,3 +64,8 @@ stories:
     entities:
     - module_code: "ST2334"
   - action: action_fetch_module_info
+
+- story: ask available venues
+  steps:
+  - intent: ask_available_venue
+  - action: action_fetch_available_venue

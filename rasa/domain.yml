@@ -14,6 +14,7 @@ intents:
   - ask_bus_timings
   - ask_exam_date
   - ask_module_info
+  - ask_available_venue
 
 responses:
   utter_greet:
@@ -44,10 +45,12 @@ actions:
   - action_fetch_bus_timings
   - action_fetch_exam_date
   - action_fetch_module_info
+  - action_fetch_available_venue
 
 entities:
   - bus_stop_name
   - module_code
+  - timeframe
 
 session_config:
   session_expiration_time: 60
