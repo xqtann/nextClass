@@ -90,6 +90,12 @@ nlu:
     - am I talking to a bot?
     - am I talking to a human?
 
+- intent: out_of_scope
+  examples: |
+    - what is 1+1?
+    - tell me a joke
+    - can you sing?
+
 - intent: ask_toilet
   examples: |
     - where is the toilet?

@@ -15,6 +15,7 @@ intents:
   - ask_exam_date
   - ask_module_info
   - ask_available_venue
+  - out_of_scope
 
 responses:
   utter_greet:
@@ -34,10 +35,13 @@ responses:
   - text: "Bye"
 
   utter_iamabot:
-  - text: "I am a bot, powered by Rasa."
+  - text: "I am NextClass specialised bot, powered by Rasa."
+
+  utter_out_of_scope:
+  - text: "Sorry, I am not trained to answer that."
 
   utter_capabilities:
-  - text: "I can help you find the nearest toilet and tell you the current time."
+  - text: "Some things you can ask me: \n\n1. What is the time now? \n2. Where is the nearest toilet? \n3. What are the things you can help me with? \n4. What are the bus timings at COM3? \n5. When is the exam for ST2334? \n6. What are the available venues for studying?"
 
 actions:
   - action_time_now
