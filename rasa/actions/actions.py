@@ -161,17 +161,52 @@ class ActionFetchExamDate(Action):
 
         dispatcher.utter_message(text=message)
         return []
+
+class ActionFetchModuleInfo(Action):
+
+    def name(self) -> Text:
+        return "action_fetch_module_info"
+
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        
+        academic_year = "2024-2025"
+
+        module_code_query = next(tracker.get_latest_entity_values("module_code"), None)
+
+        if module_code_query:
+            url = f"https://api.nusmods.com/v2/{academic_year}/modules/{module_code_query.upper()}.json"
+        
+            response = requests.get(url)
+            data = response.json()
+
+            module_title = data.get('title')
+            module_info = data.get('description')
+            can_su = data.get('attributes', {}).get('su')
+            can_su_message = "Yes" if can_su else "No"
+
+            if module_info and module_title:
+                message = f"About {module_code_query.upper()} {module_title}:\n"
+                message += f"Module Credits: {data.get('moduleCredit')}\n"
+                message += f"Grading Type: {data.get('gradingBasisDescription')}\n"
+                message+= f"Can S/U?: {can_su_message}\n"
+                message += f"{module_info}"
+            else:
+                message = f"There is no description for {module_code_query}!"
+        else:
+            message = "Please provide a valid NUS module code."
+
+        dispatcher.utter_message(text=message)
+        return []
     
-    # def test():
-    #     academic_year = "2024-2025"
-    #     url = f"https://api.nusmods.com/v2/{academic_year}/modules/ST2334.json"
-    #     response = requests.get(url)
-    #     data = response.json()
-    #     print(data)
-    #     exam_date = data.get('semesterData', [])[0].get('examDate', None)
-    #     exam_date_utc = dt.datetime.strptime(exam_date, '%Y-%m-%dT%H:%M:%S.%fZ')
-    #     sgt = pytz.timezone('Asia/Singapore')
-    #     exam_date_sgt = exam_date_utc.replace(tzinfo=pytz.utc).astimezone(sgt)
-    #     exam_date_output = exam_date_sgt.strftime('%Y-%m-%d, %H:%M:%S')
-    #     print(exam_date_output)
-    # test()
+    def test():
+        academic_year = "2024-2025"
+        url = f"https://api.nusmods.com/v2/{academic_year}/modules/CS1101S.json"
+        response = requests.get(url)
+        data = response.json()
+        can_su = data.get('attributes', {}).get('su')
+        can_su_message = "Yes" if can_su else "No"
+        print(can_su_message)
+    test()
+

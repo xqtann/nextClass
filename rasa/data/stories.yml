@@ -57,3 +57,10 @@ stories:
     entities:
     - module_code: "ST2334"
   - action: action_fetch_exam_date
+
+- story: get module info
+  steps:
+  - intent: ask_module_info
+    entities:
+    - module_code: "ST2334"
+  - action: action_fetch_module_info

@@ -174,3 +174,12 @@ nlu:
     - when is the exam for [MA1101R](module_code)?
     - what is the exam date for [MA1101R](module_code)?
     - when is the exam for [CS1101S](module_code)?
+
+- intent: ask_module_info
+  examples: |
+    - what is [CS2103T](module_code) about?
+    - what is [MA1101R](module_code) about?
+    - what is the description of [ST2334](module_code)?
+    - what is the content of [CS1101S](module_code)?
+    - is there more information about [CS1231S](module_code)?
+  

@@ -13,6 +13,7 @@ intents:
   - ask_questions
   - ask_bus_timings
   - ask_exam_date
+  - ask_module_info
 
 responses:
   utter_greet:
@@ -42,6 +43,7 @@ actions:
   - action_find_nearest_toilet
   - action_fetch_bus_timings
   - action_fetch_exam_date
+  - action_fetch_module_info
 
 entities:
   - bus_stop_name
