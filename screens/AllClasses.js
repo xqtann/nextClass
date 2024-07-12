@@ -1,15 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { StatusBar } from "expo-status-bar";
 import { Text, View, StyleSheet, SectionList, ActivityIndicator } from 'react-native';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../FirebaseConfig';
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc } from 'firebase/firestore';
 import AppOfTheDayCard from '../components/AppOfTheDayCard/AppOfTheDayCard.js';
+import { DarkModeContext } from '../DarkModeContext.js';
 
 export default function AllClassesScreen({ navigation }) {
   const [user, setUser] = useState(null);
   const [allClasses, setAllClasses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { darkMode, toggleDarkMode } = useContext(DarkModeContext); 
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, (user) => {
@@ -59,7 +61,7 @@ export default function AllClassesScreen({ navigation }) {
   };
 
   const renderClassItem = ({ item }) => (
-    <View key={item.id} style={styles.mainCardContainer}>
+    <View key={item.id} style={darkMode ? stylesDark.mainCardContainer : styles.mainCardContainer}>
       <AppOfTheDayCard
         style={styles.card}
         largeTitle={item.title}
@@ -75,8 +77,8 @@ export default function AllClassesScreen({ navigation }) {
   );
 
   const renderDayHeader = ({ section: { day } }) => (
-    <View style={styles.dayHeaderContainer}>
-      <Text style={styles.dayHeaderText}>{day}</Text>
+    <View style={darkMode ? stylesDark.dayHeaderContainer : styles.dayHeaderContainer}>
+      <Text style={darkMode ? stylesDark.dayHeaderText : styles.dayHeaderText}>{day}</Text>
     </View>
   );
 
@@ -91,7 +93,7 @@ export default function AllClassesScreen({ navigation }) {
   const classesByDay = groupByDay(allClasses);
 
   return (
-    <View style={styles.container}>
+    <View style={darkMode ? stylesDark.container : styles.container}>
       <StatusBar style="auto" />
       <SectionList
         sections={classesByDay}
@@ -113,8 +115,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   mainCardContainer: {
-    marginVertical: 10,
-    height: 130,
+    padding: 8,
+    height: 150,
   },
   card: {
     borderRadius: 25,
@@ -135,3 +137,29 @@ const styles = StyleSheet.create({
     color: '#333',
   },
 });
+
+const stylesDark = StyleSheet.create({
+  container: {
+    flex: 1,
+    color: '#192734',
+    backgroundColor: '#192734'
+  },
+  mainCardContainer: {
+    padding: 8,
+    height: 150,
+    color: '#192734',
+    backgroundColor: '#192734'
+  },
+  dayHeaderContainer: {
+    backgroundColor: '#192734',
+    paddingVertical: 5,
+    paddingHorizontal: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  dayHeaderText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#e0e0e0',
+  },
+})

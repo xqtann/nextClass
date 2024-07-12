@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { StatusBar } from "expo-status-bar";
 import { Text, View, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../FirebaseConfig';
@@ -7,6 +7,7 @@ import AppOfTheDayCard from '../components/AppOfTheDayCard/AppOfTheDayCard.js';
 import { doc, getDoc, collection, query, orderBy, onSnapshot, where } from 'firebase/firestore';
 import CustomCard from '../components/CustomCard.js';
 import * as Location from 'expo-location';
+import { DarkModeContext } from '../DarkModeContext.js';
 
 export default function Home({ navigation }) {
   const auth = getAuth();
@@ -17,6 +18,7 @@ export default function Home({ navigation }) {
   const [userName, setUserName] = useState('Guest');
   const [loadingUser, setLoadingUser] = useState(true);
   const [location, setLocation] = useState(null);
+  const { darkMode } = useContext(DarkModeContext);
 
   useEffect(() => {
     (async () => {
@@ -37,14 +39,14 @@ export default function Home({ navigation }) {
         setUser(user);
         loadUserData(user);
         setupReminderListener(user.uid); // Set up real-time listener for reminders
-      } 
+      }
     }, []);
 
     navigation.setOptions({
       headerLeft: () => (
         <TouchableOpacity
           onPress={() => navigation.navigate('AllClasses')}
-          style={styles.allClassesButton}
+          style={darkMode ? stylesDark.allClassesButton : styles.allClassesButton}
         >
           <Text style={styles.allClassesButtonText}>All Classes</Text>
         </TouchableOpacity>
@@ -52,7 +54,7 @@ export default function Home({ navigation }) {
       headerRight: () => (
         <TouchableOpacity
           onPress={() => navigation.navigate('NewAllReminder')}
-          style={styles.allClassesButton}
+          style={darkMode ? stylesDark.allClassesButton : styles.allClassesButton}
         >
           <Text style={styles.allClassesButtonText}>New Reminder</Text>
         </TouchableOpacity>
@@ -60,7 +62,7 @@ export default function Home({ navigation }) {
     });
 
     return () => unsubscribe();
-  }, [navigation]);
+  }, [navigation, darkMode]); // Add darkMode to the dependency array
 
   const loadUserData = async (user) => {
     try {
@@ -68,7 +70,6 @@ export default function Home({ navigation }) {
       const userDoc = await getDoc(userDocRef);
       if (userDoc.exists()) {
         const userData = userDoc.data();
-        //console.log('User data:', userData);
         setUserName(currentUser.displayName || 'Guest');
       } else {
         console.log('No such document!');
@@ -96,7 +97,6 @@ export default function Home({ navigation }) {
   useEffect(() => {
     const fetchTimetableData = async () => {
       try {
-        console.log(user.uid)
         const docRef = doc(FIRESTORE_DB, "timetables", user.uid);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
@@ -126,12 +126,12 @@ export default function Home({ navigation }) {
       const eventDate = new Date(event.startTime);
       const eventDay = eventDate.getDay(); // 0 (Sunday) to 6 (Saturday)
       const eventTime = eventDate.getHours() * 60 + eventDate.getMinutes(); // Time in minutes from midnight
-      
+
       if (eventDay === 0 || eventDay === 6) {
         return false; // Omit Saturday and Sunday
       }
       if (eventDay !== nowDay) {
-         return false;
+        return false;
       }
       if (eventDay === nowDay && eventTime > nowTime) {
         return true;
@@ -158,7 +158,7 @@ export default function Home({ navigation }) {
       <View style={styles.reminderItem}>
         <Text style={styles.reminderTitle}>{item.title}</Text>
         <Text style={styles.reminderDate}>
-        <Text>Due On: {new Date(item.dueDate.seconds * 1000).toLocaleString([], { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' })}</Text>
+          <Text>Due On: {new Date(item.dueDate.seconds * 1000).toLocaleString([], { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' })}</Text>
         </Text>
         <Text style={styles.reminderModule}>Module: {item.moduleCode}</Text>
       </View>
@@ -174,9 +174,9 @@ export default function Home({ navigation }) {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={darkMode ? stylesDark.container : styles.container}>
       <StatusBar style="auto" />
-      <Text style={styles.heading}> Welcome back, {userName}! </Text>
+      <Text style={darkMode ? stylesDark.heading : styles.heading}> Welcome back, {userName}! </Text>
       {nextClasses.length > 0 ? (
         nextClasses.map((event, index) => (
           <View key={index} style={styles.mainCardContainer}>
@@ -188,8 +188,8 @@ export default function Home({ navigation }) {
               buttonText={"ROUTE"}
               backgroundColor={"#003D7C"}
               backgroundSource={require("../assets/background-pattern.png")}
-              onPress={() => {navigation.navigate("Reminder", { moduleCode: event.title })}}
-              onButtonPress={() => {navigation.navigate("Map", { destVenue: event.location, currLoc: location })}}
+              onPress={() => { navigation.navigate("Reminder", { moduleCode: event.title }) }}
+              onButtonPress={() => { navigation.navigate("Map", { destVenue: event.location, currLoc: location }) }}
             />
           </View>
         ))
@@ -223,14 +223,14 @@ export default function Home({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    margin: 10,
   },
   heading: {
-    fontSize: 30,
+    fontSize: 27,
     fontWeight: "bold",
     textAlign: "center",
     fontFamily: "System",
     marginVertical: 20,
+    marginBottom: 10
   },
   mainCardContainer: {
     marginVertical: 10,
@@ -254,7 +254,9 @@ const styles = StyleSheet.create({
   },
   reminderContainer: {
     flex: 1,
-    marginVertical: 20,
+    marginVertical: 15,
+    marginLeft: 16,
+    marginRight: 16
   },
   flatList: {
     flexGrow: 1,
@@ -297,7 +299,88 @@ const styles = StyleSheet.create({
   },
   allClassesButtonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 13,
     fontWeight: 'bold',
+  },
+});
+
+const stylesDark = StyleSheet.create({
+  container: {
+    flex: 1,
+    margin: 0,
+    backgroundColor: '#192734'
+  },
+  
+  heading: {
+    fontSize: 27,
+    fontWeight: "bold",
+    textAlign: "center",
+    fontFamily: "System",
+    marginVertical: 20,
+    marginBottom: 10,
+    color: '#e0e0e0'
+  },
+  mainCardContainer: {
+    marginVertical: 10,
+    height: 130,
+  },
+  card: {
+    borderRadius: 25,
+    height: '100%',
+    alignSelf: "center",
+  },
+  noClassesContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 100,
+  },
+  noClassesText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: 'gray',
+    textAlign: 'center',
+  },
+  reminderContainer: {
+    flex: 1,
+    marginVertical: 20
+  },
+  flatList: {
+    flexGrow: 1,
+  },
+  reminderItem: {
+    marginVertical: 10,
+    padding: 10,
+    backgroundColor: '#fee8d6',
+    borderRadius: 10,
+  },
+  reminderTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  reminderDate: {
+    fontSize: 16,
+    color: '#666',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  noRemindersText: {
+    fontSize: 18,
+    color: '#999',
+    textAlign: 'center',
+    marginTop: 20,
+  },
+  reminderModule: {
+    fontSize: 16,
+    color: '#666',
+    marginTop: 5,
+  },
+  allClassesButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: '#804600',
+    borderRadius: 20,
   },
 });
