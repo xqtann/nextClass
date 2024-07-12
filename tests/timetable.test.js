@@ -1,7 +1,7 @@
 // Timetable.test.js
 import React from 'react';
 import { render, fireEvent, waitFor, act } from '@testing-library/react-native';
-import Timetable from '../screens/Timetable'; // Adjust the import based on your file structure
+import Timetable from '../screens/timetable'; // Adjust the import based on your file structure
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../FirebaseConfig';
 import { onAuthStateChanged } from 'firebase/auth';
 import { setDoc, getDoc, doc } from 'firebase/firestore';

@@ -95,8 +95,10 @@ class ActionFindNearestToilet(Action):
                 domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
 
             bus_stop_query = next(tracker.get_latest_entity_values("bus_stop_name"), None)
+            valid_bus_stops = ["KRB", "LT13", "AS5", "BIZ2", "TCOMS-OPP", "PGP", "KR-MRT", "LT27", "UHALL", "UHC-OPP", "YIH", "CLB", "COM3", "MUSEUM", "UTOWN", "UHC", "UHALL-OPP", "S17", "KR-MRT-OPP", "PGPR", "TCOMS", "HSSML-OPP", "NUSS-OPP", "LT13-OPP", "IT", "YIH-OPP", "SDE3-OPP", "JP-SCH-16151", "KV", "OTH", "BG-MRT", "RAFFLES", "CG"]
 
-            if bus_stop_query:
+
+            if bus_stop_query and bus_stop_query in valid_bus_stops:
                 url = "https://nnextbus.nus.edu.sg/ShuttleService"
                 params = {"busstopname": bus_stop_query}
                 headers = {
@@ -119,7 +121,9 @@ class ActionFindNearestToilet(Action):
                 else:
                     message = "Sorry, I couldn't find the bus timings for your stop."
             else:
-                message = "Please provide a valid NUS bus stop to get timings."
+                message = f"Please provide a valid NUS bus stop to get timings. \nValid bus stops: \n"
+                for bs in valid_bus_stops:
+                    message += f"{bs}, "
 
             dispatcher.utter_message(text=message)
             return []
@@ -143,12 +147,15 @@ class ActionFetchExamDate(Action):
             response = requests.get(url)
             data = response.json()
 
-            exam_date = data.get('semesterData', [])[0].get('examDate', None).split("T")[0] if data.get('semesterData', []) else None
-            
+            exam_date = data.get('semesterData', [])[0].get('examDate', None)
             if exam_date:
-                message = f"The exam for {module_code_query} is on {exam_date}."
+                exam_date_utc = dt.datetime.strptime(exam_date, '%Y-%m-%dT%H:%M:%S.%fZ')
+                sgt = pytz.timezone('Asia/Singapore')
+                exam_date_sgt = exam_date_utc.replace(tzinfo=pytz.utc).astimezone(sgt)
+                exam_date_output = exam_date_sgt.strftime('%Y-%m-%d, %H:%M:%S')
+                message = f"The exam for {module_code_query} is on {exam_date_output}."
             else:
-                message = f"Sorry, I couldn't find the exam date for {module_code_query}."
+                message = f"There is no exam for {module_code_query}!"
         else:
             message = "Please provide a valid NUS module code."
 
@@ -162,5 +169,9 @@ class ActionFetchExamDate(Action):
     #     data = response.json()
     #     print(data)
     #     exam_date = data.get('semesterData', [])[0].get('examDate', None)
-    #     print(exam_date.split("T")[0])
+    #     exam_date_utc = dt.datetime.strptime(exam_date, '%Y-%m-%dT%H:%M:%S.%fZ')
+    #     sgt = pytz.timezone('Asia/Singapore')
+    #     exam_date_sgt = exam_date_utc.replace(tzinfo=pytz.utc).astimezone(sgt)
+    #     exam_date_output = exam_date_sgt.strftime('%Y-%m-%d, %H:%M:%S')
+    #     print(exam_date_output)
     # test()
