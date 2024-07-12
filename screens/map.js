@@ -98,11 +98,12 @@ export default function Map({ navigation, route }) {
         y: parseFloat(dest.split(",")[0])
       },
     }
-  }) : console.log("not inserting query");
+  }) : console.log("not searching by coord");
 
   let data = [];
   location != null ? data.push({venue: "Current Location"}) : data.push({venue: "Getting Current Location..."});
-  Object.keys(venues).filter(venue => venues[venue].location != undefined && venue != "Current Location")
+  searchByCoord ? data.push({venue: dest}) : "";
+  Object.keys(venues).filter(venue => venues[venue].location != undefined && venue != "Current Location" && venue != dest)
                     .sort()
                     .map(venue => data.push({venue: venue}));
 
@@ -204,7 +205,7 @@ useEffect(() => {
         });
   
       const GHdata = await resp.json();
-      // console.log(GHdata.paths);
+      // console.log(GHdata.paths[0]);
       await setInstructions(GHdata.paths[0].instructions);
       firstHeading = await GHdata.paths[0].instructions[0].heading;
       setTotalTime(GHdata.paths[0].time);
@@ -444,6 +445,7 @@ useEffect(() => {
           strokeWidth={4} 
           strokeColor='#8F0000' /> : ""}
           </MapView>
+          <View style={styles.darkModeOverlay} />
           <View style={styles.overlayContainer}>
               <SelectDropdown
               data={data}
@@ -841,5 +843,10 @@ const styles = StyleSheet.create({
       fontFamily: 'System',
       textAlign: 'center',
       width: 200,
-    }
+    },
+    darkModeOverlay: {
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)', // Adjust the opacity as needed
+      pointerEvents: 'none', // Allows interaction with the map beneath the overlay
+    },
 })
