@@ -6,6 +6,8 @@ import { FIREBASE_AUTH, FIRESTORE_DB } from '../FirebaseConfig';
 import { onAuthStateChanged } from 'firebase/auth';
 import { setDoc, getDoc, doc } from 'firebase/firestore';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { DarkModeContext } from '../DarkModeContext';
 
 // Mock necessary Firebase functions and modules
 jest.mock('../FirebaseConfig', () => ({
@@ -32,9 +34,17 @@ jest.mock('react-native-really-awesome-button', () => ({
   ThemedButton: jest.fn(() => null),
 }));
 
+jest.mock('@react-native-async-storage/async-storage', () => ({
+  AsyncStorage: jest.fn(() => null),
+}));
+
 describe('Timetable Component', () => {
   it('should render the initial loading state', async () => {
-    const { getByTestId } = render(<Timetable navigation={{ setOptions: jest.fn() }} />);
+    const { getByTestId } = render(
+      <DarkModeContext.Provider value={{ darkMode: false }}>
+        <Timetable navigation={{ setOptions: jest.fn() }} />
+      </DarkModeContext.Provider>
+  );
     expect(getByTestId('loading-indicator')).toBeTruthy();
   });
 
@@ -53,7 +63,11 @@ describe('Timetable Component', () => {
       }),
     });
 
-    const { getByText } = render(<Timetable navigation={{ setOptions: jest.fn() }} />);
+    const { getByText } = render(
+      <DarkModeContext.Provider value={{ darkMode: false }}>
+        <Timetable navigation={{ setOptions: jest.fn() }} />
+      </DarkModeContext.Provider>
+  );
 
     await (async () => {
       await waitFor(() => {

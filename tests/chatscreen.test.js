@@ -3,9 +3,15 @@ import React from 'react';
 import { render, waitFor, act, fireEvent } from '@testing-library/react-native';
 import ChatScreen from '../screens/chatbot'; // Adjust the import based on your file structure
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { DarkModeContext } from '../DarkModeContext';
 
 // Mock axios
 jest.mock('axios');
+
+jest.mock('@react-native-async-storage/async-storage', () => ({
+  AsyncStorage: jest.fn(() => null),
+}));
 
 // Mock GiftedChat
 jest.mock('react-native-gifted-chat', () => {
@@ -39,7 +45,11 @@ describe('ChatScreen', () => {
       data: [{ text: 'This is a test response from the bot' }],
     });
 
-    const { getByText, getByRole } = render(<ChatScreen navigation={{ navigate: jest.fn() }} />);
+    const { getByText, getByRole } = render(
+      <DarkModeContext.Provider value={{ darkMode: false }}>
+        <ChatScreen navigation={{ navigate: jest.fn() }} />
+      </DarkModeContext.Provider>
+  );
 
     // Initial bot message
     expect(getByText('Hi! How can I help you?')).toBeTruthy();

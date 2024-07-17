@@ -168,6 +168,7 @@ export default function NewReminder({ navigation, route }) {
           placeholderTextColor="#9E9E9E"
           onChangeText={(val) => setTitle(val)}
           value={title}
+          testID="titleInput"
         />
         <TextInput
           style={[styles.input, styles.descriptionInput]}
@@ -177,6 +178,7 @@ export default function NewReminder({ navigation, route }) {
           value={description}
           multiline={true}
           numberOfLines={4}
+          testID="descriptionInput"
         />
         <View style={styles.datetimeContainer}>
           <Text style={styles.label}> Due Date: </Text>
@@ -203,7 +205,7 @@ export default function NewReminder({ navigation, route }) {
           />
         </View>
         <View style={{ padding: 5, paddingRight: 30, paddingLeft: 30 }}>
-          <ThemedButton name='rick' type='secondary' raiseLevel={1} style={styles.button} onPress={submitHandler}>
+          <ThemedButton name='rick' type='secondary' raiseLevel={1} style={styles.button} onPress={submitHandler} testID="submitButton">
             <Text style={styles.buttonText}>Create</Text>
           </ThemedButton>
           <StatusBar style="light" />

@@ -24,6 +24,7 @@ const ChatScreen = ( { navigation } ) => {
       }
     } catch (error) {
       console.error(error);
+      return 'Sorry, I am unable to process your request at the moment. Please try again later.';
     }
   };
   
