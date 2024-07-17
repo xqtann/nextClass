@@ -1,5 +1,5 @@
-import React, {useState, useEffect, useRef, useMemo } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, Modal, Alert, Image, ActivityIndicator } from 'react-native';
+import React, {useState, useEffect, useRef, useMemo, useContext } from 'react';
+import { Text, View, StyleSheet, TouchableOpacity, Modal, Alert, Image, ActivityIndicator, TouchableWithoutFeedback } from 'react-native';
 import CheckBox from 'expo-checkbox';
 import MapView, { UrlTile, Marker, Polyline, Callout } from 'react-native-maps';
 import * as Location from 'expo-location';
@@ -15,8 +15,7 @@ import RadioGroup from 'react-native-radio-buttons-group';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../FirebaseConfig';
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc } from 'firebase/firestore';
-
-
+import { DarkModeContext } from '../DarkModeContext';
 
 export default function Map({ navigation, route }) {
   const { destVenue } = route.params;
@@ -32,6 +31,8 @@ export default function Map({ navigation, route }) {
   const [origin, setOrigin] = useState("");
   const [searchByCoord, setSearchByCoord] = useState(destVenue.startsWith("1.") ? true : false);
   const [dest, setDest] = useState(!destVenue.startsWith("E-Learn") && Object.keys(venues).includes(destVenue) ? destVenue : destVenue.startsWith("1.") ? destVenue : "");
+  const { darkMode, toggleDarkMode } = useContext(DarkModeContext); 
+
   useEffect(() => {
     setDest(!destVenue.startsWith("E-Learn") && Object.keys(venues).includes(destVenue) ? destVenue : destVenue.startsWith("1.") ? destVenue : "");
     setSearchByCoord(destVenue.startsWith("1.") ? true : false);
@@ -117,14 +118,14 @@ export default function Map({ navigation, route }) {
         label: 'Foot',
         value: 'footMode',
         size: 18,
-        labelStyle: { fontSize: 18, color: 'black' },
+        labelStyle: darkMode ? {fontSize:18, color: '#b3b3b3'} :{ fontSize: 18, color: 'black' },
     },
     {
         id: '2',
         label: 'Car',
         value: 'carMode',
         size: 18,
-        labelStyle: { fontSize: 18, color: 'black' },
+        labelStyle: darkMode ? {fontSize:18, color: '#b3b3b3'} :{ fontSize: 18, color: 'black' },
     }
 ]), []);
 
@@ -261,73 +262,77 @@ useEffect(() => {
     const renderModal = () => {
       return (
         <Modal
-        visible={openModal}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setOpenModal(false)}
+          visible={openModal}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setOpenModal(false)}
         >
-        {/* <TouchableWithoutFeedback onPress={() => setOpenModal(false)}> */}
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <TouchableOpacity style={styles.closeButton} onPress={() => setOpenModal(false)}>
-              <Text style={styles.closeButtonText}>X</Text>
-            </TouchableOpacity>
-            <Text style={{fontSize: 20, fontWeight: 'bold', marginBottom: 10}}>Options</Text>
-            <View style={{flexDirection: 'row'}}>
-              <Text style={{fontSize: 18, marginVertical: 5}}>Mode: </Text>
-            <RadioGroup 
-            layout='row'
-            radioButtons={radioButtons} 
-            onPress={setMode}
-            selectedId={mode}
-        />
+          <TouchableWithoutFeedback onPress={() => setOpenModal(false)}>
+            <View style={darkMode ? stylesDark.modalOverlay : styles.modalOverlay}>
+              <View style={darkMode ? stylesDark.modalContent :styles.modalContent}>
+                <TouchableOpacity style={darkMode ? stylesDark.closeButton :styles.closeButton} onPress={() => setOpenModal(false)}>
+                  <Text style={styles.closeButtonText}>X</Text>
+                </TouchableOpacity>
+                <Text style={darkMode ? {fontSize: 20, fontWeight: 'bold', marginBottom: 10, color: '#b3b3b3'} : {fontSize: 20, fontWeight: 'bold', marginBottom: 10}}>Options</Text>
+                <View style={{flexDirection: 'row'}}>
+                  <Text style={darkMode ? {fontSize: 18, marginBottom: 5, color: '#b3b3b3'} : {fontSize: 18, marginVertical: 5}}>Mode: </Text>
+                  <RadioGroup
+                    layout='row'
+                    radioButtons={radioButtons}
+                    onPress={setMode}
+                    selectedId={mode}
+                  />
+                </View>
+                <View style={{flexDirection: 'column', marginTop: 10, alignSelf: 'left', marginLeft: 35}}>
+                  <Text style={darkMode ? {fontSize:18,marginTop:2,color:'#b3b3b3'} : {fontSize: 18, marginTop: 2}}>Show: </Text>
+                  <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 5}}>
+                    <CheckBox
+                      style={{marginLeft: 10}}
+                      disabled={false}
+                      value={showBusstops}
+                      onValueChange={(newValue) => setShowBusstops(newValue)}
+                    />
+                    <Image 
+                      source={require('../assets/bus-marker.png')} 
+                      style={{width: 25, height: 25, marginLeft: 10, tintColor: '#004999'}} 
+                    />
+                    <Text style={darkMode?{fontSize:18,marginHorizontal:10,color:"#b3b3b3"}:{fontSize: 18, marginHorizontal: 10}}>Bus Stops</Text>
+                  </View>
+                  <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 5}}>
+                    <CheckBox
+                      style={{marginLeft: 10}}
+                      disabled={false}
+                      value={showCarparks}
+                      onValueChange={(newValue) => setShowCarparks(newValue)}
+                    />
+                    <Image 
+                      source={require('../assets/car-park-flaticon.com.png')} 
+                      style={{width: 25, height: 25, marginLeft: 10, tintColor: '#8b5b05'}} 
+                    />
+                    <Text style={darkMode?{fontSize:18,marginHorizontal:10,color:"#b3b3b3"}:{fontSize: 18, marginHorizontal: 10}}>Carparks</Text>
+                  </View>
+                  {!loading && (
+                    <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 5}}>
+                      <CheckBox
+                        style={{marginLeft: 10}}
+                        disabled={false}
+                        value={showMyClasses}
+                        onValueChange={(newValue) => setShowMyClasses(newValue)}
+                      />
+                      <Image 
+                        source={require('../assets/book-variant.png')} 
+                        style={{width: 25, height: 25, marginLeft: 10, tintColor: '#541675'}} 
+                      />
+                      <Text style={darkMode?{fontSize:18,marginHorizontal:10,color:"#b3b3b3"}:{fontSize: 18, marginHorizontal: 10}}>My Classes</Text>
+                    </View>
+                  )}
+                </View>
+              </View>
             </View>
-            <View style={{flexDirection: 'column', marginTop: 10, alignSelf: 'left', marginLeft: 35}}>
-              <Text style={{fontSize: 18, marginTop: 2}}>Show: </Text>
-              <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 5}}>
-              <CheckBox
-              style={{marginLeft: 10}}
-              disabled={false}
-              value={showBusstops}
-              onValueChange={(newValue) => setShowBusstops(newValue)}
-            />
-            <Image 
-                source={require('../assets/bus-marker.png')} 
-                style={{width: 25, height: 25, marginLeft: 10, tintColor: '#004999'}} />
-            <Text style={{fontSize: 18, marginHorizontal: 10}}>Bus Stops</Text>
-            </View>
-            <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 5}}>
-            <CheckBox
-              style={{marginLeft: 10}}
-              disabled={false}
-              value={showCarparks}
-              onValueChange={(newValue) => setShowCarparks(newValue)}
-            />
-            <Image 
-                source={require('../assets/car-park-flaticon.com.png')} 
-                style={{width: 25, height: 25, marginLeft: 10, tintColor: '#8b5b05'}} />
-            <Text style={{fontSize: 18, marginHorizontal: 10}}>Carparks</Text>
-            </View>
-            {loading ? "" :
-            <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 5}}>
-            <CheckBox
-              style={{marginLeft: 10}}
-              disabled={false}
-              value={showMyClasses}
-              onValueChange={(newValue) => setShowMyClasses(newValue)}
-            />
-            <Image 
-                source={require('../assets/book-variant.png')} 
-                style={{width: 25, height: 25, marginLeft: 10, tintColor: '#541675'}} />
-            <Text style={{fontSize: 18, marginHorizontal: 10}}>My Classes</Text>
-            </View>}
-            </View>
-          </View>
-        </View>
-      </Modal>
-      )
+          </TouchableWithoutFeedback>
+        </Modal>
+      );
     };
-
   
     return (
       <View style={styles.container}>
@@ -444,8 +449,8 @@ useEffect(() => {
           coordinates={polylines} 
           strokeWidth={4} 
           strokeColor='#8F0000' /> : ""}
-          </MapView>
-          <View style={styles.darkModeOverlay} />
+          </MapView> 
+          <View style={darkMode ? styles.darkModeOverlay : null} />
           <View style={styles.overlayContainer}>
               <SelectDropdown
               data={data}
@@ -456,32 +461,32 @@ useEffect(() => {
               }}
               renderButton={(selectedItem, isOpened) => {
                 return (
-                  <View style={styles.dropdownButtonStyle}>
+                  <View style={darkMode ? stylesDark.dropdownButtonStyle :styles.dropdownButtonStyle}>
                     {origin == "" 
-                    ? <Text style={styles.dropdownButtonTxtStyle}>
+                    ? <Text style={darkMode ? stylesDark.dropdownButtonTxtStyle : styles.dropdownButtonTxtStyle}>
                       {(selectedItem && selectedItem.venue != "Getting Current Location...") || 'Origin'}
                     </Text> 
-                    : <Text style={styles.dropdownButtonTxtStyle}>{origin}</Text>
+                    : <Text style={darkMode ? stylesDark.dropdownButtonTxtStyle: styles.dropdownButtonTxtStyle}>{origin}</Text>
                     }
                   </View>
                 );
               }}
               renderItem={(item, index, isSelected) => {
                 return (
-                  <View style={{...styles.dropdownItemStyle, ...(isSelected && {backgroundColor: '#D2D9DF'})}}>
-                    <Text style={styles.dropdownItemTxtStyle}>{item.venue}</Text>
+                  <View style={darkMode ? stylesDark.dropdownItemStyle : {...styles.dropdownItemStyle, ...(isSelected && {backgroundColor: '#D2D9DF'})}}>
+                    <Text style={darkMode ? stylesDark.dropdownItemTxtStyle : styles.dropdownItemTxtStyle}>{item.venue}</Text>
                   </View>
                 );
               }}
               showsVerticalScrollIndicator={false}
-              dropdownStyle={styles.dropdownMenuStyle}
+              dropdownStyle={darkMode ? stylesDark.dropdownMenuStyle : styles.dropdownMenuStyle}
             />
              <ThemedButton
-                name="rick"
-                type="secondary"
+                name={darkMode ? "bruce" : "rick"}
+                type="primary"
                 style={styles.goButton}
                 height={45}
-                width={80}
+                width={90}
                 raiseLevel={2}
                 progress
                 onPress={async (next) => {
@@ -503,20 +508,20 @@ useEffect(() => {
               }}
               renderButton={(selectedItem, isOpened) => {
                 return (
-                  <View style={styles.dropdownButtonStyle}>
+                  <View style={darkMode ? stylesDark.dropdownButtonStyle : styles.dropdownButtonStyle}>
                     {dest == "" 
-                    ? <Text style={styles.dropdownButtonDestTxtStyle}>
+                    ? <Text style={darkMode ? stylesDark.dropdownButtonDestTxtStyle : styles.dropdownButtonDestTxtStyle}>
                       {(selectedItem && selectedItem.venue != "Getting Current Location...") || 'Destination'}
                     </Text> 
-                    : <Text style={styles.dropdownButtonDestTxtStyle}>{dest}</Text>
+                    : <Text style={darkMode ? stylesDark.dropdownButtonDestTxtStyle : styles.dropdownButtonDestTxtStyle}>{dest}</Text>
                     }
                   </View>
                 );
               }}
               renderItem={(item, index, isSelected) => {
                 return (
-                  <View style={{...styles.dropdownItemStyle, ...(isSelected && {backgroundColor: '#D2D9DF'})}}>
-                    <Text style={styles.dropdownItemTxtStyle}>{item.venue}</Text>
+                  <View style={darkMode ? stylesDark.dropdownItemStyle : {...styles.dropdownItemStyle, ...(isSelected && {backgroundColor: '#D2D9DF'})}}>
+                    <Text style={darkMode ? stylesDark.dropdownItemTxtStyle : styles.dropdownItemTxtStyle}>{item.venue}</Text>
                   </View>
                 );
               }}
@@ -524,15 +529,12 @@ useEffect(() => {
               dropdownStyle={styles.dropdownMenuStyle}
             />
             <ThemedButton
-                name="rick"
-                type="secondary"
-                style={styles.optionButton}
-                backgroundColor='#9AA0A6'
-                borderColor='#d2d2d2'
+                name={darkMode ? "bruce" : "rick"}
+                type="primary"
+                style={darkMode ? stylesDark.optionButton : styles.optionButton}
                 height={45}
-                width={80}
-                raiseLevel={0}
-                textColor='black'
+                width={90}
+                raiseLevel={2}
                 textSize={12}
                 paddingHorizontal={10}
                 onPress={optionHandler}
@@ -850,3 +852,244 @@ const styles = StyleSheet.create({
       pointerEvents: 'none', // Allows interaction with the map beneath the overlay
     },
 })
+const stylesDark = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: "center",
+  },
+  loadingContainer: {
+    flex: 1,
+    position: 'absolute',
+    top: ScreenHeight * 0.4,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
+  },
+  text: {
+    fontSize: 20,
+    margin: 10
+  },
+  map: {
+    borderRadius: 15,
+    width: '100%',
+    height: '100%'
+  },
+  overlayContainer: {
+    flex: 1,
+    position: 'absolute',
+    top: '1%',
+    left: '8%',
+    height: ScreenHeight * 0.15,
+    width: ScreenWidth * 0.6,
+    flexDirection: "row"
+  },
+  overlayContainerDest: {
+    flex: 1,
+    position: 'absolute',
+    top: '9%',
+    left: '8%',
+    height: ScreenHeight * 0.15,
+    width: ScreenWidth * 0.6,
+    flexDirection: "row"
+  },
+  textInputBox: {
+    height: 45,
+    width: '100%',
+    backgroundColor: "white",
+    borderRadius: 15,
+    padding: 10,
+    marginTop: 10,
+    borderColor: "black",
+    borderWidth: 1
+  },
+  dropdown: {
+    flex: 1,
+    backgroundColor: "#192734",
+    zIndex: 10,
+    position: "absolute",
+    height: 300,
+    width: ScreenWidth * 0.6,
+    top: '45%',
+    borderRadius: 10
+  },
+  dropdownButtonStyle: {
+    width: ScreenWidth * 0.6,
+    height: 45,
+    backgroundColor: '#404040',
+    borderRadius: 50,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+  },
+  dropdownButtonTxtStyle: {
+    flex: 1,
+    fontSize: 18,
+    fontWeight: '500',
+    color: '#b3b3b3',
+  },
+  dropdownButtonDestTxtStyle: {
+    flex: 1,
+    fontSize: 18,
+    fontWeight: '500',
+    color: '#b3b3b3',
+  },
+  dropdownButtonArrowStyle: {
+    fontSize: 28,
+  },
+  dropdownButtonIconStyle: {
+    fontSize: 28,
+    marginRight: 8,
+  },
+  dropdownMenuStyle: {
+    backgroundColor: '#E9ECEF',
+    borderRadius: 8,
+  },
+  dropdownItemStyle: {
+    width: '100%',
+    flexDirection: 'row',
+    paddingHorizontal: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 8,
+    backgroundColor: "#404040"
+  },
+  dropdownItemTxtStyle: {
+    flex: 1,
+    fontSize: 18,
+    fontWeight: '500',
+    color: '#b3b3b3',
+  },
+  dropdownItemIconStyle: {
+    fontSize: 28,
+    marginRight: 8,
+  },
+  goButton: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    marginLeft: 20,
+    zIndex: 20
+  },
+  optionButton: {
+    width: 80,
+    height: 45,
+    borderRadius: 25,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 1,
+    marginLeft: 20,
+    zIndex: 20
+  },
+  goText: {
+    fontSize: 30,
+    fontFamily: 'System',
+    fontWeight: "bold",
+  },
+  optionText: {
+    fontSize: 15,
+    fontFamily: 'System',
+    fontWeight: "bold",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    width: '80%',
+    padding: 20,
+    backgroundColor: '#181818',
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    backgroundColor: '#ff5c5c', // Red close button
+    borderRadius: 20,
+    width: 30,
+    height: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+},
+closeButtonText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: 'white',
+},
+  buttonGroup: {
+    marginTop: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  carouselContainer: {
+    top: '70%', 
+    position:'absolute',
+    height: ScreenHeight * 0.25,
+    width: ScreenWidth,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  carouselItem: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    padding: 20,
+    backgroundColor:'#f0f0f0', 
+    borderColor:'gray',
+    borderWidth: 2,
+    borderRadius: 20,
+  },
+  directionSign: {
+    margin: 10,
+  },
+  title: {
+    textAlign: 'center',
+    width: 200,
+    fontSize: 30,
+    fontWeight: 'bold',
+    fontFamily: 'System',
+  },
+  distance: {
+    textAlign: 'center',
+    fontSize: 30,
+    fontWeight: 'bold',
+    fontFamily: 'System'
+  },
+  instructionContainer: {
+    marginRight: 20,
+    justifyContent: 'center',
+  },
+  subtitle: {
+    position: 'absolute',
+    bottom: 5,
+    right: 25,
+    textAlign: 'right',
+    fontSize: 15,
+    fontStyle: 'italic',
+    fontFamily: 'System'
+  },
+  arrow: {
+    position: 'absolute',
+    bottom: 5,
+    right: 5,
+  },
+  extraInstruction: {
+    fontSize: 20,
+    fontFamily: 'System',
+    textAlign: 'center',
+    width: 200,
+  },
+  darkModeOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Adjust the opacity as needed
+    pointerEvents: 'none', // Allows interaction with the map beneath the overlay
+  },
+})
+
