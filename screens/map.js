@@ -245,6 +245,7 @@ useEffect(() => {
     // console.log(location);
 
     const goHandler = () => {
+      console.log("Go button pressed");
       origin != '' && dest != '' 
       ? mapRef.current.animateCamera({
         center: {latitude: venues[origin].location.y, longitude: venues[origin].location.x },
@@ -338,7 +339,7 @@ useEffect(() => {
       <View style={styles.container}>
         {!isMapLoaded && (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#0000ff" />
+            <ActivityIndicator size="large" color="#0000ff" testID='loading-indicator' />
           </View>
         )}
         <MapView 
@@ -358,6 +359,7 @@ useEffect(() => {
             animated: true,
           }}
           ref={mapRef}
+          testID='map-view'
           >
             <UrlTile
             urlTemplate='http://c.tile.openstreetmap.org/{z}/{x}/{y}.png'
@@ -458,6 +460,7 @@ useEffect(() => {
               disableAutoScroll={true}
               searchInputStyle={darkMode ? {backgroundColor: '#222222'} : {backgroundColor: 'white'}}
               searchInputTxtColor={darkMode ? 'white' : 'black'}
+              testID='origin-dropdown'
               onSelect={(selectedItem, index) => {
                 selectedItem.venue != "Getting Current Location..." && setOrigin(selectedItem.venue);
               }}
@@ -491,9 +494,12 @@ useEffect(() => {
                 width={90}
                 raiseLevel={2}
                 progress
+                testID='go-button'
                 onPress={async (next) => {
                   await new Promise((resolve) => setTimeout(resolve, 1000));
-                  next();
+                  if (typeof next === 'function') {
+                    next();
+                  }
                   goHandler();
                 }}
               >
@@ -507,6 +513,7 @@ useEffect(() => {
               disableAutoScroll={true}
               searchInputStyle={darkMode ? {backgroundColor: '#222222'} : {backgroundColor: 'white'}}
               searchInputTxtColor={darkMode ? 'white' : 'black'}
+              testID='dest-dropdown'
               onSelect={(selectedItem, index) => {
                 selectedItem.venue != "Getting Current Location..." && setDest(selectedItem.venue);
               }}
@@ -548,7 +555,7 @@ useEffect(() => {
             {renderModal()}
           </View>
           {openDirection ?
-          <View style={styles.carouselContainer}>
+          <View style={styles.carouselContainer} testID='direction-card'>
           <Carousel
                 loop={false}
                 width={ScreenWidth * 0.9}

@@ -4,14 +4,17 @@ import NewReminder from '../screens/newReminder';
 import { DarkModeContext } from '../DarkModeContext';
 
 jest.mock('react-native-really-awesome-button', () => ({
-    ThemedButton: jest.fn(() => null),
-}));
+    ThemedButton: jest.fn(({ testID, onPress, children }) => (
+      <button testID={testID} onPress={onPress}>
+        {children}
+      </button>
+    )),
+  }));
 
 jest.mock('@react-native-async-storage/async-storage', () => ({
     AsyncStorage: jest.fn(() => null),
 }));
 
-// Mock expo-notifications
 jest.mock('expo-notifications', () => {
   return {
     setNotificationHandler: jest.fn(),
@@ -25,14 +28,12 @@ jest.mock('expo-notifications', () => {
   };
 });
 
-// Mock expo-device
 jest.mock('expo-device', () => {
   return {
     isDevice: true,
   };
 });
 
-// Mock expo-constants
 jest.mock('expo-constants', () => {
   return {
     __esModule: true,
@@ -56,7 +57,7 @@ describe('NewReminder Input Fields Stress Test', () => {
   const mockRoute = { params: { moduleCode: 'CS1010' } };
 
   beforeAll(() => {
-    global.alert = jest.fn(); // Add this line to mock alert globally
+    global.alert = jest.fn(); 
   });
 
   // Reset mocks after each test to clean up
@@ -65,27 +66,36 @@ describe('NewReminder Input Fields Stress Test', () => {
   });
 
   it('should handle long text input for title and description', async () => {
-    const { getByPlaceholderText } = render(
+    const logSpy = jest.spyOn(console, 'log');
+    const { getByTestId } = render(
     <DarkModeContext.Provider value={{ darkMode: false }}>
         <NewReminder navigation={mockNavigation} route={mockRoute} />
     </DarkModeContext.Provider>
 );
     
-    const titleInput = getByPlaceholderText('Reminder Title');
-    const descriptionInput = getByPlaceholderText('Description');
+    const titleInput = getByTestId('titleInput');
+    const descriptionInput = getByTestId('descriptionInput');
+    const dateTimeDue = getByTestId('dateTimePickerDue');
+    const dateTimeRemind = getByTestId('dateTimePickerRemind');
+    const submitButton = getByTestId('submitButton');
 
     const longText = 'A'.repeat(5000);
 
     await act(async () => {
       fireEvent.changeText(titleInput, longText);
       fireEvent.changeText(descriptionInput, longText);
+      fireEvent.changeText(dateTimeDue, new Date());
+      fireEvent.changeText(dateTimeRemind, new Date());
+      fireEvent.press(submitButton);
     });
 
     expect(titleInput.props.value).toBe(longText);
     expect(descriptionInput.props.value).toBe(longText);
+    expect(logSpy).toHaveBeenCalledWith("submitting");
   });
 
   it('should handle special characters in input fields', async () => {
+    const logSpy = jest.spyOn(console, 'log');
     const { getByTestId } = render(
         <DarkModeContext.Provider value={{ darkMode: false }}>
             <NewReminder navigation={mockNavigation} route={mockRoute} />
@@ -93,16 +103,23 @@ describe('NewReminder Input Fields Stress Test', () => {
 
     const titleInput = getByTestId('titleInput');
     const descriptionInput = getByTestId('descriptionInput');
+    const dateTimeDue = getByTestId('dateTimePickerDue');
+    const dateTimeRemind = getByTestId('dateTimePickerRemind');
+    const submitButton = getByTestId('submitButton');
 
     const specialChars = '!@#$%^&*()_+[]{}|;:,.<>?';
 
     await act(async () => {
       fireEvent.changeText(titleInput, specialChars);
       fireEvent.changeText(descriptionInput, specialChars);
+      fireEvent.changeText(dateTimeDue, new Date());
+      fireEvent.changeText(dateTimeRemind, new Date());
+      fireEvent.press(submitButton);
     });
 
     expect(titleInput.props.value).toBe(specialChars);
     expect(descriptionInput.props.value).toBe(specialChars);
+    expect(logSpy).toHaveBeenCalledWith("submitting");
   });
 
   it('should handle rapid text input changes', async () => {

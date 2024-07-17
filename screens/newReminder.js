@@ -110,6 +110,7 @@ export default function NewReminder({ navigation, route }) {
   }, []);
 
   const submitHandler = async () => {
+    console.log("submitting")
     if (!title || !description || !dueDate || !remind) {
       Alert.alert("Error", "Please fill all fields before submitting.");
       return;
