@@ -456,6 +456,8 @@ useEffect(() => {
               data={data}
               search={true}
               disableAutoScroll={true}
+              searchInputStyle={darkMode ? {backgroundColor: '#222222'} : {backgroundColor: 'white'}}
+              searchInputTxtColor={darkMode ? 'white' : 'black'}
               onSelect={(selectedItem, index) => {
                 selectedItem.venue != "Getting Current Location..." && setOrigin(selectedItem.venue);
               }}
@@ -503,6 +505,8 @@ useEffect(() => {
               data={data}
               search={true}
               disableAutoScroll={true}
+              searchInputStyle={darkMode ? {backgroundColor: '#222222'} : {backgroundColor: 'white'}}
+              searchInputTxtColor={darkMode ? 'white' : 'black'}
               onSelect={(selectedItem, index) => {
                 selectedItem.venue != "Getting Current Location..." && setDest(selectedItem.venue);
               }}

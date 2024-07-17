@@ -104,13 +104,6 @@ function RemindersTT() {
 
 export default function App() {
   const [user, setUser] = useState(null);
-  const { darkMode } = useContext(DarkModeContext);
-
-  const screenOptions = {
-    headerStyle: { backgroundColor: darkMode ? '#a35a00' : '#ff7f50' },
-    headerTintColor: darkMode ? '#fff' : '#fff',
-    headerTitleStyle: { fontWeight: 'bold', fontSize: 16 },
-  };
 
   useEffect(() => {
     onAuthStateChanged(FIREBASE_AUTH, (user) => {
@@ -121,7 +114,7 @@ export default function App() {
   return (
     <DarkModeProvider>
       <NavigationContainer>
-        <Stack.Navigator screenOptions={({ route }) => ({ ...screenOptions, gestureEnabled: route.name !== 'Profile' })}>
+        <Stack.Navigator screenOptions={({ route }) => ({ gestureEnabled: route.name !== 'Profile' })}>
           <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="Profile" component={Profile} options={{ headerShown: false }} />
           <Stack.Screen name="Register" component={Register} options={{ title: 'Create Account' }} />

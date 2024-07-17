@@ -5,10 +5,10 @@ import { DarkModeContext } from '../DarkModeContext';
 
 jest.mock('react-native-really-awesome-button', () => ({
     ThemedButton: jest.fn(() => null),
-  }));
+}));
 
 jest.mock('@react-native-async-storage/async-storage', () => ({
-AsyncStorage: jest.fn(() => null),
+    AsyncStorage: jest.fn(() => null),
 }));
 
 // Mock expo-notifications
