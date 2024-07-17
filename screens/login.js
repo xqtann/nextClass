@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
   container: {
     justifyContent: "center",
     padding: 20,
-    marginTop: 50,
+    marginTop: 0,
     alignItems: "center",
     backgroundColor: "#ffffff",
     borderRadius: 10,
@@ -180,3 +180,68 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
 });
+const stylesDark = StyleSheet.create({
+  outContainer: {
+    flex: 1,
+    alignItems: "center",
+    paddingTop: 70,
+    backgroundColor: "#192734",
+  },
+  container: {
+    justifyContent: "center",
+    padding: 20,
+    marginTop: 0,
+    alignItems: "center",
+    backgroundColor: "#192734",
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  input: {
+    marginTop: 10,
+    width: '100%',
+  },
+  signupContainer: {
+    marginTop: 20,
+  },
+  signupText: {
+    color: "#000",
+    fontSize: 14,
+  },
+  signupLink: {
+    color: "#3498db",
+    fontWeight: "bold",
+  },
+  button: {
+    marginTop: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    alignSelf: 'center',
+  },
+  buttonText: {
+    color: "#ffffff",
+    fontSize: 13,
+    fontWeight: "bold",
+  },
+  userModalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  userModalContent: {
+    width: 300,
+    padding: 20,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  userModalText: {
+    fontSize: 18,
+    marginBottom: 10,
+  },
+});
+

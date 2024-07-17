@@ -100,6 +100,7 @@ export default function Home({ navigation }) {
         const docRef = doc(FIRESTORE_DB, "timetables", user.uid);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
+          console.log('reading timetable')
           const timetableData = docSnap.data().timetableData;
           const timetable = timetableData.map(event => ({
             ...event,
@@ -110,7 +111,7 @@ export default function Home({ navigation }) {
           setNextClasses(upcomingClasses);
         }
       } catch (error) {
-        console.error('Error loading timetable data from AsyncStorage:', error);
+        console.error('Error loading timetable data:', error);
       }
     };
 
@@ -155,19 +156,19 @@ export default function Home({ navigation }) {
 
   const renderReminderItem = ({ item }) => (
     <TouchableOpacity onPress={() => navigation.navigate("ReminderPage", { reminder: item, reminderID: item.id })}>
-      <View style={styles.reminderItem}>
+      <View style={darkMode ? stylesDark.reminderItem : styles.reminderItem}>
         <Text style={styles.reminderTitle}>{item.title}</Text>
-        <Text style={styles.reminderDate}>
+        <Text style={darkMode ? stylesDark.reminderDate : styles.reminderDate}>
           <Text>Due On: {new Date(item.dueDate.seconds * 1000).toLocaleString([], { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' })}</Text>
         </Text>
-        <Text style={styles.reminderModule}>Module: {item.moduleCode}</Text>
+        <Text style={darkMode ? stylesDark.reminderModule : styles.reminderModule}>Module: {item.moduleCode}</Text>
       </View>
     </TouchableOpacity>
   );
 
   if (loadingUser) {
     return (
-      <View style={styles.loadingContainer}>
+      <View style={darkMode ? stylesDark.loadingContainer : styles.loadingContainer}>
         <ActivityIndicator size="large" color="#0000ff" />
       </View>
     );
@@ -344,13 +345,11 @@ const stylesDark = StyleSheet.create({
     flex: 1,
     marginVertical: 20
   },
-  flatList: {
-    flexGrow: 1,
-  },
+
   reminderItem: {
     marginVertical: 10,
     padding: 10,
-    backgroundColor: '#fee8d6',
+    backgroundColor: '#804600',
     borderRadius: 10,
   },
   reminderTitle: {
@@ -359,12 +358,13 @@ const stylesDark = StyleSheet.create({
   },
   reminderDate: {
     fontSize: 16,
-    color: '#666',
+    color: '#b3b3b3',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#192734'
   },
   noRemindersText: {
     fontSize: 18,
@@ -374,7 +374,7 @@ const stylesDark = StyleSheet.create({
   },
   reminderModule: {
     fontSize: 16,
-    color: '#666',
+    color: '#b3b3b3',
     marginTop: 5,
   },
   allClassesButton: {

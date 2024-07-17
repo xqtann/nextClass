@@ -4,7 +4,7 @@ import TextInput from "react-native-text-input-interactive";
 import { ThemedButton } from 'react-native-really-awesome-button';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../FirebaseConfig';
 import { getAuth, updatePassword, deleteUser, updateProfile } from "firebase/auth";
-import { addDoc, collection } from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SettingsButton from '../components/SettingsButton';
 import Toast from 'react-native-toast-message';
@@ -27,16 +27,22 @@ export default function Account({ navigation }) {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const storedUsername = await AsyncStorage.getItem('username');
-        if (storedUsername) {
-          setStoredUser(storedUsername);
+        if (user) {
+          const userDoc = doc(FIRESTORE_DB, 'users', user.uid);
+          const docSnapshot = await getDoc(userDoc);
+          if (docSnapshot.exists()) {
+            const userData = docSnapshot.data();
+            setStoredUser(userData.username);
+          } else {
+            console.log('No such document!');
+          }
         }
       } catch (error) {
-        console.error('Error loading data from AsyncStorage:', error);
+        console.error('Error loading data from Firestore:', error);
       }
     };
     loadData();
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     Animated.timing(animationValue, {
@@ -62,7 +68,7 @@ export default function Account({ navigation }) {
       'Are you sure you want to \ndelete this user?\nThis action cannot be undone.',
       [
         { text: 'Cancel', style: 'cancel' },
-        { text: 'Delete', style: 'destructive', onPress: () => { deleteUser(user).then(() => {navigation.navigate("Login"); AsyncStorage.removeItem("username");}).catch((error) => {console.error(error)})}}
+        { text: 'Delete', style: 'destructive', onPress: () => { deleteUser(user).then(() => {navigation.navigate("Login");})}}
       ]
     );
   };
@@ -73,13 +79,25 @@ export default function Account({ navigation }) {
     showToast("Password updated!");
   }
 
-  const newUsernameHandler = (newUsername) => {
-    setNewUsername("");
-    updateProfile(user, {displayName: newUsername}).then(() => console.log("Username updated")).catch((error) => console.error(error));
-    FIREBASE_AUTH.signOut();
-    navigation.navigate("Login"); 
-    AsyncStorage.removeItem("username");
-  } 
+  const newUsernameHandler = async (newUsername) => {
+    try {
+      setNewUsername("");
+      await updateProfile(user, { displayName: newUsername });
+      console.log("Username updated");
+  
+      const userDoc = doc(FIRESTORE_DB, 'users', user.uid);
+      await updateDoc(userDoc, {
+        username: newUsername
+      });
+      console.log("Firestore document updated");
+  
+      await FIREBASE_AUTH.signOut();
+      navigation.navigate("Login");
+  
+    } catch (error) {
+      console.error("Error updating username:", error);
+    }
+  };
 
   const feedbackHandler = async (feedback) => {
     setFeedback("");
@@ -207,7 +225,6 @@ export default function Account({ navigation }) {
           <ThemedButton name={darkMode ? 'bruce' : 'rick' } type="primary" style={styles.button } onPress={() => {
             FIREBASE_AUTH.signOut();
             navigation.navigate("Login");
-            AsyncStorage.removeItem("username")
           }}>
             LogOut
           </ThemedButton>
