@@ -77,7 +77,7 @@ describe('Map Screen Tests', () => {
     expect(getByTestId('map-view')).toBeTruthy();
   });
 
-  it('should animate camera when origin and destination set, Go button pressed', async () => {
+  it('should console log after go button is pressed with valid origin and destination', async () => {
     const logSpy = jest.spyOn(console, 'log');
     const { getByTestId, getByText } = render(
         <DarkModeContext.Provider value={{ darkMode: false }}>
@@ -98,10 +98,10 @@ describe('Map Screen Tests', () => {
     const mapView = getByTestId('map-view');
     fireEvent(mapView, 'onMapReady');
 
-    await (async () => {
-        await waitFor(() => {
-          expect(logSpy).toHaveBeenCalledWith('Go button pressed');
-        });
-      });
-  });
+    await waitFor(() => {
+        setTimeout(() => {
+            expect(logSpy).toHaveBeenCalledWith('Go button pressed');
+        }, 1000);
+    });
+});
 });

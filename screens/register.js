@@ -95,6 +95,7 @@ export default function Register({ navigation }) {
             autoCapitalize="none"
             onChangeText={usernameHandler}
             value={username}
+            testID="usernameInput"
           />
           <TextInput
             style={styles.input}
@@ -102,6 +103,7 @@ export default function Register({ navigation }) {
             autoCapitalize="none"
             onChangeText={emailHandler}
             value={email}
+            testID="emailInput"
           />
           <TextInput
             style={styles.input}
@@ -110,11 +112,13 @@ export default function Register({ navigation }) {
             autoCapitalize="none"
             onChangeText={passWordHandler}
             value={password}
+            testID="passwordInput"
           />
           <ThemedButton
             name="rick"
             type="primary"
             style={[styles.button, { alignSelf: "center" }]}
+            testID="RegisterButton"
             onPress={() => {
               signUp();
               setUsername("");
