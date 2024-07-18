@@ -77,7 +77,7 @@ describe('Map Screen Tests', () => {
     expect(getByTestId('map-view')).toBeTruthy();
   });
 
-  it('should console log after go button is pressed with valid origin and destination', async () => {
+  it('should register user input and button', async () => {
     const logSpy = jest.spyOn(console, 'log');
     const { getByTestId, getByText } = render(
         <DarkModeContext.Provider value={{ darkMode: false }}>
