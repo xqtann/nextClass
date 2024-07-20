@@ -41,7 +41,7 @@ responses:
   - text: "Sorry, I am not trained to answer that."
 
   utter_capabilities:
-  - text: "Some things you can ask me: \n\n1. What is the time now? \n2. Where is the nearest toilet? \n3. What are the things you can help me with? \n4. What are the bus timings at COM3? \n5. When is the exam for ST2334? \n6. What are the available venues for studying?"
+  - text: "Some things you can ask me: \n1. What is the time now? \n2. Where is the nearest toilet? \n3. What are the things you can help me with? \n4. What are the bus timings at COM3? \n5. When is the exam for ST2334? \n6. What are the available venues for studying?"
 
 actions:
   - action_time_now

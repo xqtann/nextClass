@@ -34,7 +34,7 @@ const ChatScreen = ( { navigation } ) => {
     setMessages([
       {
         _id: 1,
-        text: 'Hi! How can I help you?',
+        text: `Hi! I am the NextClass assistant bot. \nYou can ask me about specific modules, exam schedules, available venues in NUS, or even the location of the nearest toilet! \nType 'help' for more information.`,
         createdAt: new Date(),
         user: {
           _id: 2,
