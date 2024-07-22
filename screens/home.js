@@ -7,6 +7,7 @@ import AppOfTheDayCard from '../components/AppOfTheDayCard/AppOfTheDayCard.js';
 import { doc, getDoc, collection, query, orderBy, onSnapshot, where } from 'firebase/firestore';
 import CustomCard from '../components/CustomCard.js';
 import * as Location from 'expo-location';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { DarkModeContext } from '../DarkModeContext.js';
 
 export default function Home({ navigation }) {
@@ -18,6 +19,7 @@ export default function Home({ navigation }) {
   const [userName, setUserName] = useState('Guest');
   const [loadingUser, setLoadingUser] = useState(true);
   const [location, setLocation] = useState(null);
+  const [cardColor, setCardColor] = useState("#003D7C");
   const { darkMode } = useContext(DarkModeContext);
 
   useEffect(() => {
@@ -116,7 +118,21 @@ export default function Home({ navigation }) {
     };
 
     fetchTimetableData();
-  }, [user]);
+  }, [user, cardColor]);
+
+  useEffect(() => {
+    try {
+      AsyncStorage.getItem('cardColor').then((value) => {
+        if (value !== null) {
+          setCardColor(value);
+        } else {
+          AsyncStorage.setItem('cardColor', '#003D7C');
+        }
+      });
+    } catch (error) {
+      console.error('Error loading data from AsyncStorage:', error);
+    }
+  }, [darkMode]);
 
   const getNextTwoClasses = (timetable) => {
     const now = new Date();
@@ -131,9 +147,9 @@ export default function Home({ navigation }) {
       if (eventDay === 0 || eventDay === 6) {
         return false; // Omit Saturday and Sunday
       }
-      if (eventDay !== nowDay) {
-        return false;
-      }
+      // if (eventDay !== nowDay) {
+      //   return false;
+      // }
       if (eventDay === nowDay && eventTime > nowTime) {
         return true;
       } else if (eventDay > nowDay) {
@@ -187,7 +203,7 @@ export default function Home({ navigation }) {
               title={`${new Date(event.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${new Date(event.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
               subtitle={event.location}
               buttonText={"ROUTE"}
-              backgroundColor={"#003D7C"}
+              backgroundColor={cardColor}
               backgroundSource={require("../assets/background-pattern.png")}
               onPress={() => { navigation.navigate("Reminder", { moduleCode: event.title }) }}
               onButtonPress={() => { navigation.navigate("Map", { destVenue: event.location, currLoc: location }) }}
