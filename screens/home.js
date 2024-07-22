@@ -147,9 +147,9 @@ export default function Home({ navigation }) {
       if (eventDay === 0 || eventDay === 6) {
         return false; // Omit Saturday and Sunday
       }
-      // if (eventDay !== nowDay) {
-      //   return false;
-      // }
+      if (eventDay !== nowDay) {
+        return false;
+      }
       if (eventDay === nowDay && eventTime > nowTime) {
         return true;
       } else if (eventDay > nowDay) {
