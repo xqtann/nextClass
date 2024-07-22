@@ -45,14 +45,14 @@ describe('ChatScreen', () => {
       data: [{ text: 'This is a test response from the bot' }],
     });
 
-    const { getByText, getByRole } = render(
+    const { getByText, getByRole, findByText } = render(
       <DarkModeContext.Provider value={{ darkMode: false }}>
         <ChatScreen navigation={{ navigate: jest.fn() }} />
       </DarkModeContext.Provider>
   );
 
     // Initial bot message
-    expect(getByText('Hi! How can I help you?')).toBeTruthy();
+    expect(findByText('Hi! I am the NextClass assistant bot.')).toBeTruthy();
 
     // Simulate sending a message by pressing the mocked Send button
     await (async () => {
