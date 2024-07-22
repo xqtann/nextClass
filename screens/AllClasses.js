@@ -5,12 +5,14 @@ import { FIREBASE_AUTH, FIRESTORE_DB } from '../FirebaseConfig';
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc } from 'firebase/firestore';
 import AppOfTheDayCard from '../components/AppOfTheDayCard/AppOfTheDayCard.js';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { DarkModeContext } from '../DarkModeContext.js';
 
 export default function AllClassesScreen({ navigation }) {
   const [user, setUser] = useState(null);
   const [allClasses, setAllClasses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [cardColor, setCardColor] = useState("#003D7C");
   const { darkMode, toggleDarkMode } = useContext(DarkModeContext); 
 
   useEffect(() => {
@@ -60,6 +62,20 @@ export default function AllClassesScreen({ navigation }) {
     return daysOrder.map(day => ({ day, data: grouped[day] || [] }));
   };
 
+  useEffect(() => {
+    try {
+      AsyncStorage.getItem('cardColor').then((value) => {
+        if (value !== null) {
+          setCardColor(value);
+        } else {
+          AsyncStorage.setItem('cardColor', '#003D7C');
+        }
+      });
+    } catch (error) {
+      console.error('Error loading data from AsyncStorage:', error);
+    }
+  }, [cardColor]);
+
   const renderClassItem = ({ item }) => (
     <View key={item.id} style={darkMode ? stylesDark.mainCardContainer : styles.mainCardContainer}>
       <AppOfTheDayCard
@@ -68,7 +84,7 @@ export default function AllClassesScreen({ navigation }) {
         title={`${item.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${item.endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
         subtitle={item.location}
         buttonText={"ROUTE"}
-        backgroundColor={"#003D7C"}
+        backgroundColor={cardColor}
         backgroundSource={require("../assets/background-pattern.png")}
         onPress={() => navigation.navigate("Reminder", { moduleCode: item.title })}
         onButtonPress={() => {navigation.navigate("Profile", {screen: "Map", params: {destVenue: item.location} } )}}

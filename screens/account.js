@@ -10,6 +10,8 @@ import SettingsButton from '../components/SettingsButton';
 import Toast from 'react-native-toast-message';
 import DarkSettingsButton from '../components/DarkSettingsButton';
 import { DarkModeContext } from '../DarkModeContext'; // Import the context
+import ColorPicker from 'react-native-wheel-color-picker';
+import AppOfTheDayCard from '../components/AOTDCMock/AppOfTheDayCard/AppOfTheDayCard';
 
 export default function Account({ navigation }) {
   const auth = getAuth();
@@ -20,6 +22,7 @@ export default function Account({ navigation }) {
   const [newUsername, setNewUsername] = useState(null);
   const [newPassword, setNewPassword] = useState(null);
   const [feedback, setFeedback] = useState(null); 
+  const [cardColor, setCardColor] = useState('#003D7C');
   const { darkMode, toggleDarkMode } = useContext(DarkModeContext); 
 
   const animationValue = useRef(new Animated.Value(darkMode ? 1 : 0)).current;
@@ -43,6 +46,21 @@ export default function Account({ navigation }) {
     };
     loadData();
   }, [user]);
+
+  useEffect(() => {
+    try {
+      AsyncStorage.getItem('cardColor').then((value) => {
+        if (value !== null) {
+          console.log('Card color retrieved:', value);
+          setCardColor(value);
+        } else {
+          AsyncStorage.setItem('cardColor', '#003D7C');
+        }
+      });
+    } catch (error) {
+      console.error('Error loading data from AsyncStorage:', error);
+    }
+  }, [mode, cardColor]);
 
   useEffect(() => {
     Animated.timing(animationValue, {
@@ -151,7 +169,7 @@ export default function Account({ navigation }) {
               <TouchableOpacity style={!darkMode ? styles.closeButton : stylesDark.closeButton} onPress={() => setModal(false)}>
                 <Text style={!darkMode ? styles.closeButtonText : stylesDark.closeButtonText}>X</Text>
               </TouchableOpacity>
-              { mode == 1 ? 
+              { mode == 1 ? // Change Username Mode
               (<>
                 <Text style={!darkMode ? styles.modalHeadText : stylesDark.modalHeadText}>Change Username</Text>
                 <Text style={!darkMode ? styles.modalText : stylesDark.modalText}>Requires Re-Login</Text>
@@ -162,7 +180,7 @@ export default function Account({ navigation }) {
                   onChangeText={(text) => setNewUsername(text)}
                   value={newUsername} />
               </>)
-              : mode == 2 ? 
+              : mode == 2 ? // Change Password Mode
               (<>
                 <Text style={!darkMode ? styles.modalHeadText : stylesDark.modalHeadText}>Change Password</Text>
                 <TextInput
@@ -173,8 +191,8 @@ export default function Account({ navigation }) {
                   onChangeText={(text) => setNewPassword(text)}
                   value={newPassword} />
               </>)
-              : mode == 3 ? 
-              (<>
+              : mode == 3 ? // Feedback and Suggestions Mode
+                (<>
                 <Text style={!darkMode ? styles.modalHeadText : stylesDark.modalHeadText}>Feedback and Suggestions</Text> 
                 <TextInput
                   textInputStyle={!darkMode ? styles.input : stylesDark.input}
@@ -182,9 +200,29 @@ export default function Account({ navigation }) {
                   autoCapitalize="none"
                   onChangeText={(text) => setFeedback(text)}
                   value={feedback} />
-              </>)
-              : "" }
-              <View style={!darkMode ? styles.buttonGroup : stylesDark.buttonGroup}>
+                </>)
+                : mode == 4 ? // Change Card Color Mode
+                (<>
+                <Text style={!darkMode ? styles.modalHeadText : stylesDark.modalHeadText}>Customise Card Color</Text> 
+                <AppOfTheDayCard
+                  largeTitle={'CP2106'}
+                  title={`12.00PM - 2.00PM`}
+                  subtitle={'NextClass'}
+                  buttonText={"ROUTE"}
+                  backgroundColor={cardColor}
+                  backgroundSource={require("../assets/background-pattern.png")} 
+                  />
+                  <Text>{`\n\n\n\n\n\n\n\n\n\n\n\n`}</Text>
+                <ColorPicker
+                  color={cardColor}
+                  onColorChange={(color) => {setCardColor(color); AsyncStorage.setItem('cardColor', color); toggleDarkMode(); toggleDarkMode(); }}
+                  swatchesOnly={true}
+                  style={!darkMode ? styles.colorPicker : stylesDark.colorPicker}
+                  palette={["#003D7C", "#C49102", "#FF5733", "#EF9556", "#900C3F", "#581845", "#4DAB9A", "#364954", "#454B4E", "#937264"]}
+                />
+                </>)
+                : "" }
+                <View style={!darkMode ? styles.buttonGroup : stylesDark.buttonGroup}>
                 <Button title="Cancel" onPress={() => {setModal(false)}} />
                 <Button title="OK" onPress={() => {
                   setModal(false); 
@@ -207,6 +245,7 @@ export default function Account({ navigation }) {
         {!darkMode ? (
           <View style={styles.settings}>
             <SettingsButton icon={require('../assets/compare.png')} title="Light/Dark Mode" onPress={handleToggleDarkMode} />
+            <SettingsButton icon={require('../assets/palette.png')} title="Customise Card Color" onPress={() => { setMode(4); setModal(true); }} />
             <SettingsButton icon={require('../assets/text-account.png')} title="Change Username" onPress={() => { setMode(1); setModal(true); }} />
             <SettingsButton icon={require('../assets/key.png')} title="Change Password" onPress={() => { setMode(2); setModal(true); }} />
             <SettingsButton icon={require('../assets/lightbulb.png')} title="Feedback and Suggestions" onPress={() => { setMode(3); setModal(true); }} />
@@ -215,6 +254,7 @@ export default function Account({ navigation }) {
         ) : (
           <View style={styles.settings}>
             <DarkSettingsButton icon={require('../assets/compare.png')} title="Light/Dark Mode" onPress={handleToggleDarkMode} />
+            <DarkSettingsButton icon={require('../assets/palette.png')} title="Customise Card Color" onPress={() => { setMode(4); setModal(true); }} />
             <DarkSettingsButton icon={require('../assets/text-account.png')} title="Change Username" onPress={() => { setMode(1); setModal(true); }} />
             <DarkSettingsButton icon={require('../assets/key.png')} title="Change Password" onPress={() => { setMode(2); setModal(true); }} />
             <DarkSettingsButton icon={require('../assets/lightbulb.png')} title="Feedback and Suggestions" onPress={() => { setMode(3); setModal(true); }} />
@@ -325,6 +365,11 @@ const styles = StyleSheet.create({
     color: "#8b0000",
     fontWeight: "400"
   },
+  colorPicker: {
+    width: 300,
+    height: 300,
+    margin: 20
+  }
 });
 
 const stylesDark = StyleSheet.create({
@@ -423,4 +468,9 @@ const stylesDark = StyleSheet.create({
     color: "#cf6679", // Danger text color
     fontWeight: "400",
   },
+  colorPicker: {
+    width: 300,
+    height: 300,
+    margin: 20
+  }
 });
