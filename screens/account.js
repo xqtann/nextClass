@@ -4,7 +4,7 @@ import TextInput from "react-native-text-input-interactive";
 import { ThemedButton } from 'react-native-really-awesome-button';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../FirebaseConfig';
 import { getAuth, updatePassword, deleteUser, updateProfile } from "firebase/auth";
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, addDoc, collection } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SettingsButton from '../components/SettingsButton';
 import Toast from 'react-native-toast-message';
