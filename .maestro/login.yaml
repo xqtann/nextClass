@@ -1,0 +1,27 @@
+appId: com.xqtann.nextClass
+---
+- openLink: exp://192.168.1.120:8081
+- assertVisible:
+      text: Login
+- tapOn:
+    point: "33%,29%"
+- inputText: "e@e.com"
+- tapOn:
+    point: "43%,35%"
+- inputText: "passwo"
+- tapOn:
+    point: "55%,47%"
+- assertVisible:
+      text: Invalid Password
+- tapOn:
+    text: OK
+- tapOn:
+    point: "33%,29%"
+- inputText: "e@e.com"
+- tapOn:
+    point: "43%,35%"
+- inputText: "password"
+- tapOn:
+    point: "55%,47%"
+-  assertVisible:
+    text: Home

@@ -1,0 +1,50 @@
+appId: com.xqtann.nextClass
+---
+- openLink: exp://192.168.1.120:8081
+- assertVisible:
+      text: Home
+- tapOn: "AI Chatbot, tab, 4 of 5"
+- assertVisible:
+      text: AI Chatbot
+- tapOn:
+    id: "Type a message..."
+- inputText: " Hi"
+- tapOn:
+    id: "GC_SEND_TOUCHABLE"
+- extendedWaitUntil:
+    visible: 
+        text: Hey! How are you?.*
+- tapOn: 
+    text: delay 
+    optional: true
+    delay: 2000
+- tapOn:
+    id: "Type a message..."
+- inputText: " I need the nearest toilet"
+- tapOn:
+    id: "GC_SEND_TOUCHABLE"
+- extendedWaitUntil:
+    visible: 
+        text: The nearest toilet is located at.*
+- tapOn: 
+    text: delay 
+    optional: true
+    delay: 2000
+- tapOn:
+    id: "Type a message..."
+- inputText: " What is CS1101S about?"
+- tapOn:
+    id: "GC_SEND_TOUCHABLE"
+- extendedWaitUntil:
+    visible: 
+        text: About CS1101S Programming Methodology.*
+- tapOn: 
+    text: delay 
+    optional: true
+    delay: 2000
+- inputText: " What is next bus timing at pgp?"
+- tapOn:
+    id: "GC_SEND_TOUCHABLE"
+- extendedWaitUntil:
+    visible: 
+        text: Bus timings for PGP:.*

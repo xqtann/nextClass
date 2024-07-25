@@ -1,0 +1,50 @@
+appId: com.xqtann.nextClass
+---
+- openLink: exp://192.168.1.120:8081
+- assertVisible:
+      text: Home
+- tapOn: "Map, tab, 3 of 5"
+- assertVisible:
+      text: Map
+- tapOn:
+    point: "38%,14%"
+- inputText: "COM1-011"
+- tapOn: "COM1-0113"
+- tapOn:
+    point: "38%,21%"
+- inputText: "COM4SR3"
+- tapOn: "COM4SR32"
+- tapOn: "GO"
+- extendedWaitUntil:
+    visible: 
+        id: "__CAROUSEL_ITEM_0_READY__"
+- swipe:  
+    start: 79%, 77% 
+    end: 10%, 77% 
+- extendedWaitUntil:
+    visible: 
+        id: "__CAROUSEL_ITEM_1_READY__"
+- swipe:  
+    start: 79%, 77% 
+    end: 10%, 77% 
+- extendedWaitUntil:
+    visible: 
+        id: "__CAROUSEL_ITEM_2_READY__"
+- swipe:  
+    start: 79%, 77% 
+    end: 10%, 77% 
+- extendedWaitUntil:
+    visible: 
+        id: "__CAROUSEL_ITEM_3_READY__"
+- swipe:  
+    start: 79%, 77% 
+    end: 10%, 77% 
+- extendedWaitUntil:
+    visible: 
+        id: "__CAROUSEL_ITEM_4_READY__"
+- swipe:  
+    start: 79%, 77% 
+    end: 10%, 77% 
+- extendedWaitUntil:
+    visible: 
+        id: "__CAROUSEL_ITEM_5_READY__"

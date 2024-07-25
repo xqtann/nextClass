@@ -1,0 +1,23 @@
+appId: com.xqtann.nextClass
+---
+- openLink: exp://192.168.1.120:8081
+- assertVisible:
+      text: Home
+- assertVisible:
+      text: New Reminder
+- tapOn: "New Reminder"
+- tapOn: "OK"
+- tapOn: 
+      point: 30%,19%
+- inputText: "test reminder"
+- tapOn: 
+      point: 100,200
+- inputText: "test description"
+- tapOn: 
+      point: 66%,50%
+- tapOn: 
+      point: 72%,55%
+- tapOn: 
+      point: 36%,61%
+- assertVisible:
+      text: Home

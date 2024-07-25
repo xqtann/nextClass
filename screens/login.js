@@ -76,6 +76,7 @@ export default function Login({ navigation }) {
             autoCapitalize="none"
             onChangeText={emailHandler}
             value={email}
+            accessible={true}
           />
           <TextInput
             style={styles.input}
@@ -84,6 +85,7 @@ export default function Login({ navigation }) {
             autoCapitalize="none"
             onChangeText={passWordHandler}
             value={password}
+            accessible={true}
           />
           <TouchableOpacity
             style={styles.signupContainer}
