@@ -51,7 +51,7 @@ export default StyleSheet.create({
         width: 200,
     },
     titleTextStyle: {
-        fontSize: 23,
+        fontSize: 20,
         color: 'white',
         fontWeight: '700',
         fontFamily: 'System',
