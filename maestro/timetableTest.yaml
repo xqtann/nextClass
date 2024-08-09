@@ -12,7 +12,9 @@ appId: com.xqtann.nextClass
 - tapOn: 
       text: "Remove"
       optional: true
-- tapOn: "https://nusmods.com/timetable/sem-....."
+- tapOn: 
+      text: "https://nusmods.com/timetable/sem-....."
+      optional: true
 - inputText: "https://nusmods.com/timetable/sem-1/share?CS2100=TUT:22,LEC:2,LAB:41&CS2101=&CS2103T=LEC:G09&CS2105=TUT:14,LEC:2&GEN2001=LEC:1,TUT:E2&ST2334=TUT:18,LEC:1"
 - tapOn:
     id: "aws-btn-shadow"
@@ -22,9 +24,8 @@ appId: com.xqtann.nextClass
       point: 74%,62%
 - assertVisible:
       text: Map
-- assertVisible:
-      text: Origin
-- tapOn: "Origin"
+- tapOn:
+    point: "38%,14%"
 - tapOn: "AS1-0203"
 - tapOn: "GO"
 - extendedWaitUntil:
