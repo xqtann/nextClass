@@ -1,7 +1,22 @@
-## About Us
+## Introduction
+Team Members: Winston Lau Kai Hao, Tan Xin Quan
+
 Hello world! In this README we explain the ins and outs of our project, why we did certain things, how we did it, some demonstrations, and also the challenges faced throughout the project. Our team wanted to build a project that sets itself apart, one that provides a solution, and most importantly one that would greatly benefit the university lives of fellow NUS students. 
 
 Through the last few months our team has gone through blood, sweat and tears, from having 0 knowledge of mobile app development, to creating a very useful and fully functional working app that we are really proud to call our own. We hope that after reading our README you would have a greater understanding of our app and maybe even have learnt something from us! 
+
+[Video Demonstration](https://drive.google.com/file/d/1hFRI9LgLCohq752xgF7P7TWgaDT9SkHf/view?usp=sharing)
+
+[NextClass Poster](https://drive.google.com/file/d/1--D34q7PsmaiiQLXXZQnr39CBNHBSjh8/view?usp=sharing)
+
+**Deployed Project Link:**
+Instructions for iOS devices:
+  1. Download Expo Go on the Appstore
+  2. Create an Expo Go account
+  3. Scan the QR code / follow the link
+
+<img width="214" alt="[image](https://expo.dev/preview/update?message=milestone3%20update%2026072024&updateRuntimeVersion=1.0.0&createdAt=2024-07-26T12%3A16%3A22.232Z&slug=exp&projectId=0b82a29e-16bb-4d60-a1bf-4b8dc6895af2&group=7d3df417-f14c-4543-8934-dbdd1ddebce7)" src="https://github.com/user-attachments/assets/5f318b6d-da44-4ddc-8c00-02b4339d378b">
+
 
 ## Motivation
 During our first year at NUS, we often found ourselves struggling to adapt to the fast-paced university life. The transition from high school to university was a significant shift, marked by a steep learning curve. We had to quickly learn to juggle a multitude of tasks, including managing our academic workload, participating in various extracurricular activities, and attending numerous classes and events. This balancing act often felt overwhelming, especially during the initial months when everything was new and unfamiliar.
@@ -73,15 +88,25 @@ https://nusmods.com/timetable/sem-1/share?BT2101=LEC:1,TUT:2&CFG1002=&CS2040=LAB
 ```
 From the URL we can see that each module is separated by a ‘&’ character, and the module data follows each code: LEC:1,TUT:2. We thus parse the url string and keep the module lesson data as constants first. We then use the NUSMods API to fetch more module data, such as the venue and the timeslot.
 
-<p align="center">
+
 <img width="800" alt="image" src="https://github.com/user-attachments/assets/0a4e8fc4-5ffd-4b87-90fa-4c2c6bf54e44">
-</p>
+
+_Fetching data from NUSMods API_
 
 The API provides a lot of other useful information in JSON format such as a description of the module. We will be using this data in another feature (our personal AI assistant chatbot)
+
+<img width="400" alt="image" src="https://github.com/user-attachments/assets/2029ecdc-ccaa-48ad-88ec-714d87435e53">
+
+_Example of a `timetableData` in Firestore_
 
 Firebase Storage is then used to store the timetable data (venue, timing) fetched from NUSMods and link them to the user who imported the timetable.
 The timetable data that the user imported will be saved under the user in Firebase Storage. We ensured that most if not all of our data is stored on firebase instead of async storage so that users can access their data even if they use a different device.
 Our timetable is generated using the react native timetable package, and all we need to do is pass in the correct arguments and parameters.
+
+<img width="600" alt="image" src="https://github.com/user-attachments/assets/1ed07aac-f528-4b10-b565-ab3fced7572a">
+
+_React Native Firebase package code_
+
 
 **Challenges faced and thoughts when implementing**
 This was our first feature we worked on for this project, and thus also our first time dealing with API calls and packages in our code. We started trying to build and style our own timetable but we found the react native package that could do it for us with a few lines of code. We also experimented with the NUSMods API and it was quite easily implemented.
@@ -117,6 +142,16 @@ We update the reminders collection under each user storage in firebase with all 
 
 In the respective screens such as home screen, or the reminders display page, we display the data by fetching the data from the same collection in firebase.
 We order the reminders by their due date.
+
+<img width="1200" alt="image" src="https://github.com/user-attachments/assets/b69f3279-3880-42d3-aa2f-9e6104563577">
+
+_Fetching the reminder data from firebase_
+
+
+<img width="500" alt="image" src="https://github.com/user-attachments/assets/eb0615a7-3f73-468a-b0b8-a57c0b27c7b6">
+
+_Example of a reminder doc on Firebase_
+
 
 **Challenges faced and thoughts on implementations:**
 
@@ -181,7 +216,7 @@ This was mainly not implemented due to time constraints, as well as the underest
 **Screenshots**
 
 <p align="center">
-<img width="314" alt="image" src="https://github.com/user-attachments/assets/ef736c5d-83b3-4685-8b75-20eb173b4ff3">
+<img width="414" alt="image" src="https://github.com/user-attachments/assets/ef736c5d-83b3-4685-8b75-20eb173b4ff3">
 </p>
 
 **Implementation:**
@@ -202,9 +237,9 @@ We initially wanted to create widgets that can enable users to interact and see 
 
 We struggled with implementing the code for push notifications at first as it was very confusing and hard to interpret as we had to deal with new concepts such as tokens.
 
-<p align="center">
 <img width="687" alt="image" src="https://github.com/user-attachments/assets/d7043d5f-8e4d-46b3-8ea0-724d0e37fbe0">
-</p>
+
+_Getting the token for push notification_
 
 The code attempts to retrieve the projectId from the app's configuration. If the projectId is not found, it throws an error. It then attempts to get the Expo push token using the projectId. If successful, it logs the token to the console. If an error occurs during this process, the error is stored in the token variable.
 
@@ -323,6 +358,11 @@ Server might be down occasionally when inactive for a long period of time, since
 Firebase Storage is used to change the user’s display name, password (updatePassword method), or delete the whole user profile. (See ER Diagram)
 AsyncStorage is used for storing the user’s colour preferences for the class cards, which is then retrieved at _home.js_ and _allClasses.js_.
 
+<img width="1042" alt="image" src="https://github.com/user-attachments/assets/7476e8d5-3e4c-400c-ba8c-0dba28cacade">
+
+_Using AsyncStorage to store user’s colour preferences_
+
+
 
 ## 8\. User Suggestion Section
 
@@ -339,6 +379,10 @@ AsyncStorage is used for storing the user’s colour preferences for the class c
 **Implementation:**
 
 Firebase Storage is used to store user feedback entered by a specific user through our app user interface, for developers to view through Cloud Firestore. (See ER Diagram)
+
+<img width="1182" alt="image" src="https://github.com/user-attachments/assets/9c55cb78-ff4a-45c0-b7ef-cdc9e53506df">
+
+_Viewing user feedbacks from Cloud Firestore_
 
 ## 9\. Dark Mode 😎
 
@@ -358,6 +402,11 @@ Firebase Storage is used to store user feedback entered by a specific user throu
 **Implementation:**
 
 React’s useContext hook was used to set the global dark mode variable. We also used animation styles to smoothen the transition between light and dark mode. We then incorporated async storage to save the user’s dark mode value so that when the user exits the app and returns, the style would be consistent.
+
+
+<img width="419" alt="image" src="https://github.com/user-attachments/assets/c62d0d84-02c0-41c6-9e4b-7fed4da55771">
+
+_Animation for dark mode styling_
 
 We tried and tested different colour schemes, to see which set of colours suits best for our users. Different styling methods were used to customise and change the colour of the entire user interface.
 
