@@ -358,7 +358,7 @@ Server might be down occasionally when inactive for a long period of time, since
 Firebase Storage is used to change the user’s display name, password (updatePassword method), or delete the whole user profile. (See ER Diagram)
 AsyncStorage is used for storing the user’s colour preferences for the class cards, which is then retrieved at _home.js_ and _allClasses.js_.
 
-<img width="1042" alt="image" src="https://github.com/user-attachments/assets/7476e8d5-3e4c-400c-ba8c-0dba28cacade">
+<img width="500" alt="image" src="https://github.com/user-attachments/assets/7476e8d5-3e4c-400c-ba8c-0dba28cacade">
 
 _Using AsyncStorage to store user’s colour preferences_
 
@@ -434,11 +434,25 @@ During the development process of NextClass, our developers conducted extensive 
 ## Beta User Testing
 We have selected a group of students from NUS to use NextClass in their everyday academic activities. This group of beta testers provided invaluable feedback on the app's usability, functionality, and overall user experience. Testing in a natural work setting allowed us to observe how the app performed in real-world conditions and gather insights on how to further improve the app. The feedback from these beta testers helped us to identify any remaining issues, understand user needs better, and make necessary adjustments to NextClass.
 
+<img width="600" alt="image" src="https://github.com/user-attachments/assets/2379c8e8-537d-4775-b53b-8bab727e0d38">
+
+
 ## Automated Testing Using Jest
 By utilising Jest in our testing workflow, we can automate the execution of various tests, including unit tests, integration tests, and snapshot tests. We included system testing (load/stress testing) to ensure that our input fields can handle different types of inputs such as inputs up to 5000 characters, as well as special characters.
 
+<img width="600" alt="image" src="https://github.com/user-attachments/assets/f8ee3ee6-bd30-47f4-9fa5-cb6f3a26749d">
+<br>
+<img width="300" alt="image" src="https://github.com/user-attachments/assets/04e4d7d2-8056-4b61-a1e9-ff10e9f35951">
+
+_Result of running all 13 Jest test cases_
+
+
 ## Automated UI Testing using Maestro
 Using Maestro, we automated the UI testing process through the creation of test cases and scripts, eliminating the need for manual testing of elements. Each test file contains a series of steps that the automated UI tester follows and interacts with. Upon completion of the testing process, Maestro generates a report detailing which test cases passed or failed, allowing us to identify and address any issues that arise.
+
+<img width="1000" alt="image" src="https://github.com/user-attachments/assets/1a5544d5-aa4e-4272-ad19-559626e5bcc4">
+
+_Example of a test result from running `timetableTest.yaml`_
 
 # Acknowledgements
 \- Lucidspark (for ER Diagram)
