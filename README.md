@@ -1,4 +1,4 @@
-<img width="1212" alt="image" src="https://github.com/user-attachments/assets/9c5f5939-bb07-431b-9b02-b3b0062dc99c">## About Us
+## About Us
 Hello world! In this README we explain the ins and outs of our project, why we did certain things, how we did it, some demonstrations, and also the challenges faced throughout the project. Our team wanted to build a project that sets itself apart, one that provides a solution, and most importantly one that would greatly benefit the university lives of fellow NUS students. 
 
 Through the last few months our team has gone through blood, sweat and tears, from having 0 knowledge of mobile app development, to creating a very useful and fully functional working app that we are really proud to call our own. We hope that after reading our README you would have a greater understanding of our app and maybe even have learnt something from us! 
@@ -32,6 +32,17 @@ We want to give NUS students a **one stop mobile application** that serves their
 - Users can create an account by providing an email and password
 - Users can ensure that their information is consistent throughout all devices
 
+**Screenshots**
+
+<p align="center">
+<img width="614" alt="image" src="https://github.com/user-attachments/assets/adef28bf-a6da-42dc-b35a-04c5f1cbfcc3">
+</p>
+
+<p align="center">
+<img width="300" alt="image" src="https://github.com/user-attachments/assets/6afaf345-f3c8-4ed8-b69b-fa7ddf510b27">
+<img width="300" alt="image" src="https://github.com/user-attachments/assets/918272c3-1f35-4eb8-8365-8929d78b7c26">
+</p>
+
 **Implementation**
 
 We used Firebase Authentication, which provides a secure and reliable way to manage user authentication. Firebase Authentication handles complex security issues, such as password hashing and secure storage, ensuring that user credentials are protected.
@@ -44,6 +55,13 @@ When a user tries to log in, Firebase Authentication verifies the credentials an
 - Users can set reminders for each module in the timetable from the timetable screen
 - Users can delete the current timetable which automatically deletes the old timetable from firebase, allowing users to import a new timetable.
 
+**Screenshots**
+
+<p align="center">
+<img width="609" alt="image" src="https://github.com/user-attachments/assets/64b7041b-68ed-433b-b644-8ed4b91190fe">
+<img width="305" alt="image" src="https://github.com/user-attachments/assets/c9e43f61-ff2c-4206-a567-2ab5146a4b6c">
+</p>
+
 **Implementation**
 
 The NUSMods URL that users are prompted to enter is broken apart into module codes and time slot code by parsing the string.
@@ -55,7 +73,10 @@ https://nusmods.com/timetable/sem-1/share?BT2101=LEC:1,TUT:2&CFG1002=&CS2040=LAB
 ```
 From the URL we can see that each module is separated by a ‘&’ character, and the module data follows each code: LEC:1,TUT:2. We thus parse the url string and keep the module lesson data as constants first. We then use the NUSMods API to fetch more module data, such as the venue and the timeslot.
 
+<p align="center">
 <img width="800" alt="image" src="https://github.com/user-attachments/assets/0a4e8fc4-5ffd-4b87-90fa-4c2c6bf54e44">
+</p>
+
 The API provides a lot of other useful information in JSON format such as a description of the module. We will be using this data in another feature (our personal AI assistant chatbot)
 
 Firebase Storage is then used to store the timetable data (venue, timing) fetched from NUSMods and link them to the user who imported the timetable.
@@ -77,6 +98,16 @@ When we first started working on the timetable we stored our timetable data in a
 - Reminders can be edited at any time, allowing for changes in due dates, task descriptions, or other relevant details.
 - Reminders are accessible from multiple screens within the application, including the timetable screen, and home screen, providing convenience and ensuring students are always aware of their upcoming tasks.
 - Together with the push notifications (Feature 4), reminders become even more effective, notifying students of due dates and important deadlines in real-time, helping them stay organised and on track.
+
+**Screenshots**
+
+<p align="center">
+<img width="300" alt="image" src="https://github.com/user-attachments/assets/f5119a56-c953-475c-9bc6-18b2298d638e">
+<img width="300" alt="image" src="https://github.com/user-attachments/assets/d485d926-eb68-4ba8-9626-a753f862241a">
+<img width="600" alt="image" src="https://github.com/user-attachments/assets/2f8504e4-7e83-4369-a344-2a8d5715389b">
+<img width="300" alt="image" src="https://github.com/user-attachments/assets/86d4af80-be6d-442f-8df8-dccbfbc73e2f">
+<img width="600" alt="image" src="https://github.com/user-attachments/assets/4f9759f9-08fe-4b3f-a67a-a0c48266457a">
+</p>
 
 **Implementation:**
 
@@ -102,6 +133,14 @@ During the development process, we realised that users might want to view remind
 - Shows pin markers of NUS bus stops, carparks, and locations of user’s classes on the map.
 - Allows users to get real-time bus arrival timing at every bus stop.
 
+**Screenshots**
+
+<p align="center">
+<img width="600" alt="image" src="https://github.com/user-attachments/assets/37ed995a-5a8e-429e-962e-e0cfc34da263">
+<img width="600" alt="image" src="https://github.com/user-attachments/assets/f422f198-14d8-468b-adc6-7b19cbc55a0a">
+<img width="300" alt="image" src="https://github.com/user-attachments/assets/01718f5f-c710-4e66-96a7-fc5b01f4807e">
+</p>
+
 **Implementation:**
 
 We used OpenStreetMap, an open-source mapping platform, to manually mark and update indoor routes within buildings on the NUS Kent Ridge campus. This involved adding detailed path information that is not typically available in Google Maps, such as corridors, stairways, and indoor walkways.
@@ -112,7 +151,9 @@ Detailed turn-by-turn directions were provided to guide users along the shortest
 
 We also integrated the NUS NextBus API to gather real-time bus arrival information. This data was then displayed through the app's map user interface, allowing users to conveniently view real-time bus timings at various stops directly on the map.
 
+<p align="center">
 <img width="1045" alt="image" src="https://github.com/user-attachments/assets/ccb67e29-c900-4be7-8d4b-a248a7ec4098">
+</p>
 
 _Google Maps, Apple Maps, NextClass side-by-side comparison of navigation from NUS AS6 to COM3/4_
 
@@ -137,8 +178,11 @@ This was mainly not implemented due to time constraints, as well as the underest
 - Keeps students updated and ensures that students receive timely alerts to stay on top of their academic commitments.
 - Users are able to set the exact time that they want to be notified.
 
-  <img width="214" alt="image" src="https://github.com/user-attachments/assets/ef736c5d-83b3-4685-8b75-20eb173b4ff3">
+**Screenshots**
 
+<p align="center">
+<img width="314" alt="image" src="https://github.com/user-attachments/assets/ef736c5d-83b3-4685-8b75-20eb173b4ff3">
+</p>
 
 **Implementation:**
 
@@ -158,7 +202,9 @@ We initially wanted to create widgets that can enable users to interact and see 
 
 We struggled with implementing the code for push notifications at first as it was very confusing and hard to interpret as we had to deal with new concepts such as tokens.
 
+<p align="center">
 <img width="687" alt="image" src="https://github.com/user-attachments/assets/d7043d5f-8e4d-46b3-8ea0-724d0e37fbe0">
+</p>
 
 The code attempts to retrieve the projectId from the app's configuration. If the projectId is not found, it throws an error. It then attempts to get the Expo push token using the projectId. If successful, it logs the token to the console. If an error occurs during this process, the error is stored in the token variable.
 
@@ -176,6 +222,12 @@ The code attempts to retrieve the projectId from the app's configuration. If the
   - _When is my exam for CS2030S?_
   - _What is ST2334 about?_
   - _Are there any available venues for studying now?_
+
+**Screenshots**
+
+<p align="center">
+<img width="300" alt="image" src="https://github.com/user-attachments/assets/840631c7-7fba-4b06-84ee-14da3d5b348d">
+</p>
 
 **Implementation:**
 
@@ -228,11 +280,15 @@ Rasa Folder Structure:
 
 `action.py` contains the backend code for getting API requests and fetching responses for the chatbot.
 
+<p align="center">
 <img width="564" alt="image" src="https://github.com/user-attachments/assets/a64cc023-b74e-4f52-b0c8-688caf76881f">
+</p>
 
 _Intent examples in nlu.yml for training the rasa chatbot_
 
+<p align="center">
 <img width="573" alt="image" src="https://github.com/user-attachments/assets/33d371c1-582a-4c76-8a20-001af8a874df">
+</p>
 
 _Full list of intents, actions, entities in `domain.yml`_
 
@@ -256,6 +312,12 @@ Server might be down occasionally when inactive for a long period of time, since
 - Enables users to customise the card colours in the homescreen.
 - Allows users to change their display name, and password within the application.
 
+**Screenshots**
+
+<p align="center">
+<img width="597" alt="image" src="https://github.com/user-attachments/assets/d6406578-aa21-4b62-ab5d-37eaf01abe1e">
+</p>
+
 **Implementation:**
 
 Firebase Storage is used to change the user’s display name, password (updatePassword method), or delete the whole user profile. (See ER Diagram)
@@ -268,6 +330,12 @@ AsyncStorage is used for storing the user’s colour preferences for the class c
 - Easily able to view all feedback through our ‘feedback’ collection on firebase storage.
 - We are able to constantly upgrade our app when users provide us with useful feedback.
 
+**Screenshots**
+
+<p align="center">
+<img width="607" alt="image" src="https://github.com/user-attachments/assets/79d9ca6c-1d21-4038-8dc9-51bac773169c">
+</p>
+
 **Implementation:**
 
 Firebase Storage is used to store user feedback entered by a specific user through our app user interface, for developers to view through Cloud Firestore. (See ER Diagram)
@@ -277,6 +345,15 @@ Firebase Storage is used to store user feedback entered by a specific user throu
 - Provides users with the option to switch between Light and Dark modes, enhancing usability and user experience based on their preferences.
 - Allows users to choose a theme that is comfortable for their eyes, particularly useful in low-light environments or for prolonged usage of the application
 - Dark mode also reduces eye strain and makes it easier to read content in low-light conditions.
+
+**Screenshots**
+
+<p align="center">
+<img width="600" alt="image" src="https://github.com/user-attachments/assets/e1a8f0fb-cab4-4650-b9c3-5b8ff897e9f6">
+<img width="598" alt="image" src="https://github.com/user-attachments/assets/dda5e383-7e62-4305-9576-ac183f832973">
+<img width="600" alt="image" src="https://github.com/user-attachments/assets/2439c88c-cfb5-4edf-95f4-d7a9c0920b1a">
+<img width="300" alt="image" src="https://github.com/user-attachments/assets/ede39855-572b-4621-b2e3-8598ea6ad163">
+</p>
 
 **Implementation:**
 
